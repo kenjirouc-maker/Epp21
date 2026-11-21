@@ -924,8 +924,10 @@ function fin(win){const g=G,k=g.p.cls;let t,st,gm=0,tr=0,md=0;
   t=win?'Team victory!':dr?'Draw!':'Team defeat!';st=`Rounds ${U.sc[my]}–${U.sc[en]} · your team popped ${U.kos[my]} blobs · you ${g.ko}`}
  else{if(g.score>S.best)S.best=g.score;const sw=g.wave>=SURV_WIN;t=sw?'Held the line!':'Crumpled up!';st=`Wave ${g.wave} · ${g.score} pts · best ${S.best}`+(sw?'':` · reach wave ${SURV_WIN} to win medals`);
   if(sw)md=3;else{tr=g.wave>=3?g.wave:0}}
- let ulHtml='';if(g.ul){const c=eloCont(g,!!win),eg=Math.round(10+15*c),r0=rankIdx(S.elo);S.elo+=eg;const r1=rankIdx(S.elo);ulHtml=`<span class="ms-note">Elo +${eg} · ${rankName(S.elo)} (${S.elo})${r1>r0?' · Rank up!':''}</span>`}
- if(g.ul)tr=0;
+ let ulHtml='';if(g.ul){const my=g.p.team,en=my==='b'?'r':'b',draw=g.mode==='usv'&&!win&&g.u.sc[my]===g.u.sc[en]&&g.u.kos[my]===g.u.kos[en],r0=rankIdx(S.elo);
+  let eg=win?Math.round(10+15*eloCont(g,true)):draw?0:-(S.elo>0?Math.max(1,Math.round(S.elo/64)):0);S.elo=Math.max(0,S.elo+eg);const r1=rankIdx(S.elo);
+  ulHtml=`<span class="ms-note">Elo ${eg>0?'+':''}${eg} · ${rankName(S.elo)} (${S.elo})${r1>r0?' · Rank up!':r1<r0?' · Rank down':''}</span>`}
+ if(g.ul){tr=0;gm=0}
  cloudPushT=0;const sts=S.st;sts.g++;if(g.mode==='surv'?md>0:!!win)sts.w++;sts.ko+=g.ko|0;sts.cap+=g.ctf?g.ctf.pc:0;
  const before=S.med[k];S.med[k]+=md;S.tro=Math.max(0,S.tro+tr);S.gems+=gm;save();
  g.s='over';mv.reset();aim.reset();app.classList.remove('playing');sfx(win||md?'win':'lose');
@@ -951,12 +953,12 @@ function spawn(){const p=G.p,a=Math.random()*TAU,d=480+Math.random()*120,big=G.w
  e={id:Math.random()*999|0,x:clamp(p.x+Math.cos(a)*d,40,WW-40),y:clamp(p.y+Math.sin(a)*d,40,WH-40),kx:0,ky:0,r:big?30:20,hp:big?5500:2200,sp:(big?58:84)+G.wave*3,dmg:big?1300:700,pts:big?30:10,cool:.9,stun:0,fl:0,born:0,t:Math.random()*9,rev:0,lx:p.x,ly:p.y,ww:0};
  pushOut(e,e.r);e.max=e.hp;G.en.push(e);ring(e.x,e.y,8,.5);splat(e.x,e.y,e.r*.9,T.blot,0,0,.22);drops(e.x,e.y,0,6,T.blot,.4);sfx('spawn',vol(e.x,e.y)*.6)}
 
-function blobStep(dt){const g=G,p=g.p,U=g.u,ds=U?g.f.filter(f=>f.team===U.def&&f.hp>0):(p.hp>0?[p]:[]);
+function blobStep(dt){const g=G,p=g.p,U=g.u,ds=U?g.f.filter(f=>f.team===U.def&&f.hp>0):(p.hp>0?[p]:[]);if(U&&U.st==='fight')blobTeam(dt,ds);
   for(const e of g.en){e.t+=dt;e.fl-=dt;e.cool-=dt;e.rev-=dt;e.born=Math.min(1,e.born+dt*2.2);e.bush=inBush(e);
-   let tt=null,bd=1e9;for(const f of ds){const d0=Math.hypot(f.x-e.x,f.y-e.y);if(d0<bd){bd=d0;tt=f}}const seen=!!tt&&(!!U||!hiddenFrom(tt,e.x,e.y));if(seen){e.lx=tt.x;e.ly=tt.y}
+   let tt=null,bd=1e9;for(const f of ds){const d0=Math.hypot(f.x-e.x,f.y-e.y);if(d0<bd){bd=d0;tt=f}}if(U&&tt&&e.sm&&U.focus&&U.focus.hp>0)tt=U.focus;const seen=!!tt&&(!!U||!hiddenFrom(tt,e.x,e.y));if(seen){if(U){const q=blobGoal(e,tt);e.lx=q[0];e.ly=q[1]}else{e.lx=tt.x;e.ly=tt.y}}
    let dx=e.lx-e.x,dy=e.ly-e.y,d=Math.hypot(dx,dy)||1;
    if(!seen&&d<30){e.lx=clamp(e.x+(Math.random()-.5)*360,40,WW-40);e.ly=clamp(e.y+(Math.random()-.5)*360,40,WH-40)}
-   let[ux,uy]=avoid(e,dx/d,dy/d);const sl=inSpill(e)?.6:1;
+   let[ux,uy]=avoid(e,dx/d,dy/d);if(U)[ux,uy]=blobDodge(e,tt,ux,uy);const sl=(inSpill(e)?.6:1)*(U&&e.sm&&!U.surge?Math.min(1,d/40):1)*(U&&U.surge&&e.sm?1.2:1);
    if(e.stun>0)e.stun-=dt;else if(e.born>=1){e.x+=ux*e.sp*sl*dt;e.y+=uy*e.sp*sl*dt}
    e.x+=e.kx*dt;e.y+=e.ky*dt;e.kx*=Math.pow(.003,dt);e.ky*=Math.pow(.003,dt);
    for(const o of g.en)if(o!==e){const ox=e.x-o.x,oy=e.y-o.y,od=Math.hypot(ox,oy)||1,m=e.r+o.r;if(od<m){e.x+=ox/od*(m-od)*.1;e.y+=oy/od*(m-od)*.1}}
@@ -968,14 +970,15 @@ function blobStep(dt){const g=G,p=g.p,U=g.u,ds=U?g.f.filter(f=>f.team===U.def&&f
 
 /* ---------- Ultra League survival: 10 waves, 3v3, teams swap between spawning blobs and defending ---------- */
 const USV_WAVES=10,USV_PER=10,USV_TIME=40;
-function newUsv(){return{w:1,ph:-1,def:'',first:'',st:'intro',t:0,sc:{b:0,r:0},kos:{b:0,r:0},bud:[],n:0,pn:0,txt:'',win:''}}
+function newUsv(){return{iq:.1+.9*rankIdx(S.elo)/8,L:0,focus:null,bt:0,surge:0,pa:0,w:1,ph:-1,def:'',first:'',st:'intro',t:0,sc:{b:0,r:0},kos:{b:0,r:0},bud:[],n:0,pn:0,txt:'',win:''}}
 /* a normal blob, or an Elite (spawned by spending a spawner's charged ultimate): much tougher and hits harder */
-function spawnU(elite){const g=G,U=g.u,w=U.w,ds=g.f.filter(f=>f.team===U.def&&f.hp>0);if(!ds.length)return;
- const cx=ds.reduce((a,f)=>a+f.x,0)/ds.length,cy=ds.reduce((a,f)=>a+f.y,0)/ds.length,a=Math.random()*TAU,d=480+Math.random()*140,big=!elite&&Math.random()<clamp((w-1)*.06,0,.45),
- e={id:Math.random()*999|0,x:clamp(cx+Math.cos(a)*d,40,WW-40),y:clamp(cy+Math.sin(a)*d,40,WH-40),kx:0,ky:0,r:elite?40:big?30:20,hp:elite?6000+w*900:big?4000+w*550:1500+w*320,sp:elite?66+w*4:(big?52+w*3:78+w*4),dmg:elite?1500+w*90:big?1000+w*70:450+w*55,pts:elite?60:big?30:10,cool:.9,stun:0,fl:0,born:0,t:Math.random()*9,rev:0,lx:cx,ly:cy,ww:0,h:[],el:elite?1:0};
+function spawnU(elite,bot){const g=G,U=g.u,w=U.w,ds=g.f.filter(f=>f.team===U.def&&f.hp>0);if(!ds.length)return;
+ const cx=ds.reduce((a,f)=>a+f.x,0)/ds.length,cy=ds.reduce((a,f)=>a+f.y,0)/ds.length,a=(bot&&!elite&&U.iq>.3&&Math.random()<.4+U.iq*.55)?U.pa+(Math.random()<.5?0:PI)+(Math.random()-.5)*.7:Math.random()*TAU,d=480+Math.random()*140,big=!elite&&Math.random()<clamp((w-1)*.06,0,.45),
+ e={id:Math.random()*999|0,x:clamp(cx+Math.cos(a)*d,40,WW-40),y:clamp(cy+Math.sin(a)*d,40,WH-40),kx:0,ky:0,r:elite?40:big?30:20,hp:elite?6000+w*900:big?3600+w*480:1250+w*250,sp:elite?66+w*5:(big?52+w*4:78+w*6),sm:!elite&&w>=3&&Math.random()<Math.min(1,U.L*1.15),fa:Math.random()*TAU,dmg:elite?1500+w*90:big?900+w*60:380+w*40,pts:elite?60:big?30:10,cool:.9,stun:0,fl:0,born:0,t:Math.random()*9,rev:0,lx:cx,ly:cy,ww:0,h:[],el:elite?1:0};
  pushOut(e,e.r);e.max=e.hp;g.en.push(e);ring(e.x,e.y,elite?16:8,.5,elite?'#C03030':undefined);splat(e.x,e.y,e.r*.9,T.blot,0,0,.22);drops(e.x,e.y,0,6,T.blot,.4);if(elite){trauma(.3);word(e.x,e.y-90,'ELITE!',1)}sfx(elite?'ult':'spawn',vol(e.x,e.y)*.6)}
-function usvBegin(){const g=G,U=g.u,p=g.p,my=p.team,en=my==='b'?'r':'b';U.w=U.ph+1;if(!U.first)U.first=Math.random()<.5?my:en;U.def=U.ph%2?(U.first===my?en:my):U.first;U.st='fight';U.t=0;g.en=[];
- U.bud=[];for(const f of g.f)if(f.team!==U.def)U.bud.push(f===p?{pl:1,left:USV_PER,cd:0}:{left:6+((Math.random()*5)|0),cd:.6+Math.random()*1.2});
+function usvBegin(){const g=G,U=g.u,p=g.p,my=p.team,en=my==='b'?'r':'b';U.w=U.ph+1;U.L=clamp((U.w-1)/9,0,1);U.surge=0;U.focus=null;U.bt=0;U.pa=Math.random()*TAU;for(const f of g.f)if(f.bot){const A=f.ai,sk=clamp(.2+U.iq*.74+(Math.random()-.5)*.1,.1,.97);A.sk=sk;A.lat=.3-.14*sk;A.err=.3-.2*sk;A.pb=40+Math.random()*70}
+ if(!U.first)U.first=Math.random()<.5?my:en;U.def=U.ph%2?(U.first===my?en:my):U.first;U.st='fight';U.t=0;g.en=[];
+ U.bud=[];for(const f of g.f)if(f.team!==U.def)U.bud.push(f===p?{pl:1,left:USV_PER,cd:0}:{left:Math.min(USV_PER,5+Math.round(U.iq*4)+(Math.random()<.5?1:0)),cd:.6+Math.random()*1.2});
  for(const f of g.f){f.max=CL[f.cls].hp;f.dm=1;f.sc=0;f.dep=0;f.depAt=f.bot&&Math.random()<.6?4+Math.random()*8:1e9;
   if(f.team===U.def){respawn(f)}else{f.hp=0;f.rs=0;f.atk=null;f.wu=null;f.ult=null;f.spin=0;f.flag=''}}
  if(p.hp<=0){p.x=WW/2;p.y=WH/2}
@@ -997,7 +1000,7 @@ function usvObj(b){let n=null,nd=1e9;for(const f of G.f)if(f.team===G.u.def&&f.h
 function usvStep(dt){const g=G,U=g.u,p=g.p;if(g.end)return;
  if(U.st==='intro'){U.t+=dt;if(U.t>=2){U.ph=0;usvBegin()}usvInfo();return}
  if(U.st==='gap'){U.t+=dt;if(U.t>=2.2)usvNext();usvInfo();return}
- U.t+=dt;for(const b of U.bud){b.cd-=dt;if(!b.pl&&b.left>0&&b.cd<=0){b.cd=.45+Math.random()*.7;b.left--;U.n++;spawnU()}}
+ U.t+=dt;for(const b of U.bud){b.cd-=dt;if(!b.pl&&b.left>0&&b.cd<=0){b.cd=.45+Math.random()*.7;b.left--;U.n++;spawnU(false,true)}}
  for(const f of g.f)if(f.bot&&f.team!==U.def&&f.hp<=0){if(!f.dep&&U.t>=f.depAt)usvDeploy(f);else if(f.uc>=UMAX[f.cls]&&Math.random()<dt*.4){f.uc=0;U.n++;spawnU(true)}}
  const alive=g.f.filter(f=>f.team===U.def&&f.hp>0).length,atk=g.f.some(f=>f.team!==U.def&&f.hp>0),botLeft=U.bud.filter(b=>!b.pl).reduce((a,b)=>a+b.left,0),pl=U.bud.find(b=>b.pl);
  const sb=$('#spawnbtn'),db=$('#deploybtn'),spw=U.def!==p.team&&p.hp<=0,show=!!pl&&pl.left>0&&spw;sb.hidden=!show;if(show){const t=`Spawn blob ${pl.left}/${USV_PER}`;if(sb.textContent!==t)sb.textContent=t}
@@ -1005,6 +1008,24 @@ function usvStep(dt){const g=G,U=g.u,p=g.p;if(g.end)return;
  let res='';if(!alive)res='fail';else if(!botLeft&&!g.en.length&&!atk&&U.n>0&&(!pl||pl.left<=0||U.t>=USV_TIME))res='clear';else if(U.t>=USV_TIME)res='survive';
  usvInfo();if(res)usvResult(res)}
 function usvSpawn(){const g=G,U=g.u;if(!U||g.s!=='play'||U.st!=='fight'||g.end)return false;const pl=U.bud.find(b=>b.pl);if(!pl||pl.left<=0||pl.cd>0||g.p.hp>0||U.def===g.p.team)return false;pl.left--;pl.cd=.3;U.pn++;U.n++;spawnU();return true}
+/* bot teamwork: higher Elo rank means they kite instead of face-tanking, fall back toward each other, and stay grouped */
+function usvSteer(b,mx,my){const g=G,U=g.u,iq=U.iq,th=tg(b).filter(o=>o.hp>0&&Math.hypot(o.x-b.x,o.y-b.y)<300);let rx=0,ry=0,near=0;
+ for(const o of th){const dx=b.x-o.x,dy=b.y-o.y,dd=Math.hypot(dx,dy)||1;if(dd<230)near++;const w=1/(dd/120+.5);rx+=dx/dd*w;ry+=dy/dd*w}
+ const rl=Math.hypot(rx,ry);if(rl>0){rx/=rl;ry/=rl}
+ const al=g.f.filter(f=>f!==b&&f.team===b.team&&f.hp>0);let cx=b.x,cy=b.y,ad=0;if(al.length){cx=al.reduce((a,f)=>a+f.x,0)/al.length;cy=al.reduce((a,f)=>a+f.y,0)/al.length;ad=Math.hypot(cx-b.x,cy-b.y)}
+ const hp=b.hp/b.max,crowd=Math.round(4-iq*2.2);let w=0;
+ if(rl>0&&(b.ammo<=0||near>=crowd||hp<.35+.25*iq))w=.1+.85*iq;
+ let ox=mx,oy=my;
+ if(w>0){const tx=ad?(cx-b.x)/ad:0,ty=ad?(cy-b.y)/ad:0;ox=mx*(1-w)+(rx+tx*.9*iq)*w;oy=my*(1-w)+(ry+ty*.9*iq)*w}
+ else if(ad>280-iq*80&&iq>.1){const k=iq*.7;ox=mx*(1-k)+(cx-b.x)/ad*k;oy=my*(1-k)+(cy-b.y)/ad*k}
+ const l=Math.hypot(ox,oy);return l>1?[ox/l,oy/l]:[ox,oy]}
+/* blobs get smarter per wave: they share one focus target, surround it, then rush together, and sidestep telegraphed attacks */
+function blobTeam(dt,ds){const g=G,U=g.u;U.bt-=dt;
+ if(U.bt<=0){U.bt=1.2;let best=null,bs=1e9;for(const f of ds){let iso=0;if(ds.length>1)iso=Math.min(...ds.filter(o=>o!==f).map(o=>Math.hypot(o.x-f.x,o.y-f.y)));const sc=f.hp/f.max-(U.L>.6?Math.min(.3,iso/2000):0);if(sc<bs){bs=sc;best=f}}U.focus=U.L>.25?best:null}
+ if(!U.surge&&U.st==='fight'){const sm=g.en.filter(e=>e.sm),near=sm.filter(e=>ds.some(f=>Math.hypot(f.x-e.x,f.y-e.y)<300)).length;if(U.t>10||(U.t>4&&(!sm.length||near>=sm.length*.6)))U.surge=1}}
+function blobGoal(e,tt){const U=G.u;if(!e.sm||U.surge||e.el)return[tt.x,tt.y];const R=190+50*(1-U.L);return[tt.x+Math.cos(e.fa)*R,tt.y+Math.sin(e.fa)*R]}
+function blobDodge(e,tt,ux,uy){const U=G.u;if(!tt||U.L<.5||!tt.wu||!e.sm)return[ux,uy];const C=CL[tt.cls],dd=Math.hypot(e.x-tt.x,e.y-tt.y);if(dd>(C.reach||260)+e.r+40)return[ux,uy];
+ const a=tt.wu.a,px=-Math.sin(a),py=Math.cos(a),sg=e.id%2?1:-1,x=ux*.2+px*sg*.9,y=uy*.2+py*sg*.9,l=Math.hypot(x,y)||1;return[x/l,y/l]}
 function usvInfo(){const g=G,U=g.u,p=g.p;if(!U||!p)return;const def=U.def===p.team,t=`Wave ${U.w}/${USV_WAVES} · Blue ${U.sc.b}–${U.sc.r} Red`+(U.st==='fight'?` · ${def?'Defend':'Spawn'} ${Math.max(0,Math.ceil(USV_TIME-U.t))}s`:'');
  if(t!==U.txt){U.txt=t;$('#info').textContent=t}}
 
@@ -1099,7 +1120,7 @@ function think(b){const A=b.ai,g=G;
  for(const o of(g.u?(b.team===g.u.def?g.en.concat(g.f.filter(x=>x.team!==b.team)):g.f.filter(x=>x.team===g.u.def)):g.f))if(o!==b&&o.hp>0&&(!g.ctf||o.team!==b.team)&&canSee(b,o)){let m=A.mem.get(o);if(!m)A.mem.set(o,m={});m.x=o.x;m.y=o.y;m.t=g.t}
  for(const[o,m]of A.mem)if(o.hp<=0||g.t-m.t>4)A.mem.delete(o);
  if(g.t>=A.rt||!A.tg||A.tg.hp<=0||!A.mem.has(A.tg)){A.rt=g.t+1.2+Math.random()*1.6;let best=null,bs=1e9;
-  for(const[o,m]of A.mem){let s=Math.hypot(m.x-b.x,m.y-b.y)+(g.t-m.t)*120;if(o===g.p)s+=A.pb;if(o===A.tg)s-=90;if(o.hp<o.max*.3)s-=110;for(const x of g.f)if(x!==b&&x.bot&&x.hp>0&&x.ai.tg===o&&(!g.ctf||x.team===b.team))s+=170;if(g.ctf&&o.flag===b.team)s-=320;if(s<bs){bs=s;best=o}}
+  for(const[o,m]of A.mem){let s=Math.hypot(m.x-b.x,m.y-b.y)+(g.t-m.t)*120;if(o===g.p)s+=A.pb;if(o===A.tg)s-=90;if(o.hp<o.max*.3)s-=110;for(const x of g.f)if(x!==b&&x.bot&&x.hp>0&&x.ai.tg===o&&(!g.ctf||x.team===b.team))s+=g.u?(x.team===b.team?-100*g.u.iq:0):170;if(g.u&&b.team===g.u.def)for(const f of g.f)if(f!==b&&f.team===b.team&&f.hp>0&&f.hp<f.max*.5&&Math.hypot(o.x-f.x,o.y-f.y)<220)s-=130*g.u.iq;if(g.ctf&&o.flag===b.team)s-=320;if(s<bs){bs=s;best=o}}
   A.tg=best}
  A.vis=!!(A.tg&&A.mem.has(A.tg)&&A.mem.get(A.tg).t===g.t)}
 function windup(b,px,py,pvx,pvy,d){const A=b.ai,C=CL[b.cls],ram=b.cls==='rammer',
@@ -1108,7 +1129,7 @@ function windup(b,px,py,pvx,pvy,d){const A=b.ai,C=CL[b.cls],ram=b.cls==='rammer'
  b.wu={t:0,d:ram?.46-.14*A.sk:b.cls==='puncher'?.22-.06*A.sk:.3-.08*A.sk,a,pw,L:ram?Math.max(0,ray(b.x,b.y,Math.cos(a),Math.sin(a),C.min+(C.max-C.min)*pw,b.r-2)-2):0};b.rev=Math.max(b.rev,1);
  if(A.tg===G.p)sfx('tick',vol(b.x,b.y))}
 function ai(b,dt){const A=b.ai,C=CL[b.cls],g=G,ram=b.cls==='rammer',obj=g.ctf?ctfObj(b):(g.u&&b.team!==g.u.def?usvObj(b):null);
- if((A.th-=dt)<=0){A.th=.12+Math.random()*.1;think(b)}
+ if((A.th-=dt)<=0){A.th=(.12+Math.random()*.1)*(g.u?1.5-g.u.iq:1);think(b)}
  const t=A.tg,m=t&&A.mem.get(t);let gx=null,gy=null,mx=0,my=0,px=0,py=0,pvx=0,pvy=0,d=1e9,pk;
  if(t&&m){if(A.vis){const[x1,y1]=samp(t,g.t-A.lat),[x0,y0]=samp(t,g.t-A.lat-.12);px=x1;py=y1;pvx=(x1-x0)/.12;pvy=(y1-y0)/.12}else{px=m.x;py=m.y}d=Math.hypot(px-b.x,py-b.y)||1}
  if((A.st-=dt)<=0){A.st=1.2+Math.random()*2;A.s=Math.random()<.5?-1:1}
@@ -1128,7 +1149,7 @@ function ai(b,dt){const A=b.ai,C=CL[b.cls],g=G,ram=b.cls==='rammer',obj=g.ctf?ct
  if(t&&A.vis&&!b.atk&&!b.wu&&b.ammo>0&&b.stun<=0&&!b.flag&&!(b.ult&&b.ult.k==='catcher')){const inR=ram?d>70&&d<C.max-5&&ray(b.x,b.y,(px-b.x)/d,(py-b.y)/d,d,b.r*.6)>=d-30:d<C.reach+t.r+10;
   if(inR){if((A.r-=dt)<=0){A.r=(.22+Math.random()*.4)*(1.35-A.sk);windup(b,px,py,pvx,pvy,d)}}else A.r=Math.max(A.r,.15)}
  if(b.ult&&b.ult.k==='catcher'&&t&&m){mx=(px-b.x)/d*.8;my=(py-b.y)/d*.8}
- [mx,my]=avoid(b,mx,my);
+ [mx,my]=avoid(b,mx,my);if(g.u&&g.u.st==='fight')[mx,my]=usvSteer(b,mx,my);
  const moved=Math.hypot(b.x-(A.px??b.x),b.y-(A.py??b.y))/Math.max(dt,1e-3);A.px=b.x;A.py=b.y;
  if(A.un>0){A.un-=dt;[mx,my]=A.ud}else if(Math.hypot(mx,my)>.5&&moved<(b.flag?12:40)&&!b.atk&&!b.wu&&b.stun<=0){if((A.stk+=dt)>.6){A.stk=0;A.un=.6;const q=Math.atan2(my,mx)+(Math.random()<.5?1:-1)*PI/2;A.ud=[Math.cos(q),Math.sin(q)]}}else A.stk=0;
  const l=Math.hypot(mx,my);return l>1?[mx/l,my/l]:[mx,my]}
