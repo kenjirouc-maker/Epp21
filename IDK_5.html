@@ -353,7 +353,7 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 <section class="screen" id="maps"><div class="lobby"><div class="bar"><button class="mode" id="mp-back">&#8249; Back</button><b class="ttl">Maps</b><span style="width:84px"></span></div>
 <div class="mp-list" id="mp-list"></div></div></section>
 <section class="screen" id="lboard"><div class="lobby"><div class="bar"><button class="mode" id="lbk">&#8249; Back</button><b class="ttl">Leaderboard</b><span style="width:84px"></span></div>
-<div class="lb-tabs" id="lb-tabs"></div><div class="lbl-list" id="lbl-list"></div><div class="lbl-note" id="lb-note">Tracks the progress of every registered account on this device. Pick a tab to rank by medals, wins, flag captures or survival, and tap a player to view their profile. Guests and bots are not counted. Updates live.</div></div></section>
+<div class="lb-tabs" id="lb-tabs"></div><div class="lbl-list" id="lbl-list"></div><div class="lbl-note" id="lb-off" hidden></div><div class="lbl-note" id="lb-note">Tracks the progress of every registered account on this device. Pick a tab to rank by medals, wins, flag captures or survival, and tap a player to view their profile. Guests and bots are not counted. Updates live.</div></div></section>
 <!-- Game over -->
 <section class="screen" id="over"><div class="sheet"><h1 id="ot" style="font-size:64px"></h1><p class="sub" id="os"></p><p class="rw" id="rw"></p><div id="devp" class="devbox" hidden></div><button class="go" id="again"></button><br><button class="ghost" id="home">Back to menu</button></div></section>
 </div>
@@ -494,7 +494,7 @@ document.querySelectorAll('.auth-tab').forEach(tab=>tab.onclick=()=>{
  $('#auth-signup').style.display=tab.dataset.tab==='signup'?'':'none'});
 function enterMenu(){for(const q of['#auth','#profile','#mastery','#maps','#lboard','#pview','#vote'])$(q).classList.remove('on');menu.classList.add('on');$('#snd').classList.toggle('off',!!S.mute);refresh()}
 function cloudPing(){const el=$('#cloud-st');if(!el)return;if(!CLOUD){el.textContent='Online accounts are off';return}el.textContent='Online accounts: checking...';
- cfetch('/acc/__ping').then(()=>{el.textContent='Online accounts: connected'},()=>{el.textContent='Online accounts unavailable: '+cloudWhyMsg+'. You can still play and make an account saved on this device.'})}
+ cfetch('/acc/__ping').then(()=>{el.textContent='Online accounts: connected'},()=>{el.textContent='Online accounts unavailable: '+cloudWhyMsg+'. You can still play and make an account saved on this device.'+(/permission/.test(cloudWhyMsg)?' (Game owner: in the Firebase console open Realtime Database > Rules and set ".read" and ".write" to true.)':'')})}
 function showAuth(){cloudPing();document.querySelector('.auth-tab[data-tab=login]').click();$('#auth').classList.add('on')}
 const NAMEOK=/^[A-Za-z0-9 _.\-]{2,14}$/;
 const authBusy=(b,on,t)=>{b.disabled=on;if(t)b.textContent=t};
@@ -1734,7 +1734,7 @@ $('#pv-back').onclick=()=>{$('#pview').classList.remove('on');$('#lboard').class
 function buildLbTabs(){const t=$('#lb-tabs');t.innerHTML='';for(const x of LBT){const b=document.createElement('button');b.className='lb-tab'+(x.id===lbTab?' on':'');b.textContent=x.n;b.onclick=()=>{lbTab=x.id;buildLbTabs();renderLboard();sfx('ui')};t.appendChild(b)}}
 function renderLLB(){const rows=lbRows('med'),box=$('#llb-rows');if(!box)return;box.innerHTML='';$('#llb-n').textContent=rows.length?rows.length+(rows.length===1?' player':' players'):'';
  if(!rows.length){box.innerHTML='<div class="lb-none">No registered players yet. Sign up to claim the top spot!</div>';return}rows.slice(0,3).forEach((r,i)=>box.appendChild(lbRow(r,i,false)))}
-function renderLboard(){const L=$('#lbl-list');if(!L)return;$('#lb-note').textContent=$('#lb-note').textContent.replace(/on (this device|every device)/,CLOUD?'on every device':'on this device');if(!$('#lb-tabs').firstChild)buildLbTabs();const top=L.scrollTop;L.innerHTML='';const rows=lbRows(lbTab);if(!rows.length)L.innerHTML='<div class="lb-none">No registered players yet.</div>';
+function renderLboard(){const L=$('#lbl-list');if(!L)return;const off=$('#lb-off');if(off){off.hidden=cloudOk!==false;off.textContent='Online leaderboard unavailable'+(cloudWhyMsg?': '+cloudWhyMsg:'')+'. Showing accounts on this device only.'}$('#lb-note').textContent=$('#lb-note').textContent.replace(/on (this device|every device)/,CLOUD?'on every device':'on this device');if(!$('#lb-tabs').firstChild)buildLbTabs();const top=L.scrollTop;L.innerHTML='';const rows=lbRows(lbTab);if(!rows.length)L.innerHTML='<div class="lb-none">No registered players yet.</div>';
  rows.forEach((r,i)=>{const w=document.createElement('div');w.className='lb-w';const row=lbRow(r,i,true,lbTab);row.onclick=()=>openPlayer(r.key);w.appendChild(row);L.appendChild(w)});L.scrollTop=top}
 $('#llb').onclick=()=>{renderLboard();menu.classList.remove('on');$('#lboard').classList.add('on');sfx('ui')};
 $('#lbk').onclick=()=>{$('#lboard').classList.remove('on');menu.classList.add('on');renderLLB();sfx('ui')};
