@@ -380,7 +380,7 @@ const TC={b:'#3D7BE0',r:'#E0483A'},TN={b:'Blue',r:'Red'},FLAG_SLOW=1-.695,CTF_WI
 CBASE={b:{x:170,y:600},r:{x:1430,y:600}},CSPAWN={b:[[250,440],[250,600],[250,760]],r:[[1350,440],[1350,600],[1350,760]]},MODE_ORDER=['ffa','surv','ctf','ul'];
 let myTeam='b';
 /* ---------- Ultra League: ranked mode, 1850 trophies to join, Elo ranks ---------- */
-const ULT_TRO=1850,ELO_T=[0,95,195,300,575,850,1000,1450,2000],RANKS=['A4','Yellow Paper','Premium Paper'],
+const ULT_TRO=1850,ulOK=()=>S.user==='Guest'||S.tro>=ULT_TRO,ELO_T=[0,95,195,300,575,850,1000,1450,2000],RANKS=['A4','Yellow Paper','Premium Paper'],
 rankIdx=e=>{let i=0;for(let j=0;j<ELO_T.length;j++)if((e|0)>=ELO_T[j])i=j;return i},
 rankName=e=>{const i=rankIdx(e);return RANKS[i/3|0]+' Tier '+(i%3+1)},
 eloCont=(g,win)=>{if(g.mode==='ctf')return Math.min(1,(win?.35:.05)+g.ctf.pc*.25+(g.ko|0)*.07);
@@ -503,7 +503,7 @@ const sk=k=>(SHOP.find(x=>x.id===S.eq[k])||{}).col||null,tc=()=>(SHOP.find(x=>x.
 BC=(k,i)=>{const l=SHOP.filter(x=>x.c===k);return(l[(i*7+3)%(l.length+1)]||{}).col||null},
 toast=s=>{const e=$('#toast');e.textContent=s;retrig(e,'on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1600)};
 function gems(n){const a=gs,t0=performance.now();gs=S.gems=n;save();(function f(t){const u=Math.min(1,(t-t0)/700);document.querySelectorAll('.gv').forEach(e=>e.textContent=Math.round(lerp(a,n,1-Math.pow(1-u,3))));if(u<1)requestAnimationFrame(f)})(t0);document.querySelectorAll('.gv').forEach(e=>retrig(e.parentNode,'bump2'))}
-function refresh(){if(clsLocked(cls))cls='rammer';setHint();document.querySelectorAll('.gv').forEach(e=>e.textContent=gs);updateUser();updateMapBtn();renderLLB();$('#clsbd').hidden=!readyAll();const C=CLN[cls],Ml=ML[mode].slice();if(mode==='ul')Ml[1]=S.tro>=ULT_TRO?`${rankName(S.elo)} · ${S.elo} Elo`:`locked · ${S.tro}/${ULT_TRO} trophies`;$('#pn').textContent=C[0];$('#pi').textContent=C[1]+' · '+C[2];$('#mode').innerHTML=`&#8644; ${Ml[0]} <small>${Ml[1]}</small>`;$('.bd').hidden=S.gift===today();if(gs!==S.gems)gems(S.gems)}
+function refresh(){if(clsLocked(cls))cls='rammer';setHint();document.querySelectorAll('.gv').forEach(e=>e.textContent=gs);updateUser();updateMapBtn();renderLLB();$('#clsbd').hidden=!readyAll();const C=CLN[cls],Ml=ML[mode].slice();if(mode==='ul')Ml[1]=ulOK()?`${rankName(S.elo)} · ${S.elo} Elo`:`locked · ${S.tro}/${ULT_TRO} trophies`;$('#pn').textContent=C[0];$('#pi').textContent=C[1]+' · '+C[2];$('#mode').innerHTML=`&#8644; ${Ml[0]} <small>${Ml[1]}</small>`;$('.bd').hidden=S.gift===today();if(gs!==S.gems)gems(S.gems)}
 function buildShop(){const el=$('#goods'),ok=S.gift!==today();
  el.innerHTML=`<button class="buy gift${ok?'':' off'}"><i class="gemi"></i>${ok?'Free daily gift +25':'Gift claimed · back tomorrow'}</button><h3>Skins</h3>`;
  el.firstChild.onclick=()=>{if(!ok)return toast('Come back tomorrow!');S.gift=today();gems(S.gems+25);toast('+25 gems!');$('.bd').hidden=true;buildShop()};
@@ -898,7 +898,7 @@ function feed(by,e){const el=$('#feed'),d=document.createElement('div'),dot=f=>`
 function mkF(k,x,y,bot,i){const C=CL[k],sk=.3+Math.random()*.45;
  return{cls:k,x,y,vx:0,vy:0,kx:0,ky:0,hp:C.hp,max:C.hp,lag:C.hp,a:0,ammo:C.ammo,ammoT:0,uc:0,ult:null,spin:0,hand:0,atk:null,wu:null,inv:0,fl:0,mv:0,t:i,r:23,bot,name:bot?NAMES[i-1]:'You',id:i*37+5,pop:0,stun:0,k:0,tr:[],na:[],h:[],rev:0,zt:.25,team:'',flag:'',role:'',slot:0,rs:0,bush:null,
   col:bot?BC(k,i):null,ai:{r:.4,s:Math.random()<.5?-1:1,st:0,th:Math.random()*.2,rt:0,mem:new Map(),tg:null,vis:false,sk,lat:.3-.14*sk,err:.3-.2*sk,pb:40+Math.random()*70,wp:null,wt:0,stk:0,un:0,ud:[0,0]}}}
-function start(m){if(mode==='ul'&&!m){if(S.tro<ULT_TRO){toast(`Ultra League needs ${ULT_TRO} trophies (you have ${S.tro})`);return}over.classList.remove('on');openVote();return}
+function start(m){if(mode==='ul'&&!m){if(!ulOK()){toast(`Ultra League needs ${ULT_TRO} trophies (you have ${S.tro})`);return}over.classList.remove('on');openVote();return}
  const md=m||mode;$('#vote').classList.remove('on');AR=makeArena(md==='ffa'?S.map:md==='ctf'?'ctf':'desk');$('#feed').innerHTML='';
  G={s:'play',mode:md,ul:mode==='ul',t:0,wave:0,score:0,ko:0,stop:0,slow:0,zm:1,tr:0,kx:0,ky:0,en:[],fx:[],tx:[],f:[],q:0,sp:0,gap:1,end:null,fr:0,zw:0,rdy:1,
   z:md==='ffa'?{r:1020,r0:1020,r1:240,t0:32,t1:92,warn:0,on:0}:null,ctf:md==='ctf'?newCtf():null};buildArt();
