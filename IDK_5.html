@@ -222,6 +222,7 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 .vt-row{display:flex;gap:12px;margin:10px 0 6px}.vt-b{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px;background:var(--sheet);border:1.8px solid var(--ink);border-radius:12px 9px 11px 10px;box-shadow:var(--sh);transition:transform .15s}
 .vt-b b{font:700 28px/1 var(--title)}.vt-b span{font-size:15px;color:var(--soft)}.vt-b em{font:700 36px/1 var(--title);font-style:normal;color:var(--accent)}.vt-b:active{transform:scale(.96)}
 .vt-b.mine{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),var(--sh)}.vt-b.win{background:#F2C23055}.vt-b:disabled{opacity:1}
+.ubox{display:flex;align-items:center;gap:6px}#devbtn{font:700 20px var(--title);padding:2px 10px;background:var(--accent);color:var(--sheet)}#devbtn[hidden]{display:none}
 .devbox{display:flex;flex-direction:column;gap:6px;margin:8px 0;padding:10px;background:var(--sheet);border:1.8px dashed var(--accent);border-radius:12px;text-align:left}.devbox[hidden]{display:none}#goods .devbox{grid-column:1/-1}
 .dv-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.dv-row>span{flex:1 1 120px;font:16px var(--hand)}.dv-row input,.dv-row select{width:110px;padding:4px 8px;font:17px var(--hand);color:var(--ink);background:var(--paper);border:1.6px solid var(--ink);border-radius:8px;box-sizing:border-box;-webkit-user-select:text;user-select:text}
 .dv-row .buy{padding:4px 12px;font-size:18px}.dv-row .buy:disabled{opacity:.5}.dv-note{font-size:14px;color:var(--soft)}
@@ -312,7 +313,7 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 </div></section>
 <!-- Menu -->
 <section class="screen" id="menu"><div class="lobby">
-<div class="bar"><button class="pill" id="user-pill" aria-label="Profile"><canvas id="uicon" width="64" height="64"></canvas><span id="uname">Guest</span></button><b class="ttl">IDK</b><div class="pill" id="g1"><i class="gemi"></i><b class="gv">0</b><em>+</em></div></div>
+<div class="bar"><div class="ubox"><button class="pill" id="user-pill" aria-label="Profile"><canvas id="uicon" width="64" height="64"></canvas><span id="uname">Guest</span></button><button class="pill" id="devbtn" hidden>DEV</button></div><b class="ttl">IDK</b><div class="pill" id="g1"><i class="gemi"></i><b class="gv">0</b><em>+</em></div></div>
 <div class="stage"><button class="llb" id="llb"><div class="llb-h">Leaderboard <small id="llb-n"></small></div><div id="llb-rows"></div></button><canvas id="big" width="360" height="360"></canvas><div class="plate" id="pn"></div><div class="info2" id="pi"></div><button class="mapbtn" id="teambtn" hidden><canvas id="teamth" width="120" height="90"></canvas><span class="mapt"><small>Your team</small><b id="teamn"></b></span><i class="mapar">&#8250;</i></button><button class="mapbtn" id="mapbtn"><canvas id="mapth" width="120" height="90"></canvas><span class="mapt"><small>Map</small><b id="mapn"></b></span><i class="mapar">&#8250;</i></button><div class="info2 hint" id="hint"></div></div>
 <div class="foot"><button class="nav" id="tshop"><i class="cart"></i><span>Shop</span><i class="bd">!</i></button><button class="nav" id="tcls"><i class="clsi"></i><span>Classes</span><i class="bd" id="clsbd" hidden>!</i></button><div class="go2"><button class="mode" id="mode"></button><button class="play" id="play">PLAY</button></div></div>
 </div></section>
@@ -391,7 +392,7 @@ CBASE={b:{x:170,y:600},r:{x:1430,y:600}},CSPAWN={b:[[250,440],[250,600],[250,760
 let myTeam='b';
 /* ---------- developer mode (only for the account named Kirky) ---------- */
 const DEV={on:false,inf:false,dmg:1,flat:0,hp:0,rl:1,spd:1},DEVLOCK=new Set(),STARTERS=['rammer','catcher','puncher'],
-isKirky=()=>S.user.toLowerCase()==='kirky',devOn=()=>DEV.on&&isKirky();
+BUILD='v12 · dev menu',isKirky=()=>{try{return S.user.normalize('NFKC').trim().toLowerCase()==='kirky'}catch(e){return S.user.toLowerCase()==='kirky'}},devOn=()=>DEV.on&&isKirky();
 try{DEV.on=localStorage.getItem('idk-dev')==='1'}catch(e){}
 function devApply(){const p=G&&G.p;if(!p||!devOn())return;if(DEV.hp>0){const r=p.hp/p.max;p.max=DEV.hp;p.hp=G.s==='pause'?Math.max(1,Math.round(DEV.hp*Math.min(1,r||1))):DEV.hp;p.lag=p.hp}}
 function devSetMedals(which,n){n=Math.max(0,Math.floor(+n)||0);if(which==='total'){const K=CLS_KEYS,b=Math.floor(n/K.length);K.forEach((k,i)=>S.med[k]=b+(i<n-b*K.length?1:0))}else S.med[which]=n;save();cloudPush(true);accPush(true);refresh()}
@@ -1732,7 +1733,7 @@ $('#llb').onclick=()=>{renderLboard();menu.classList.remove('on');$('#lboard').c
 $('#lbk').onclick=()=>{$('#lboard').classList.remove('on');menu.classList.add('on');renderLLB();sfx('ui')};
 setInterval(()=>{if(menu.classList.contains('on'))renderLLB();if($('#lboard').classList.contains('on'))renderLboard();if($('#pview').classList.contains('on'))renderPlayer()},2500);
 addEventListener('storage',()=>{if(menu.classList.contains('on'))renderLLB();if($('#lboard').classList.contains('on'))renderLboard();if($('#pview').classList.contains('on'))renderPlayer()});
-function updateUser(){const reg=S.user!=='Guest',p=$('#user-pill'),ic=$('#uicon');$('#uname').textContent=S.user;ic.style.display=reg?'block':'none';if(reg)drawIcon(ic.getContext('2d'),S.icon,64);
+function updateUser(){const reg=S.user!=='Guest',p=$('#user-pill'),ic=$('#uicon'),db=$('#devbtn');if(db)db.hidden=!isKirky();$('#uname').textContent=S.user;ic.style.display=reg?'block':'none';if(reg)drawIcon(ic.getContext('2d'),S.icon,64);
  p.className='pill'+(reg&&S.box?(' '+boxCls(S.box)):'')}
 function updMedalRow(k){$('#cls-medn').textContent=S.med[k];$('#cls-medbd').hidden=!readyN(k);const n=reachedN(k);
  $('#cls-stars').innerHTML=MIL[k].map((m,i)=>`<svg viewBox="0 0 24 24" class="st${i<n?' on':''}"><path d="M12 2.2l3.1 6.7 7.2.8-5.4 4.9 1.5 7.2L12 18.1 5.6 21.8l1.5-7.2L1.7 9.7l7.2-.8z"/></svg>`).join('')}
@@ -1776,6 +1777,7 @@ function mergeData(d){S.gems=Math.max(S.gems,d.gems|0);S.tro=Math.max(S.tro,d.tr
 $('#pf-bk').onclick=()=>{const c=backupCode();$('#pf-code').value=c;let cp=null;try{cp=navigator.clipboard&&navigator.clipboard.writeText(c)}catch(e){}if(cp&&cp.then)cp.then(()=>toast('Backup code copied'),()=>toast('Copy the code below'));else toast('Copy the code below')};
 function parseBackup(str){try{const p=String(str).replace(/\s+/g,'').split('.');if(p[0]!=='IDK1'||p.length!==3)return null;const j=decodeURIComponent(escape(atob(p[2])));if(cs(j)!==p[1])return null;const o=JSON.parse(j);return o&&o.d&&typeof o.d==='object'?o:null}catch(e){return null}}
 $('#pf-rs').onclick=()=>{const o=parseBackup($('#pf-code').value);if(!o)return toast('That code is not valid');try{mergeData(o.d);gs=S.gems;save();accPush(true);cloudPush(true);buildProfile();updateUser();refresh();toast('Progress restored!')}catch(e){toast('That code is not valid')}};
+$('#devbtn').onclick=()=>{if(isKirky()){DEV.on=true;try{localStorage.setItem('idk-dev','1')}catch(e){}$('#tshop').click()}};
 $('#user-pill').onclick=()=>{if(S.user==='Guest'){menu.classList.remove('on');showAuth();sfx('ui')}else openProfile()};
 $('#pf-back').onclick=()=>{$('#profile').classList.remove('on');menu.classList.add('on');refresh();sfx('ui')};
 $('#pf-out').onclick=()=>{save();useGuest();save();$('#profile').classList.remove('on');showAuth();refresh()};
@@ -1805,7 +1807,7 @@ $('#home').onclick=()=>{G.s='menu';over.classList.remove('on');menu.classList.ad
 $('#snd').classList.toggle('off',!!S.mute);
 const PCM=(()=>{try{return matchMedia('(hover:hover) and (pointer:fine)').matches}catch(e){return false}})();
 let HINT='';
-function setHint(){const h=$('#hint');if(h)h.textContent=(padOn?PADHINT:HINT)+(mode==='ctf'?" · grab the enemy flag, bring it to your base (no attacking while you hold it)":mode==='fb'?" · carry the ball into the enemy try zone · attack = pass · tackle the carrier to steal it":'')}
+function setHint(){const h=$('#hint');if(h)h.textContent=' ['+BUILD+'] '+(padOn?PADHINT:HINT)+(mode==='ctf'?" · grab the enemy flag, bring it to your base (no attacking while you hold it)":mode==='fb'?" · carry the ball into the enemy try zone · attack = pass · tackle the carrier to steal it":'')}
 function setPC(b){app.classList.toggle('pc',b);HINT=b?'WASD move · mouse aims · right click attacks · Q ultimate · hide in green scribbles':'Left stick moves · right stick aims · tap to auto-aim · ULT button · hide in green scribbles';setHint()}
 setPC(PCM);document.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')setPC(false)},{capture:true});document.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&PCM&&!app.classList.contains('pc'))setPC(true)},{capture:true});
 function size(){const d=Math.min(devicePixelRatio||1,CAPD);vw=app.clientWidth||innerWidth||360;vh=app.clientHeight||innerHeight||640;cv.width=vw*d;cv.height=vh*d;c.setTransform(d,0,0,d,0,0);c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high'}
