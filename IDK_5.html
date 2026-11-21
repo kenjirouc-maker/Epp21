@@ -235,7 +235,7 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 .qbox{grid-column:1/-1;display:flex;flex-direction:column;gap:8px}.qcred{grid-column:1/-1;font-size:14px;color:var(--soft);padding:10px 4px 20px}.qh{font:700 30px/1 var(--title);margin-top:6px}.qh small{font:15px var(--hand);color:var(--soft);margin-left:8px}
 .qcard{display:flex;flex-direction:column;gap:6px;padding:10px;background:var(--sheet);border:1.8px solid var(--line);border-radius:12px;box-shadow:var(--sh)}.qclass{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),var(--sh)}.qdone{opacity:.55}
 .qtop{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.qtop b{font:700 22px/1.1 var(--title)}.qtag{font:700 14px var(--title);background:var(--accent);color:var(--sheet);padding:1px 8px;border-radius:7px}
-.qbar{height:12px;border:1.6px solid var(--ink);border-radius:7px;background:var(--paper);overflow:hidden}.qbar i{display:block;height:100%;background:#5A9E6F}.qinfo{display:flex;justify-content:space-between;gap:8px;font-size:16px;color:var(--soft)}.qcard .buy{align-self:flex-end}.qcard .buy:disabled{opacity:.6}
+.qbar{height:12px;border:1.6px solid var(--ink);border-radius:7px;background:var(--paper);overflow:hidden}.qbar i{display:block;height:100%;background:#5A9E6F}.qinfo{display:flex;justify-content:space-between;gap:8px;font-size:16px;color:var(--soft)}.qcard .buy{align-self:flex-end}.qcard .buy:disabled{opacity:.6}.qnote{font-size:15px;color:var(--soft)}.qline{display:flex;flex-direction:column;gap:3px}.qline.ok .qbar i{background:#3FBF9A}.qline.ok .qinfo span:first-child{text-decoration:line-through}
 .dv-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.dv-row>span{flex:1 1 120px;font:16px var(--hand)}.dv-row input,.dv-row select{width:110px;padding:4px 8px;font:17px var(--hand);color:var(--ink);background:var(--paper);border:1.6px solid var(--ink);border-radius:8px;box-sizing:border-box;-webkit-user-select:text;user-select:text}
 .dv-row .buy{padding:4px 12px;font-size:18px}.dv-row .buy:disabled{opacity:.5}.dv-note{font-size:14px;color:var(--soft)}.dv-pad{align-self:center}.dv-pad canvas{width:300px;max-width:100%;height:auto;aspect-ratio:1;touch-action:none;border:1.6px solid var(--ink);border-radius:10px;background:var(--paper)}
 .auth-note{margin:2px 0 4px;font-size:15px;color:var(--soft)}
@@ -457,7 +457,7 @@ function devRangePad(box,rowEl){let pad=box.querySelector('.dv-pad');if(pad){pad
 const QW=7200000,qWin=()=>Math.floor(Date.now()/QW),QMODES={ffa:'Free-for-all',ctf:'Capture the Flag',fb:'Football',ul:'Ultra League'};
 function qRnd(){let h=0;for(const ch of S.user)h=(h*31+ch.charCodeAt(0))|0;let i=0;const sd=S.qs.w*977+S.qs.s*131+(Math.abs(h)%9973);return()=>R(sd+(++i)*7.31)}
 const qInt=(r,a,b)=>a+Math.floor(r()*(b-a+1)),qPick=(r,a)=>a[Math.floor(r()*a.length)],
-qProg=q=>q.t==='tier'?(S.badges.includes(q.a+q.k)?1:0):(q.p|0),qDone=q=>qProg(q)>=q.n;
+qProg=q=>q.t==='tier'?(S.badges.includes(q.a+q.k)?1:0):(q.p|0),qItems=q=>q.r||[q],qDone=q=>qItems(q).every(i=>qProg(i)>=i.n);
 function qGenNormal(r,have){const owned=CLS_KEYS.filter(k=>!clsLocked(k)),pool=[
  ()=>{const n=qInt(r,2,4);return{t:'win',n,g:16+n*8}},
  ()=>{const n=qInt(r,1,2);return{t:'winmode',a:qPick(r,ulOK()?['ffa','ctf','fb','ul']:['ffa','ctf','fb']),n,g:26+n*10}},
@@ -468,29 +468,37 @@ function qGenNormal(r,have){const owned=CLS_KEYS.filter(k=>!clsLocked(k)),pool=[
  ()=>{const n=qInt(r,2,3);return{t:'caps',n,g:24+n*8}},
  ()=>{const n=qInt(r,5,7);return{t:'wave',n,g:30+n*4}}];
  for(let i=0;i<24;i++){const q=pool[Math.floor(r()*pool.length)]();if(!have.some(h=>h.t===q.t&&h.a===q.a)){q.p=0;return q}}return null}
-/* class quests are harder: a medal tier (1 for rare classes, up to 2 for epic), a lot of medals, or a high survival wave */
+/* class quests are much harder: several objectives that must ALL be finished, tracked until you do (they don't expire) */
 function qGenClass(r,have){if(S.user==='Guest')return null;const lock=Object.keys(LOCK).filter(k=>!owns(k)&&!have.some(h=>h.c===k));if(!lock.length)return null;
- const c=qPick(r,lock),epic=CLASS_INFO[c].rarity==='Epic',kind=qPick(r,['tier','medals','wave']),q={c,p:0,g:0,e:epic?1:0};
- if(kind==='tier'){q.t='tier';q.a=qPick(r,['rammer','catcher','puncher']);q.k=epic&&r()<.5?2:1;q.n=1}
- else if(kind==='medals'){q.t='medals';q.n=epic?qInt(r,130,180):qInt(r,60,90)}
- else{q.t='wave';q.n=epic?qInt(r,11,14):qInt(r,8,10)}return q}
-function questEnsure(force){const w=qWin();if(!S.qs||!Array.isArray(S.qs.l))S.qs={w:-1,s:0,l:[]};if(S.qs.w===w&&S.qs.l.length&&!force)return;
- const list=S.qs.l.filter(q=>!q.x&&qDone(q));S.qs.w=w;const r=qRnd();
- if(r()<.5&&!list.some(q=>q.c)){const cq=qGenClass(r,list);if(cq)list.push(cq)}
+ const c=qPick(r,lock),epic=CLASS_INFO[c].rarity==='Epic',st=qPick(r,['rammer','catcher','puncher']),it=[];
+ it.push({t:'tier',a:st,k:epic&&r()<.5?2:1,n:1,p:0});
+ it.push({t:'medals',n:epic?qInt(r,300,450):qInt(r,150,220),p:0});
+ it.push({t:'wave',n:epic?qInt(r,13,16):qInt(r,9,12),p:0});
+ it.push({t:'win',n:epic?qInt(r,14,20):qInt(r,8,12),p:0});
+ if(epic)it.push({t:'ko',n:qInt(r,90,140),p:0});
+ return{c,e:epic?1:0,g:0,r:it}}
+function questEnsure(force){const w=qWin();if(!S.qs||!Array.isArray(S.qs.l))S.qs={w:-1,s:0,l:[]};
+ S.qs.l=S.qs.l.filter(q=>!(q.c&&!q.r));
+ if(S.qs.w===w&&S.qs.l.length&&!force)return;
+ const list=S.qs.l.filter(q=>!q.x&&(qDone(q)||(q.c&&q.r)));S.qs.w=w;const r=qRnd();
+ if(!list.some(q=>q.c)&&r()<.6){const cq=qGenClass(r,list);if(cq)list.push(cq)}
  let guard=0;while(list.filter(q=>!q.c).length<3&&guard++<12){const q=qGenNormal(r,list);if(!q)break;list.push(q)}
  S.qs.l=list;save()}
-function questReroll(){questEnsure();S.qs.s++;questEnsure(true)}
+function questReroll(){questEnsure();S.qs.s++;S.qs.l=S.qs.l.filter(q=>!q.c||qDone(q));questEnsure(true)}
 function shopReroll(){const w=shopWin();S.rs={w,n:(S.rs&&S.rs.w===w?S.rs.n|0:0)+1};save()}
 function questEvent(g,win,md,k){if(!S.qs||!Array.isArray(S.qs.l))return;const won=g.mode==='surv'?md>0:!!win,mk=(g.ul||g.mode==='usv')?'ul':g.mode;
- for(const q of S.qs.l){if(q.x||qDone(q))continue;switch(q.t){case'play':q.p++;break;case'win':if(won)q.p++;break;case'winmode':if(won&&q.a===mk)q.p++;break;case'winclass':if(won&&k===q.a)q.p++;break;
-  case'ko':q.p+=g.ko|0;break;case'medals':q.p+=md|0;break;case'caps':q.p+=g.ctf?g.ctf.pc:g.fb?g.fb.pc:0;break;case'wave':if(g.mode==='surv')q.p=Math.max(q.p|0,g.wave|0);break}}}
+ for(const qq of S.qs.l){if(qq.x||qDone(qq))continue;for(const q of qItems(qq)){if(qProg(q)>=q.n)continue;switch(q.t){case'play':q.p++;break;case'win':if(won)q.p++;break;case'winmode':if(won&&q.a===mk)q.p++;break;case'winclass':if(won&&k===q.a)q.p++;break;
+  case'ko':q.p+=g.ko|0;break;case'medals':q.p+=md|0;break;case'caps':q.p+=g.ctf?g.ctf.pc:g.fb?g.fb.pc:0;break;case'wave':if(g.mode==='surv')q.p=Math.max(q.p|0,g.wave|0);break}}}}
 function qText(q){const cn=k=>CN[k];switch(q.t){case'win':return`Win ${q.n} matches`;case'winmode':return`Win ${q.n} ${QMODES[q.a]} match${q.n>1?'es':''}`;case'winclass':return`Win ${q.n} match${q.n>1?'es':''} as ${cn(q.a)}`;case'play':return`Play ${q.n} matches`;
  case'ko':return`Knock out ${q.n} enemies`;case'medals':return`Earn ${q.n} medals`;case'caps':return`Capture ${q.n} flags or score ${q.n} tries`;case'wave':return`Survive ${q.n} waves in Survival`;case'tier':return`Claim a Tier ${q.k} ${cn(q.a)} Medal in Mastery`}return''}
 function questClaim(i){const q=S.qs.l[i];if(!q||q.x||!qDone(q))return;q.x=1;if(q.c){S.own[q.c]=1;toast('Unlocked '+CLASS_INFO[q.c].name+'!');sfx('win',.6)}else{gems(S.gems+q.g);toast('+'+q.g+' gems!');sfx('win',.5)}save();buildShop()}
 function questPanel(el){questEnsure();const box=devEl('div','','qbox'),left=(qWin()+1)*QW-Date.now(),h=Math.floor(left/3600000),m=Math.ceil(left%3600000/60000),hd=devEl('div','Quests ','qh');hd.appendChild(devEl('small','new set in '+h+'h '+m+'m'));box.appendChild(hd);
- S.qs.l.forEach((q,i)=>{const pr=Math.min(q.n,qProg(q)),done=pr>=q.n,card=devEl('div','','qcard'+(q.c?' qclass':'')+(q.x?' qdone':'')),top=devEl('div','','qtop');top.appendChild(devEl('b',qText(q)));if(q.c)top.appendChild(devEl('span',(q.e?'EPIC':'RARE')+' CLASS QUEST','qtag'));
-  const bar=devEl('div','','qbar'),fill=devEl('i');fill.style.width=(pr/q.n*100)+'%';bar.appendChild(fill);const info=devEl('div','','qinfo');info.appendChild(devEl('span',pr+' / '+q.n));info.appendChild(devEl('span',q.c?'Reward: '+CLASS_INFO[q.c].name+' unlocked':'Reward: '+q.g+' gems'));
-  const bt=devEl('button',q.x?'Claimed':done?'Claim':'In progress','buy'+(q.x?' own':''));bt.disabled=!done||!!q.x;bt.onclick=()=>questClaim(i);card.append(top,bar,info,bt);box.appendChild(card)});
+ const line=(it,compact)=>{const pr=Math.min(it.n,qProg(it)),row=devEl('div','','qline'+(pr>=it.n?' ok':'')),t=devEl('div','','qinfo');t.appendChild(devEl('span',compact?'Progress':qText(it)));t.appendChild(devEl('span',pr+' / '+it.n));const bar=devEl('div','','qbar'),fill=devEl('i');fill.style.width=(pr/it.n*100)+'%';bar.appendChild(fill);row.append(t,bar);return row};
+ S.qs.l.forEach((q,i)=>{const done=qDone(q),card=devEl('div','','qcard'+(q.c?' qclass':'')+(q.x?' qdone':'')),top=devEl('div','','qtop');
+  top.appendChild(devEl('b',q.c?'Unlock '+CLASS_INFO[q.c].name:qText(q)));if(q.c)top.appendChild(devEl('span',(q.e?'EPIC':'RARE')+' CLASS QUEST','qtag'));card.appendChild(top);
+  if(q.c){card.appendChild(devEl('div','Finish every goal below. This quest does not expire.','qnote'));for(const it of qItems(q))card.appendChild(line(it))}else card.appendChild(line(q,true));
+  const foot=devEl('div','','qinfo');foot.appendChild(devEl('span',q.c?'Reward: '+CLASS_INFO[q.c].name+' unlocked for free':'Reward: '+q.g+' gems'));card.appendChild(foot);
+  const bt=devEl('button',q.x?'Claimed':done?'Claim':'In progress','buy'+(q.x?' own':''));bt.disabled=!done||!!q.x;bt.onclick=()=>questClaim(i);card.appendChild(bt);box.appendChild(card)});
  (el.querySelector('.devbox')||el.firstChild).after(box)}
 function devPausePanel(){const d=$('#devp');if(!devOn()){d.hidden=true;return}d.hidden=false;d.innerHTML='';
  const row=(lab,...ctl)=>{const r=devEl('div','','dv-row');r.appendChild(devEl('span',lab));ctl.forEach(x=>r.appendChild(x));d.appendChild(r)};
@@ -630,7 +638,7 @@ $('#al-guest').onclick=$('#as-guest').onclick=()=>{useGuest();save();enterMenu()
 function boot(){if(!canLS){useGuest();enterMenu();setTimeout(()=>toast('Progress cannot be saved here'),600);return}
  loadDB();try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
  const k=DB.last;if(k&&k!=='guest'&&DB.acc[k]){useAcc(k);enterMenu()}else if(k==='guest'){useGuest();enterMenu()}accBoot(k&&k!=='guest'?k:'')}
-addEventListener('pagehide',save);addEventListener('beforeunload',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});setInterval(save,15000);
+addEventListener('pagehide',save);addEventListener('beforeunload',save);document.addEventListener('visibilitychange',()=>{if(document.hidden){save();accPush(true)}else accPull(true)});setInterval(save,15000);
 
 function theme(){const s=getComputedStyle(document.documentElement),g=n=>s.getPropertyValue(n).trim();
  const N={paper:g('--paper'),sheet:g('--sheet'),ink:g('--ink'),line:g('--line'),acc:g('--accent'),blot:g('--blot')};if(JSON.stringify(N)===JSON.stringify(T))return;T=N;SPR.clear();
@@ -971,7 +979,8 @@ function avoid(o,mx,my){const l=Math.hypot(mx,my);if(l<.05)return[mx,my];let ux=
 
 /* ---------- sound ---------- */
 let AC=null,NB,OUT;const SL={};
-function audio(){if(AC){if(AC.state==='suspended')AC.resume();return}try{AC=new(window.AudioContext||window.webkitAudioContext)();const n=AC.sampleRate;NB=AC.createBuffer(1,n,n);const d=NB.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;OUT=AC.createGain();OUT.gain.value=.5;OUT.connect(AC.destination)}catch(e){AC=null}}
+function unlockAudio(){try{const b=AC.createBuffer(1,1,22050),q=AC.createBufferSource();q.buffer=b;q.connect(AC.destination);q.start(0)}catch(e){}}
+function audio(){if(AC){if(AC.state!=='running'){try{AC.resume()}catch(e){}unlockAudio()}return}try{AC=new(window.AudioContext||window.webkitAudioContext)();const n=AC.sampleRate;NB=AC.createBuffer(1,n,n);const d=NB.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;OUT=AC.createGain();OUT.gain.value=.5;OUT.connect(AC.destination);unlockAudio();try{AC.resume()}catch(e){}}catch(e){AC=null}}
 function nzs(dur,f0,f1,v,q=1,dl=0){const t=AC.currentTime+dl,s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;s.loop=true;f.type='bandpass';f.Q.value=q;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);
  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(g);g.connect(OUT);s.start(t,Math.random()*.5);s.stop(t+dur+.03)}
 function tn(dur,f0,f1,v,type='sine',dl=0){const t=AC.currentTime+dl,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);
@@ -1842,6 +1851,16 @@ function upgradeP2(key,u,p){pw2(u,p).then(h=>{if(h&&CLOUD)cput('/acc/'+cKey(u)+'
 async function accBoot(me){if(!CLOUD)return;try{for(const k in DB.acc){if(DB.acc[k].pw)await claimCloud(k)}
  const a=me&&DB.acc[me];if(a){const r=await cfetch('/acc/'+cKey(a.name));if(r&&r.pw===a.pw){accTs=r.ts||0;if(!r.p2&&a.p2)cput('/acc/'+cKey(a.name)+'/p2',a.p2).catch(()=>{});accReady=true;accLast='';accPush(true)}}}catch(x){}}
 /* push this account's progress; if another device saved in between, merge its progress in first */
+/* pull progress made on another device (phone <-> laptop) while this one is open */
+let apBusy=false;
+function uiRefresh(){try{refresh();updateUser();if(shop.classList.contains('on'))buildShop();if($('#classes').classList.contains('on'))buildClasses();if($('#profile').classList.contains('on'))buildProfile();renderLLB()}catch(e){}}
+async function accPull(force){if(!CLOUD||!accReady||apBusy||S.user==='Guest'||G.s==='play'||G.net)return;apBusy=true;
+ try{const name=S.user,ck='/acc/'+cKey(name),ts=await cfetch(ck+'/ts');if(!ts||(ts===accTs&&!force))return;const rec=await cfetch(ck);if(!rec||!rec.dj||S.user!==name||G.s==='play')return;
+  if(rec.ts===accTs&&!force)return;const rd=parseJ(rec.dj),dirty=!!accLast&&JSON.stringify(pickK(S))!==accLast;
+  if(!dirty){const mine={mute:S.mute};Object.assign(S,JSON.parse(JSON.stringify(pickK(rd))));norm()}else{const g=S.gems;mergeData(rd);S.gems=Math.max(g,S.gems);gs=S.gems}
+  accTs=rec.ts||ts;gs=S.gems;save();accLast=JSON.stringify(pickK(S));if(dirty)accLast='';uiRefresh()}
+ catch(e){}finally{apBusy=false}}
+setInterval(accPull,12000);
 async function accPush(force){if(!CLOUD||!accReady||accBusy||S.user==='Guest'||typeof fetch!=='function')return;const n=Date.now();if(!force&&n-accT<8000)return;
  const dj=JSON.stringify(pickK(S));if(dj===accLast)return;accBusy=true;accT=n;const name=S.user,ck='/acc/'+cKey(name);
  try{let ts=await cfetch(ck+'/ts');if(ts===null||ts===undefined){await claimCloud(name.toLowerCase(),true);ts=await cfetch(ck+'/ts');accTs=ts||0}if(ts&&ts!==accTs){const r=await cfetch(ck);if(r&&r.dj&&S.user===name){const g=S.gems;mergeData(parseJ(r.dj));S.gems=g;gs=g}}
@@ -2298,7 +2317,7 @@ function musicTick(){if(!AC)return;if(!MG){MG=AC.createGain();MG.gain.value=0;MG
  if(which!==MU.mode){MU.mode=which;MU.next=0}if(!which)return;
  BUS=which==='L'?MG:MB;const bpm=which==='L'?92:152,spb=60/bpm/(which==='L'?4:4),sw=which==='L'?.22:.02;if(!MU.next||MU.next<now-.15){MU.next=now+.1;MU.step=0}
  while(MU.next<now+.4){(which==='L'?mStep:bStep)(MU.step,MU.next+((MU.step&1)?spb*sw:0),spb);MU.next+=spb;MU.step=(MU.step+1)%128}}
-setInterval(musicTick,110);addEventListener('pointerdown',()=>audio(),{passive:true});
+setInterval(musicTick,110);['click','touchend','pointerup','keydown','mouseup'].forEach(ev=>addEventListener(ev,()=>audio(),{passive:true,capture:true}));document.addEventListener('visibilitychange',()=>{if(!document.hidden&&AC&&AC.state!=='running')try{AC.resume()}catch(e){}});
 
 boot();cloudPing();partyUI();
 try{const mq=matchMedia('(prefers-color-scheme:dark)');mq.addEventListener?mq.addEventListener('change',theme):mq.addListener&&mq.addListener(theme)}catch(e){}new MutationObserver(theme).observe(document.documentElement,{attributes:true});
