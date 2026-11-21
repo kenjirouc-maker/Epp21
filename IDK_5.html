@@ -2204,6 +2204,30 @@ function partyUI(soft){const chip=$('#ptchip'),tb=$('#tparty');if(!chip||!tb)ret
 $('#tparty').onclick=()=>{menu.classList.remove('on');$('#party').classList.add('on');partyUI();sfx('ui')};
 $('#pt-back').onclick=()=>{$('#party').classList.remove('on');menu.classList.add('on');refresh();sfx('ui')};
 
+/* ---------- lobby music: an original relaxed bossa-lounge loop, synthesised live (no audio files) ---------- */
+const MU={step:0,next:0,bpm:112},PROG=[[[53,57,60,64,67],0],[[53,57,60,64,67],0],[[52,55,59,62],[55,61,64,70]],[[50,53,57,60,64],0],[[53,59,64],0],[[55,58,62,65],[52,55,58,64]],[[53,57,60,64,67],[54,57,60,64]],[[55,58,62,65],[52,55,58,64]]],
+BASS=[[41,41],[41,41],[40,45],[38,38],[43,43],[43,36],[41,38],[43,36]],
+MEL=[[[0,72,3],[3,74,2],[6,77,6],[12,76,3]],[[0,74,3],[3,72,2],[6,69,4],[10,72,2],[12,74,4]],[[0,76,3],[3,74,3],[6,71,4],[8,69,2],[10,73,2],[12,76,4]],[[0,74,4],[4,77,2],[6,76,2],[8,72,6]],
+ [[0,74,3],[3,76,3],[6,79,4],[10,76,2],[12,74,4]],[[0,70,3],[3,74,3],[6,72,2],[8,70,2],[10,67,2],[12,72,4]],[[0,72,3],[3,76,3],[6,77,2],[8,74,2],[10,78,2],[12,81,4]],[[0,79,3],[3,77,3],[6,74,2],[8,72,2],[10,70,2],[12,69,4]]];
+let MG=null;const mf=n=>440*Math.pow(2,(n-69)/12);
+function mTone(t,f,dur,v,type,att,vib){const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+att);g.gain.exponentialRampToValueAtTime(.0008,t+dur);
+ if(vib){const l=AC.createOscillator(),lg=AC.createGain();l.frequency.value=5.2;lg.gain.value=f*.006;l.connect(lg);lg.connect(o.frequency);l.start(t);l.stop(t+dur+.05)}
+ o.connect(g);g.connect(MG);o.start(t);o.stop(t+dur+.05)}
+function mNoise(t,dur,hp,v,bp){const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;s.loop=true;f.type=bp?'bandpass':'highpass';f.frequency.value=hp;if(bp)f.Q.value=5;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0008,t+dur);s.connect(f);f.connect(g);g.connect(MG);s.start(t,Math.random()*.4);s.stop(t+dur+.03)}
+function mStep(step,t,spb){const bar=(step>>4)%8,s=step&15,half=s>=8?1:0,ch=PROG[bar],chord=half&&ch[1]?ch[1]:ch[0],bs=BASS[bar][half];
+ if(s===0||s===3||s===6||s===10||s===13)chord.forEach((n,i)=>{const tt=t+i*.011;mTone(tt,mf(n),.55,.05,'sine',.006);mTone(tt,mf(n+12),.16,.014,'triangle',.004)});
+ if(s===0||s===6||s===8||s===14){mTone(t,mf(bs),.42,.15,'triangle',.01);mTone(t,mf(bs),.42,.1,'sine',.01)}
+ if(s===0||s===6||s===8||s===14){mTone(t,115,.13,.11,'sine',.002);}
+ if(s===0||s===3||s===6||s===10||s===12)mNoise(t,.05,1500,.05,true);
+ mNoise(t,.04,6500,s%2?.018:.032);
+ for(const m of MEL[bar])if(m[0]===s){mTone(t,mf(m[1]),Math.max(.25,m[2]*spb*1.5),.07,'sine',.012,true);mTone(t,mf(m[1]+24),.14,.012,'sine',.003)}}
+function musicTick(){if(!AC)return;if(!MG){MG=AC.createGain();MG.gain.value=0;MG.connect(OUT)}
+ const want=!S.mute&&!app.classList.contains('playing')&&!document.hidden,now=AC.currentTime;MG.gain.setTargetAtTime(want?1.1:0,now,.35);
+ if(!want){MU.next=0;return}
+ const spb=60/MU.bpm/4;if(!MU.next||MU.next<now-.15){MU.next=now+.1;MU.step=0}
+ while(MU.next<now+.4){mStep(MU.step,MU.next+((MU.step&1)?spb*.14:0),spb);MU.next+=spb;MU.step=(MU.step+1)%128}}
+setInterval(musicTick,110);addEventListener('pointerdown',()=>audio(),{passive:true});
+
 boot();cloudPing();partyUI();
 try{const mq=matchMedia('(prefers-color-scheme:dark)');mq.addEventListener?mq.addEventListener('change',theme):mq.addListener&&mq.addListener(theme)}catch(e){}new MutationObserver(theme).observe(document.documentElement,{attributes:true});
 document.addEventListener('visibilitychange',()=>document.hidden&&pause());
