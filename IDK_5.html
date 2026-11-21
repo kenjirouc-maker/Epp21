@@ -294,6 +294,7 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 <!-- Auth screen -->
 <section class="screen on" id="auth"><div class="sheet">
 <h1 style="font-size:64px">IDK</h1>
+<div class="auth-note" id="cloud-st"></div>
 <div class="auth-tabs"><button class="auth-tab active" data-tab="login">Log In</button><button class="auth-tab" data-tab="signup">Sign Up</button></div>
 <div id="auth-login" class="auth-form">
 <label>Username</label><input id="al-user" type="text" maxlength="20" autocomplete="off">
@@ -492,7 +493,9 @@ document.querySelectorAll('.auth-tab').forEach(tab=>tab.onclick=()=>{
  $('#auth-login').style.display=tab.dataset.tab==='login'?'':'none';
  $('#auth-signup').style.display=tab.dataset.tab==='signup'?'':'none'});
 function enterMenu(){for(const q of['#auth','#profile','#mastery','#maps','#lboard','#pview','#vote'])$(q).classList.remove('on');menu.classList.add('on');$('#snd').classList.toggle('off',!!S.mute);refresh()}
-function showAuth(){document.querySelector('.auth-tab[data-tab=login]').click();$('#auth').classList.add('on')}
+function cloudPing(){const el=$('#cloud-st');if(!el)return;if(!CLOUD){el.textContent='Online accounts are off';return}el.textContent='Online accounts: checking...';
+ cfetch('/acc/__ping').then(()=>{el.textContent='Online accounts: connected'},()=>{el.textContent='Online accounts unavailable: '+cloudWhyMsg+'. You can still play and make an account saved on this device.'})}
+function showAuth(){cloudPing();document.querySelector('.auth-tab[data-tab=login]').click();$('#auth').classList.add('on')}
 const NAMEOK=/^[A-Za-z0-9 _.\-]{2,14}$/;
 const authBusy=(b,on,t)=>{b.disabled=on;if(t)b.textContent=t};
 $('#al-btn').onclick=async()=>{
@@ -516,7 +519,7 @@ $('#al-btn').onclick=async()=>{
    if(a.pw!==pwh(u,p)){a.pw=pwh(u,p)}
    useAcc(key);accTs=0;accLast='';accReady=true;if(!down)claimCloud(key)
   }else{let old=false;if(CLOUD&&!down){try{old=!!await cfetch('/lb/'+cKey(u))}catch(x){}}
-   e.textContent=down?"Can't reach the server. Check your connection.":old?'This name is on the leaderboard from an older version but has no online login yet. Open the game once on the device you made it on, or use Sign Up with that account\'s Backup code to claim it.':'Account not found';return}
+   e.textContent=down?`No account called that on this device, and online login isn't available: ${cloudWhyMsg}. Accounts made on this device still work offline.`:old?'This name is on the leaderboard from an older version but has no online login yet. Open the game once on the device you made it on, or use Sign Up with that account\'s Backup code to claim it.':'Account not found';return}
   $('#al-pass').value='';save();enterMenu();accPush(true);cloudPush(true);cloudPull()
  }finally{authBusy(b,false,'Log In')}};
 $('#as-btn').onclick=async()=>{
@@ -530,16 +533,16 @@ $('#as-btn').onclick=async()=>{
  syncDB();importLegacy(false);const key=u.toLowerCase(),TAKEN='Username already taken. If it is your account, use Log In.';
  if(DB.acc[key]){e.textContent=TAKEN;return}
  authBusy(b,true,'Creating...');
- try{
+ let offline=false;try{
   if(CLOUD){try{const[r1,r2]=await Promise.all([cfetch('/acc/'+cKey(u)),cfetch('/lb/'+cKey(u))]);if(r1||(r2&&!(bk&&bk.u&&String(bk.u).toLowerCase()===key))){e.textContent=r1?TAKEN:'That name is on the leaderboard from an older version. To claim it, paste that account\'s Backup code below.';return}}
-   catch(x){e.textContent="Can't reach the server. Check your connection and try again.";return}}
+   catch(x){offline=true}}
   const d=S.user==='Guest'?JSON.parse(JSON.stringify(pickK(S))):DEF(),h2=await pw2(u,p),ts=Date.now();
   DB.acc[key]={name:u,pw:pwh(u,p),p2:h2,ts,d:Object.assign(DEF(),d)};
   useAcc(key);if(bk){mergeData(bk.d);gs=S.gems}
   DB.acc[key].d=JSON.parse(JSON.stringify(pickK(S)));
-  if(CLOUD){try{await claimCloud(key,true)}catch(x){delete DB.acc[key];useGuest();persist();e.textContent="Couldn't create the account online. Try again.";return}}
-  accTs=ts;accLast='';accReady=true;$('#as-pass').value=$('#as-pass2').value=$('#as-code').value='';
-  save();enterMenu();accPush(true);cloudPush(true);cloudPull();toast('Welcome, '+u+'!')
+  if(CLOUD&&!offline){try{await claimCloud(key,true)}catch(x){offline=true}}
+  accTs=ts;accLast='';accReady=!offline;$('#as-pass').value=$('#as-pass2').value=$('#as-code').value='';
+  save();enterMenu();if(!offline){accPush(true);cloudPush(true);cloudPull();toast('Welcome, '+u+'!')}else toast('Account saved on this device only: '+cloudWhyMsg,4200)
  }finally{authBusy(b,false,'Sign Up')}};
 $('#al-guest').onclick=$('#as-guest').onclick=()=>{useGuest();save();enterMenu()};
 function boot(){if(!canLS){useGuest();enterMenu();setTimeout(()=>toast('Progress cannot be saved here'),600);return}
@@ -1667,7 +1670,8 @@ const CLOUD='https://idk123-14320-default-rtdb.firebaseio.com';
 let cloudRows=[],cloudPushT=0,cloudOk=null;
 const cKey=n=>encodeURIComponent(n.toLowerCase()).replace(/\./g,'%2E');
 /* ---- cloud accounts: stored at /acc/<name>, so the same login works on every device ---- */
-const cfetch=(path,opt)=>fetch(CLOUD+path+'.json',opt).then(r=>{if(!r.ok)throw 0;return r.json()}),
+let cloudWhyMsg='';
+const cfetch=(path,opt)=>fetch(CLOUD+path+'.json',opt).then(r=>{if(!r.ok){cloudWhyMsg=(r.status===401||r.status===403)?'the online database refused access (permission denied)':r.status===404?'the online database was not found':'the online database returned error '+r.status;throw 0}cloudWhyMsg='';return r.json()},()=>{cloudWhyMsg="this page can't connect to the internet, or it blocks outside connections";throw 0}),
 cput=(path,v)=>cfetch(path,{method:'PUT',body:JSON.stringify(v)}),parseJ=t=>{try{const o=JSON.parse(t||'{}');return o&&typeof o==='object'?o:{}}catch(e){return{}}};
 async function sha(t){try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,'0')).join('')}}catch(e){}return''}
 const pw2=(u,p)=>sha('idk2\u0001'+u.toLowerCase()+'\u0001'+p);
@@ -1685,7 +1689,7 @@ async function accBoot(me){if(!CLOUD)return;try{for(const k in DB.acc){if(DB.acc
 /* push this account's progress; if another device saved in between, merge its progress in first */
 async function accPush(force){if(!CLOUD||!accReady||accBusy||S.user==='Guest'||typeof fetch!=='function')return;const n=Date.now();if(!force&&n-accT<8000)return;
  const dj=JSON.stringify(pickK(S));if(dj===accLast)return;accBusy=true;accT=n;const name=S.user,ck='/acc/'+cKey(name);
- try{const ts=await cfetch(ck+'/ts');if(ts&&ts!==accTs){const r=await cfetch(ck);if(r&&r.dj&&S.user===name){const g=S.gems;mergeData(parseJ(r.dj));S.gems=g;gs=g}}
+ try{let ts=await cfetch(ck+'/ts');if(ts===null||ts===undefined){await claimCloud(name.toLowerCase(),true);ts=await cfetch(ck+'/ts');accTs=ts||0}if(ts&&ts!==accTs){const r=await cfetch(ck);if(r&&r.dj&&S.user===name){const g=S.gems;mergeData(parseJ(r.dj));S.gems=g;gs=g}}
   if(S.user!==name)return;const j2=JSON.stringify(pickK(S)),t2=Date.now();await cput(ck+'/dj',j2);await cput(ck+'/ts',t2);accTs=t2;accLast=j2;const a=DB.acc[name.toLowerCase()];if(a){a.ts=t2;persist()}}
  catch(x){}finally{accBusy=false}}
 function cloudPush(force){if(!CLOUD||S.user==='Guest'||typeof fetch!=='function')return;const n=Date.now();if(!force&&n-cloudPushT<20000)return;cloudPushT=n;
@@ -1815,7 +1819,7 @@ function setPC(b){app.classList.toggle('pc',b);HINT=b?'WASD move Â· mouse aims Â
 setPC(PCM);document.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')setPC(false)},{capture:true});document.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&PCM&&!app.classList.contains('pc'))setPC(true)},{capture:true});
 function size(){const d=Math.min(devicePixelRatio||1,CAPD);vw=app.clientWidth||innerWidth||360;vh=app.clientHeight||innerHeight||640;cv.width=vw*d;cv.height=vh*d;c.setTransform(d,0,0,d,0,0);c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high'}
 addEventListener('resize',size);size();theme();refresh();
-boot();
+boot();cloudPing();
 try{const mq=matchMedia('(prefers-color-scheme:dark)');mq.addEventListener?mq.addEventListener('change',theme):mq.addListener&&mq.addListener(theme)}catch(e){}new MutationObserver(theme).observe(document.documentElement,{attributes:true});
 document.addEventListener('visibilitychange',()=>document.hidden&&pause());
 let slowT=0,adapt=0;
