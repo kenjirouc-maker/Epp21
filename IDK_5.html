@@ -342,7 +342,7 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 <h3>Medals</h3><div class="pf-badges" id="pf-badges"></div>
 <h3>Profile icon</h3><div class="pf-grid" id="pf-grid"></div>
 <h3>Progress</h3><div class="pf-save" id="pf-save"></div>
-<div class="pf-bkrow"><button class="mode" id="pf-bk">Backup code</button><button class="mode" id="pf-rs">Restore</button></div>
+<div class="pf-bkrow"><button class="mode" id="pf-sync">Sync online</button><button class="mode" id="pf-bk">Backup code</button><button class="mode" id="pf-rs">Restore</button></div>
 <textarea id="pf-code" rows="3" spellcheck="false" placeholder="Backup code appears here. Paste a code and press Restore."></textarea></div></div></section>
 <section class="screen" id="pview"><div class="lobby"><div class="bar"><button class="mode" id="pv-back">&#8249; Back</button><b class="ttl">Player</b><span style="width:84px"></span></div>
 <div class="pf-body"><canvas id="pv-ico" width="160" height="160"></canvas><div id="pv-name"></div><div class="pv-sub" id="pv-sub"></div><div class="pf-stats" id="pv-stats"></div>
@@ -1776,11 +1776,23 @@ function buildProfile(){drawIcon($('#pf-ico').getContext('2d'),S.icon,160);
  const g=$('#pf-grid');g.innerHTML='';for(const ic of ICONS){const own=iconOwned(ic.id),b=document.createElement('button');b.className='pf-ic'+(S.icon===ic.id?' sel':'')+(own?'':' lock');
   const q=document.createElement('canvas');q.width=q.height=112;drawIcon(q.getContext('2d'),ic.id,112);b.appendChild(q);const sp=document.createElement('span');sp.textContent=own?ic.n:ic.lock;b.appendChild(sp);
   b.onclick=()=>{if(!own)return toast('Locked: '+ic.lock);S.icon=ic.id;save();buildProfile();updateUser();sfx('ui')};g.appendChild(b)}
- $('#pf-save').textContent=canLS?(CLOUD?'Saved to your online account':'Auto-saved on this device')+(lastSave?' · '+new Date(lastSave).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''):'Saving is unavailable here'}
+ $('#pf-save').textContent=canLS?'Auto-saved on this device'+(lastSave?' · '+new Date(lastSave).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''):'Saving is unavailable here';profOnline()}
 function backupCode(){const j=JSON.stringify({u:S.user,d:pickK(S)});return'IDK1.'+cs(j)+'.'+btoa(unescape(encodeURIComponent(j)))}
 function mergeData(d){S.gems=Math.max(S.gems,d.gems|0);S.tro=Math.max(S.tro,d.tro|0);S.best=Math.max(S.best,d.best|0);S.elo=Math.max(S.elo|0,d.elo|0);for(const k of CLS_KEYS)S.med[k]=Math.max(S.med[k],((d.med||{})[k])|0);
  Object.assign(S.own,d.own||{});Object.assign(S.cl,d.cl||{});for(const a of['badges','icons'])for(const v of d[a]||[])if(typeof v==='string'&&!S[a].includes(v))S[a].push(v);
  S.eq=Object.assign({},d.eq||{},S.eq);S.trail=S.trail||'';if(!S.trail&&d.trail)S.trail=d.trail;if(d.box&&!S.box)S.box=d.box;if(d.icon&&S.icon==='excl'&&ICONS.some(i=>i.id===d.icon&&(!i.lock||S.icons.includes(d.icon))))S.icon=d.icon;for(const k of['g','w','ko','cap'])S.st[k]=Math.max(S.st[k]|0,((d.st||{})[k])|0);norm()}
+/* is this account stored online (so it can be used from other devices)? */
+async function profOnline(){const el=$('#pf-save');if(!CLOUD||S.user==='Guest'){return}const key=S.user.toLowerCase(),a=DB.acc[key];if(!a)return;let st;
+ try{const r=await cfetch('/acc/'+cKey(S.user));st=!r?'Not saved online yet. Press Sync online to use this account on other devices.':r.pw===a.pw?'Saved online: you can log in from any device':'The online account with this name uses a different password'}
+ catch(x){st='Online unavailable ('+cloudWhyMsg+'). Saved on this device only.'}
+ if($('#profile').classList.contains('on')||true)el.textContent=el.textContent.split(' | ')[0]+' | '+st}
+$('#pf-sync').onclick=async()=>{if(S.user==='Guest'||!CLOUD)return;const key=S.user.toLowerCase(),a=DB.acc[key];if(!a)return toast('No saved account');save();
+ if(!a.pw)return toast('Log out and log in once to finish setting up this account');
+ try{const r=await cfetch('/acc/'+cKey(S.user));
+  if(!r){await claimCloud(key,true);accReady=true;accTs=a.ts||0;accLast='';cloudPush(true);toast('Uploaded! You can now log in from other devices')}
+  else if(r.pw===a.pw){accReady=true;accTs=r.ts||0;accLast='';await accPush(true);cloudPush(true);toast('Synced with your online account')}
+  else toast('That name is already taken online with a different password')}
+ catch(x){toast('Sync failed: '+(cloudWhyMsg||'unknown error'))}profOnline()};
 $('#pf-bk').onclick=()=>{const c=backupCode();$('#pf-code').value=c;let cp=null;try{cp=navigator.clipboard&&navigator.clipboard.writeText(c)}catch(e){}if(cp&&cp.then)cp.then(()=>toast('Backup code copied'),()=>toast('Copy the code below'));else toast('Copy the code below')};
 function parseBackup(str){try{const p=String(str).replace(/\s+/g,'').split('.');if(p[0]!=='IDK1'||p.length!==3)return null;const j=decodeURIComponent(escape(atob(p[2])));if(cs(j)!==p[1])return null;const o=JSON.parse(j);return o&&o.d&&typeof o.d==='object'?o:null}catch(e){return null}}
 $('#pf-rs').onclick=()=>{const o=parseBackup($('#pf-code').value);if(!o)return toast('That code is not valid');try{mergeData(o.d);gs=S.gems;save();accPush(true);cloudPush(true);buildProfile();updateUser();refresh();toast('Progress restored!')}catch(e){toast('That code is not valid')}};
