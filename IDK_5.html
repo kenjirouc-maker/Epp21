@@ -232,6 +232,10 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 .pt-err{color:var(--accent);font-size:16px;min-height:1.1em}.pt-note{color:var(--soft);font-size:15px}.pt-mem{display:flex;justify-content:space-between;align-items:center;width:100%;padding:6px 12px;background:var(--paper);border:1.4px solid var(--line);border-radius:10px}.pt-mem i{color:var(--soft);font-style:normal;font-size:16px}
 #ptchip{background:var(--sheet);border:1.4px solid var(--accent);border-radius:10px;padding:2px 10px}.nav.inparty::before{content:"";position:absolute;right:6px;top:4px;width:10px;height:10px;border-radius:50%;background:#3FBF5A;border:1.5px solid var(--ink)}
 .devbox{display:flex;flex-direction:column;gap:6px;margin:8px 0;padding:10px;background:var(--sheet);border:1.8px dashed var(--accent);border-radius:12px;text-align:left}.devbox[hidden]{display:none}#goods .devbox{grid-column:1/-1}
+.qbox{grid-column:1/-1;display:flex;flex-direction:column;gap:8px}.qcred{grid-column:1/-1;font-size:14px;color:var(--soft);padding:10px 4px 20px}.qh{font:700 30px/1 var(--title);margin-top:6px}.qh small{font:15px var(--hand);color:var(--soft);margin-left:8px}
+.qcard{display:flex;flex-direction:column;gap:6px;padding:10px;background:var(--sheet);border:1.8px solid var(--line);border-radius:12px;box-shadow:var(--sh)}.qclass{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),var(--sh)}.qdone{opacity:.55}
+.qtop{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.qtop b{font:700 22px/1.1 var(--title)}.qtag{font:700 14px var(--title);background:var(--accent);color:var(--sheet);padding:1px 8px;border-radius:7px}
+.qbar{height:12px;border:1.6px solid var(--ink);border-radius:7px;background:var(--paper);overflow:hidden}.qbar i{display:block;height:100%;background:#5A9E6F}.qinfo{display:flex;justify-content:space-between;gap:8px;font-size:16px;color:var(--soft)}.qcard .buy{align-self:flex-end}.qcard .buy:disabled{opacity:.6}
 .dv-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.dv-row>span{flex:1 1 120px;font:16px var(--hand)}.dv-row input,.dv-row select{width:110px;padding:4px 8px;font:17px var(--hand);color:var(--ink);background:var(--paper);border:1.6px solid var(--ink);border-radius:8px;box-sizing:border-box;-webkit-user-select:text;user-select:text}
 .dv-row .buy{padding:4px 12px;font-size:18px}.dv-row .buy:disabled{opacity:.5}.dv-note{font-size:14px;color:var(--soft)}.dv-pad{align-self:center}.dv-pad canvas{width:300px;max-width:100%;height:auto;aspect-ratio:1;touch-action:none;border:1.6px solid var(--ink);border-radius:10px;background:var(--paper)}
 .auth-note{margin:2px 0 4px;font-size:15px;color:var(--soft)}
@@ -423,6 +427,8 @@ function devShopPanel(el){if(!isKirky())return;const box=devEl('div','','devbox'
   const mi=devNum(0,0,1),sync=()=>{mi.value=sel.value==='total'?CLS_KEYS.reduce((a,k)=>a+(S.med[k]|0),0):S.med[sel.value]|0};sel.onchange=sync;sync();
   const mb=devEl('button','Set medals','buy');mb.onclick=()=>{devSetMedals(sel.value,mi.value);toast('Medals set');sync();buildShop()};row('Medals',sel,mi,mb);
   const ei=devNum(S.elo|0,0,1),eb=devEl('button','Set Elo','buy');eb.onclick=()=>{S.elo=Math.max(0,Math.floor(+ei.value)||0);save();accPush(true);cloudPush(true);refresh();toast('Elo set · '+rankName(S.elo))};row('Elo',ei,eb);
+  const gi2=devNum(S.gems|0,0,1),gb2=devEl('button','Set gems','buy');gb2.onclick=()=>{gems(Math.max(0,Math.floor(+gi2.value)||0));toast('Gems set');buildShop()};row('Gems',gi2,gb2);
+  const rq=devEl('button','Reroll quests','buy'),rsb=devEl('button','Reroll shop offers','buy');rq.onclick=()=>{questReroll();buildShop();toast('Quests rerolled')};rsb.onclick=()=>{shopReroll();buildShop();toast('Shop offers rerolled')};row('Rerollers',rq,rsb);
   for(const k of CLS_KEYS){const st=STARTERS.includes(k),state=DEVLOCK.has(k)?'locked (temp)':st||S.own[k]?'owned':'not owned',r=devEl('div','','dv-row');r.appendChild(devEl('span',CN[k]+' · '+state));
    const b1=devEl('button','Unlock','buy'),b2=devEl('button','Lock','buy');b1.onclick=()=>{devClass(k,'unlock');buildShop()};b2.onclick=()=>{devClass(k,'lock');buildShop()};r.append(b1,b2);
    if(!st){const b3=devEl('button','Disown','buy');b3.onclick=()=>{devClass(k,'disown');buildShop()};r.appendChild(b3)}box.appendChild(r)}
@@ -447,6 +453,45 @@ function devRangePad(box,rowEl){let pad=box.querySelector('.dv-pad');if(pad){pad
  cv.onpointerup=()=>{if(!cur)return;if(cur.length>=6)strokes.push(cur);cur=null;apply();draw()};
  const bar=devEl('div','','dv-row'),un=devEl('button','Undo','buy'),cl2=devEl('button','Clear','buy');un.onclick=()=>{strokes.pop();apply();draw()};cl2.onclick=()=>{strokes=[];apply();draw()};bar.append(un,cl2);
  pad.append(cv,bar);if(rowEl)rowEl.after(pad);else box.appendChild(pad);draw()}
+/* ---------- quests: a fresh set every 2 hours, class quests unlock a class for free ---------- */
+const QW=7200000,qWin=()=>Math.floor(Date.now()/QW),QMODES={ffa:'Free-for-all',ctf:'Capture the Flag',fb:'Football',ul:'Ultra League'};
+function qRnd(){let h=0;for(const ch of S.user)h=(h*31+ch.charCodeAt(0))|0;let i=0;const sd=S.qs.w*977+S.qs.s*131+(Math.abs(h)%9973);return()=>R(sd+(++i)*7.31)}
+const qInt=(r,a,b)=>a+Math.floor(r()*(b-a+1)),qPick=(r,a)=>a[Math.floor(r()*a.length)],
+qProg=q=>q.t==='tier'?(S.badges.includes(q.a+q.k)?1:0):(q.p|0),qDone=q=>qProg(q)>=q.n;
+function qGenNormal(r,have){const owned=CLS_KEYS.filter(k=>!clsLocked(k)),pool=[
+ ()=>{const n=qInt(r,2,4);return{t:'win',n,g:16+n*8}},
+ ()=>{const n=qInt(r,1,2);return{t:'winmode',a:qPick(r,ulOK()?['ffa','ctf','fb','ul']:['ffa','ctf','fb']),n,g:26+n*10}},
+ ()=>{const n=qInt(r,1,2);return{t:'winclass',a:qPick(r,owned),n,g:24+n*10}},
+ ()=>{const n=qInt(r,4,7);return{t:'play',n,g:14+n*3}},
+ ()=>{const n=qInt(r,8,18);return{t:'ko',n,g:18+Math.round(n*1.2)}},
+ ()=>{const n=qInt(r,12,24);return{t:'medals',n,g:24+Math.round(n*1.1)}},
+ ()=>{const n=qInt(r,2,3);return{t:'caps',n,g:24+n*8}},
+ ()=>{const n=qInt(r,5,7);return{t:'wave',n,g:30+n*4}}];
+ for(let i=0;i<24;i++){const q=pool[Math.floor(r()*pool.length)]();if(!have.some(h=>h.t===q.t&&h.a===q.a)){q.p=0;return q}}return null}
+/* class quests are harder: a medal tier (1 for rare classes, up to 2 for epic), a lot of medals, or a high survival wave */
+function qGenClass(r,have){if(S.user==='Guest')return null;const lock=Object.keys(LOCK).filter(k=>!owns(k)&&!have.some(h=>h.c===k));if(!lock.length)return null;
+ const c=qPick(r,lock),epic=CLASS_INFO[c].rarity==='Epic',kind=qPick(r,['tier','medals','wave']),q={c,p:0,g:0,e:epic?1:0};
+ if(kind==='tier'){q.t='tier';q.a=qPick(r,['rammer','catcher','puncher']);q.k=epic&&r()<.5?2:1;q.n=1}
+ else if(kind==='medals'){q.t='medals';q.n=epic?qInt(r,130,180):qInt(r,60,90)}
+ else{q.t='wave';q.n=epic?qInt(r,11,14):qInt(r,8,10)}return q}
+function questEnsure(force){const w=qWin();if(!S.qs||!Array.isArray(S.qs.l))S.qs={w:-1,s:0,l:[]};if(S.qs.w===w&&S.qs.l.length&&!force)return;
+ const list=S.qs.l.filter(q=>!q.x&&qDone(q));S.qs.w=w;const r=qRnd();
+ if(r()<.5&&!list.some(q=>q.c)){const cq=qGenClass(r,list);if(cq)list.push(cq)}
+ let guard=0;while(list.filter(q=>!q.c).length<3&&guard++<12){const q=qGenNormal(r,list);if(!q)break;list.push(q)}
+ S.qs.l=list;save()}
+function questReroll(){questEnsure();S.qs.s++;questEnsure(true)}
+function shopReroll(){const w=shopWin();S.rs={w,n:(S.rs&&S.rs.w===w?S.rs.n|0:0)+1};save()}
+function questEvent(g,win,md,k){if(!S.qs||!Array.isArray(S.qs.l))return;const won=g.mode==='surv'?md>0:!!win,mk=(g.ul||g.mode==='usv')?'ul':g.mode;
+ for(const q of S.qs.l){if(q.x||qDone(q))continue;switch(q.t){case'play':q.p++;break;case'win':if(won)q.p++;break;case'winmode':if(won&&q.a===mk)q.p++;break;case'winclass':if(won&&k===q.a)q.p++;break;
+  case'ko':q.p+=g.ko|0;break;case'medals':q.p+=md|0;break;case'caps':q.p+=g.ctf?g.ctf.pc:g.fb?g.fb.pc:0;break;case'wave':if(g.mode==='surv')q.p=Math.max(q.p|0,g.wave|0);break}}}
+function qText(q){const cn=k=>CN[k];switch(q.t){case'win':return`Win ${q.n} matches`;case'winmode':return`Win ${q.n} ${QMODES[q.a]} match${q.n>1?'es':''}`;case'winclass':return`Win ${q.n} match${q.n>1?'es':''} as ${cn(q.a)}`;case'play':return`Play ${q.n} matches`;
+ case'ko':return`Knock out ${q.n} enemies`;case'medals':return`Earn ${q.n} medals`;case'caps':return`Capture ${q.n} flags or score ${q.n} tries`;case'wave':return`Survive ${q.n} waves in Survival`;case'tier':return`Claim a Tier ${q.k} ${cn(q.a)} Medal in Mastery`}return''}
+function questClaim(i){const q=S.qs.l[i];if(!q||q.x||!qDone(q))return;q.x=1;if(q.c){S.own[q.c]=1;toast('Unlocked '+CLASS_INFO[q.c].name+'!');sfx('win',.6)}else{gems(S.gems+q.g);toast('+'+q.g+' gems!');sfx('win',.5)}save();buildShop()}
+function questPanel(el){questEnsure();const box=devEl('div','','qbox'),left=(qWin()+1)*QW-Date.now(),h=Math.floor(left/3600000),m=Math.ceil(left%3600000/60000),hd=devEl('div','Quests ','qh');hd.appendChild(devEl('small','new set in '+h+'h '+m+'m'));box.appendChild(hd);
+ S.qs.l.forEach((q,i)=>{const pr=Math.min(q.n,qProg(q)),done=pr>=q.n,card=devEl('div','','qcard'+(q.c?' qclass':'')+(q.x?' qdone':'')),top=devEl('div','','qtop');top.appendChild(devEl('b',qText(q)));if(q.c)top.appendChild(devEl('span',(q.e?'EPIC':'RARE')+' CLASS QUEST','qtag'));
+  const bar=devEl('div','','qbar'),fill=devEl('i');fill.style.width=(pr/q.n*100)+'%';bar.appendChild(fill);const info=devEl('div','','qinfo');info.appendChild(devEl('span',pr+' / '+q.n));info.appendChild(devEl('span',q.c?'Reward: '+CLASS_INFO[q.c].name+' unlocked':'Reward: '+q.g+' gems'));
+  const bt=devEl('button',q.x?'Claimed':done?'Claim':'In progress','buy'+(q.x?' own':''));bt.disabled=!done||!!q.x;bt.onclick=()=>questClaim(i);card.append(top,bar,info,bt);box.appendChild(card)});
+ (el.querySelector('.devbox')||el.firstChild).after(box)}
 function devPausePanel(){const d=$('#devp');if(!devOn()){d.hidden=true;return}d.hidden=false;d.innerHTML='';
  const row=(lab,...ctl)=>{const r=devEl('div','','dv-row');r.appendChild(devEl('span',lab));ctl.forEach(x=>r.appendChild(x));d.appendChild(r)};
  const inf=devEl('button','Infinite damage: '+(DEV.inf?'ON':'OFF'),'buy'+(DEV.inf?' own':''));inf.onclick=()=>{DEV.inf=!DEV.inf;devPausePanel()};row('One-hit',inf);
@@ -471,7 +516,8 @@ eloCont=(g,win)=>{if(g.mode==='usv')return Math.min(1,(win?.35:.1)+Math.min(.35,
  return Math.min(1,.1+g.wave*.1+(g.wave>=SURV_WIN?.2:0)+Math.min(.15,g.score/4000))};
 const LOCK={grabber:{u:350,s:200,z:[.7311,2.9],p:.3},blitz:{u:365,s:295,z:[.9137,5.3],p:.3},medic:{u:420,s:325,z:[.6193,7.7],p:.28},smasher:{u:610,s:475,z:[.5471,11.3],p:.2}},
 owns=k=>S.user==='Guest'||!!S.own[k],grabOwned=()=>owns('grabber'),blitzOwned=()=>owns('blitz'),clsLocked=k=>DEVLOCK.has(k)||(!!LOCK[k]&&!owns(k)),unlockCost=k=>LOCK[k]?LOCK[k].u:0,
-inStock=k=>R(Math.floor(Date.now()/10800000)*LOCK[k].z[0]+LOCK[k].z[1])<LOCK[k].p;
+shopWin=()=>Math.floor(Date.now()/10800000),shopSalt=()=>S.rs&&S.rs.w===shopWin()?S.rs.n|0:0,
+inStock=k=>R(shopWin()*LOCK[k].z[0]+LOCK[k].z[1]+shopSalt()*3.713)<LOCK[k].p;
 let T={},G={s:'menu',fx:[],tx:[],tr:0},AR=null,cls='rammer',mode='ffa',vw=0,vh=0,last=0,best=0,PAPER,dark=false,HATCH=null;const keys=new Set();
 const MOTES=Array.from({length:34},(_,i)=>({x:R(i+.3)*2000,y:R(i+.7)*2000,z:.3+R(i+.9)*.7,s:1+R(i+1.3)*2.2}));
 let canLS=true;
@@ -480,8 +526,8 @@ try{localStorage.setItem('__t','1');localStorage.removeItem('__t')}catch(e){canL
 /* ---------- account + save system ----------
    DB holds every account plus the guest profile. It is written (with a checksum) on every change,
    when the page is hidden/closed and every 15s, with the previous good copy kept as a backup. */
-const SKEYS=['gems','tro','own','eq','trail','gift','best','med','cl','badges','icons','icon','box','map','st','elo'],
-DEF=()=>({gems:120,tro:0,own:{},eq:{},trail:'',gift:'',best:0,med:{rammer:0,catcher:0,puncher:0,grabber:0,blitz:0,medic:0,smasher:0},cl:{},badges:[],icons:[],icon:'excl',box:'',map:'desk',st:{g:0,w:0,ko:0,cap:0},elo:0}),
+const SKEYS=['gems','tro','own','eq','trail','gift','best','med','cl','badges','icons','icon','box','map','st','elo','qs','rs'],
+DEF=()=>({gems:120,tro:0,own:{},eq:{},trail:'',gift:'',best:0,med:{rammer:0,catcher:0,puncher:0,grabber:0,blitz:0,medic:0,smasher:0},cl:{},badges:[],icons:[],icon:'excl',box:'',map:'desk',st:{g:0,w:0,ko:0,cap:0},elo:0,qs:{w:-1,s:0,l:[]},rs:{w:-1,n:0}}),
 KEY='idk-v2',KEYB='idk-v2-bak';
 let S=Object.assign(DEF(),{user:'Guest',mute:false}),gs=120,bp=0,jn='',DB={v:2,acc:{},guest:null,last:'',mute:false},lastSave=0,saveFail=false;
 function cs(str){let h1=0xdeadbeef,h2=0x41c6ce57;for(let i=0;i<str.length;i++){const ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}
@@ -518,7 +564,7 @@ function save(){if(!canLS)return;try{syncDB();cloudPush();DB.mute=!!S.mute;DB.la
 function norm(){const D=DEF();for(const k of SKEYS)if(S[k]===undefined||S[k]===null)S[k]=D[k];S.med=Object.assign({rammer:0,catcher:0,puncher:0,grabber:0,blitz:0,medic:0,smasher:0},S.med);for(const k in S.med)S.med[k]=Math.max(0,S.med[k]|0);
  if(!Array.isArray(S.badges))S.badges=[];if(!Array.isArray(S.icons))S.icons=[];if(typeof S.cl!=='object'||!S.cl)S.cl={};if(typeof S.own!=='object'||!S.own)S.own={};if(typeof S.eq!=='object'||!S.eq)S.eq={};
  if(typeof S.st!=='object'||!S.st)S.st={};for(const k of['g','w','ko','cap'])S.st[k]=Math.max(0,S.st[k]|0);
- S.gems=Math.max(0,S.gems|0);S.elo=Math.max(0,S.elo|0);if(typeof iconOwned==='function'&&!iconOwned(S.icon))S.icon='excl';if(typeof MAPS==='object'&&!MAPS[S.map])S.map='desk';gs=S.gems}
+ S.gems=Math.max(0,S.gems|0);S.elo=Math.max(0,S.elo|0);if(!S.qs||typeof S.qs!=='object'||!Array.isArray(S.qs.l))S.qs={w:-1,s:0,l:[]};if(!S.rs||typeof S.rs!=='object')S.rs={w:-1,n:0};if(typeof iconOwned==='function'&&!iconOwned(S.icon))S.icon='excl';if(typeof MAPS==='object'&&!MAPS[S.map])S.map='desk';gs=S.gems}
 function useGuest(){S=Object.assign(DEF(),JSON.parse(JSON.stringify(DB.guest||{})),{user:'Guest',mute:DB.mute});norm()}
 function useAcc(key){const a=DB.acc[key];S=Object.assign(DEF(),JSON.parse(JSON.stringify(a.d||{})),{user:a.name,mute:DB.mute});norm()}
 
@@ -610,7 +656,7 @@ function gems(n){const a=gs,t0=performance.now();gs=S.gems=n;save();(function f(
 function refresh(){netSyncMenu();if(clsLocked(cls))cls='rammer';setHint();document.querySelectorAll('.gv').forEach(e=>e.textContent=gs);updateUser();updateMapBtn();renderLLB();$('#clsbd').hidden=!readyAll();const C=CLN[cls],Ml=ML[mode].slice();if(mode==='ul')Ml[1]=ulOK()?`${rankName(S.elo)} · ${S.elo} Elo`:`locked · ${totMed()}/${ULT_TRO} medals`;$('#pn').textContent=C[0];$('#pi').textContent=C[1]+' · '+C[2];$('#mode').innerHTML=`&#8644; ${Ml[0]} <small>${Ml[1]}</small>`;$('.bd').hidden=S.gift===today();if(gs!==S.gems)gems(S.gems)}
 function buildShop(){const el=$('#goods'),ok=S.gift!==today();
  el.innerHTML=`<button class="buy gift${ok?'':' off'}"><i class="gemi"></i>${ok?'Free daily gift +25':'Gift claimed · back tomorrow'}</button><h3>Skins</h3>`;
- el.firstChild.onclick=()=>{if(!ok)return toast('Come back tomorrow!');S.gift=today();gems(S.gems+25);toast('+25 gems!');$('.bd').hidden=true;buildShop()};devShopPanel(el);
+ el.firstChild.onclick=()=>{if(!ok)return toast('Come back tomorrow!');S.gift=today();gems(S.gems+25);toast('+25 gems!');$('.bd').hidden=true;buildShop()};devShopPanel(el);questPanel(el);
  {const W=10800000,now=Date.now(),left=W-now%W,h3=el.querySelector('h3'),hd=document.createElement('h3');hd.innerHTML='Limited stock <small>restocks in '+Math.floor(left/3600000)+'h '+Math.ceil(left%3600000/60000)+'m</small>';el.insertBefore(hd,h3);
   const OFF=Object.keys(LOCK).map((k,i)=>({k,n:CLASS_INFO[k].name,r:CLASS_INFO[k].rarity,i:-(i+1),p:LOCK[k].s,st:()=>inStock(k),own:()=>owns(k)}));let any=false;
   for(const o of OFF)if(o.st()&&!o.own()){any=true;const d=document.createElement('div');d.className='good';d.innerHTML=`<canvas width="208" height="208" data-i="${o.i}"></canvas><span>${o.n} · ${o.r}</span><button class="buy"><i class="gemi"></i>${o.p}</button>`;
@@ -624,7 +670,7 @@ function buildShop(){const el=$('#goods'),ok=S.gift!==today();
   d.lastChild.onclick=()=>{if(own){put();save();buildShop();return}
    if(S.gems<it.p){retrig(d,'no');return toast('Not enough gems!')}
    S.own[it.id]=1;put();jn=it.id;gems(S.gems-it.p);toast('Unlocked '+it.n+'!');buildShop()};
-  el.appendChild(d)});jn=''}
+  el.appendChild(d)});el.appendChild(devEl('div','Music: the lobby groove and the battle polka are synthesised in the game. The battle theme is inspired by "Pixel Peeler Polka" by Kevin MacLeod (incompetech.com), licensed CC BY 4.0.','qcred'));jn=''}
 function drawCards(t=0){bp=Math.max(0,bp-.03);const col=sk(cls),b=$('#big').getContext('2d'),w=Math.abs(Math.sin(t*2.6));
  b.clearRect(0,0,360,360);figure(b,cls,180,214-w*14-Math.sin(bp*PI)*26,3.4,{col,sq:Math.sin(t*5.2)*.035-bp*.1,rot:Math.sin(t*1.7)*.05});
  const a=$('#av')?.getContext('2d');if(a){a.clearRect(0,0,64,64);figure(a,cls,32,38,.75,{col})}
@@ -1055,6 +1101,7 @@ function fin(win){NET.m=false;const g=G,k=g.p.cls;let t,st,gm=0,tr=0,md=0;
   let eg=win?Math.round(10+15*eloCont(g,true)):draw?0:-(S.elo>0?Math.max(1,Math.round(S.elo/64)):0);S.elo=Math.max(0,S.elo+eg);const r1=rankIdx(S.elo);
   ulHtml=`<span class="ms-note">Elo ${eg>0?'+':''}${eg} · ${rankName(S.elo)} (${S.elo})${r1>r0?' · Rank up!':r1<r0?' · Rank down':''}</span>`}
  if(g.ul){tr=0;gm=0}
+ questEvent(g,win,md,k);
  cloudPushT=0;const sts=S.st;sts.g++;if(g.mode==='surv'?md>0:!!win)sts.w++;sts.ko+=g.ko|0;sts.cap+=g.ctf?g.ctf.pc:g.fb?g.fb.pc:0;
  const before=S.med[k];S.med[k]+=md;S.tro=Math.max(0,S.tro+tr);S.gems+=gm;save();
  g.s='over';mv.reset();aim.reset();app.classList.remove('playing');sfx(win||md?'win':'lose');
@@ -1886,7 +1933,7 @@ function buildProfile(){drawIcon($('#pf-ico').getContext('2d'),S.icon,160);
   b.onclick=()=>{if(!own)return toast('Locked: '+ic.lock);S.icon=ic.id;save();buildProfile();updateUser();sfx('ui')};g.appendChild(b)}
  $('#pf-save').textContent=canLS?'Auto-saved on this device'+(lastSave?' · '+new Date(lastSave).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''):'Saving is unavailable here';profOnline()}
 function backupCode(){const j=JSON.stringify({u:S.user,d:pickK(S)});return'IDK1.'+cs(j)+'.'+btoa(unescape(encodeURIComponent(j)))}
-function mergeData(d){S.gems=Math.max(S.gems,d.gems|0);S.tro=Math.max(S.tro,d.tro|0);S.best=Math.max(S.best,d.best|0);S.elo=Math.max(S.elo|0,d.elo|0);for(const k of CLS_KEYS)S.med[k]=Math.max(S.med[k],((d.med||{})[k])|0);
+function mergeData(d){if(d.qs&&Array.isArray(d.qs.l)&&(!S.qs||d.qs.w>S.qs.w))S.qs=d.qs;S.gems=Math.max(S.gems,d.gems|0);S.tro=Math.max(S.tro,d.tro|0);S.best=Math.max(S.best,d.best|0);S.elo=Math.max(S.elo|0,d.elo|0);for(const k of CLS_KEYS)S.med[k]=Math.max(S.med[k],((d.med||{})[k])|0);
  Object.assign(S.own,d.own||{});Object.assign(S.cl,d.cl||{});for(const a of['badges','icons'])for(const v of d[a]||[])if(typeof v==='string'&&!S[a].includes(v))S[a].push(v);
  S.eq=Object.assign({},d.eq||{},S.eq);S.trail=S.trail||'';if(!S.trail&&d.trail)S.trail=d.trail;if(d.box&&!S.box)S.box=d.box;if(d.icon&&S.icon==='excl'&&ICONS.some(i=>i.id===d.icon&&(!i.lock||S.icons.includes(d.icon))))S.icon=d.icon;for(const k of['g','w','ko','cap'])S.st[k]=Math.max(S.st[k]|0,((d.st||{})[k])|0);norm()}
 /* is this account stored online (so it can be used from other devices)? */
@@ -2212,17 +2259,17 @@ ROOT=[36,41,38,43,44,46,39,43],PROG=[[0,0],[1,1],[2,3],[0,0],[4,4],[5,5],[6,2],[
 RIFF=[[0,0,1],[2,0,.4],[3,12,.7],[6,0,.9],[7,7,.5],[10,0,.9],[12,5,.7],[14,10,.5]],RC={0:[.55,.9],3:[.22,.6],6:[.28,.7],10:[.32,.7],13:[.22,.55]},
 MEL=[[[3,79,2],[6,77,2],[8,75,3],[12,74,3]],[[3,80,2],[6,79,2],[8,77,3],[12,75,4]],[[0,77,3],[3,75,2],[6,74,2],[8,71,3],[12,74,2],[14,77,2]],[[0,75,4],[6,72,2],[8,74,3],[12,72,4]],
  [[3,79,2],[6,82,3],[10,79,2],[12,75,4]],[[0,77,3],[4,74,2],[6,77,2],[8,79,3],[12,77,4]],[[0,82,3],[3,79,3],[6,77,2],[8,77,3],[12,74,4]],[[0,80,2],[2,77,2],[4,75,3],[8,74,2],[10,71,2],[12,68,4]]];
-let MG=null;const mf=n=>440*Math.pow(2,(n-69)/12);
+let MG=null,MB=null,BUS=null;const mf=n=>440*Math.pow(2,(n-69)/12);
 function mTone(t,f,dur,v,type,att,vib){const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+att);g.gain.exponentialRampToValueAtTime(.0008,t+dur);
  if(vib){const l=AC.createOscillator(),lg=AC.createGain();l.frequency.value=5;lg.gain.value=f*.007;l.connect(lg);lg.connect(o.frequency);l.start(t);l.stop(t+dur+.05)}
- o.connect(g);g.connect(MG);o.start(t);o.stop(t+dur+.05)}
-function mNoise(t,dur,hp,v,bp){const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;s.loop=true;f.type=bp?'bandpass':'highpass';f.frequency.value=hp;if(bp)f.Q.value=5;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0008,t+dur);s.connect(f);f.connect(g);g.connect(MG);s.start(t,Math.random()*.4);s.stop(t+dur+.03)}
-function mKick(t,v){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(135,t);o.frequency.exponentialRampToValueAtTime(46,t+.1);g.gain.setValueAtTime(.24*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(g);g.connect(MG);o.start(t);o.stop(t+.25)}
+ o.connect(g);g.connect(BUS);o.start(t);o.stop(t+dur+.05)}
+function mNoise(t,dur,hp,v,bp){const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;s.loop=true;f.type=bp?'bandpass':'highpass';f.frequency.value=hp;if(bp)f.Q.value=5;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0008,t+dur);s.connect(f);f.connect(g);g.connect(BUS);s.start(t,Math.random()*.4);s.stop(t+dur+.03)}
+function mKick(t,v){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(135,t);o.frequency.exponentialRampToValueAtTime(46,t+.1);g.gain.setValueAtTime(.24*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(g);g.connect(BUS);o.start(t);o.stop(t+.25)}
 function mSnare(t,v){mNoise(t,.12,1900,.08*v,true);mTone(t,185,.09,.05*v,'triangle',.002)}
 function mRhodes(t,f,dur,v){mTone(t,f,dur,v,'sine',.004);mTone(t,f*1.004,dur,v*.7,'sine',.004);mTone(t,f*2,dur*.35,v*.35,'triangle',.003);mTone(t,f*6,dur*.12,v*.1,'sine',.002)}
-function mPad(t,notes,dur){const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=1100;f.connect(MG);notes.forEach(n=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sawtooth';o.frequency.value=mf(n);o.detune.value=(Math.random()-.5)*14;
+function mPad(t,notes,dur){const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=1100;f.connect(BUS);notes.forEach(n=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sawtooth';o.frequency.value=mf(n);o.detune.value=(Math.random()-.5)*14;
  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.014,t+.55);g.gain.setValueAtTime(.014,t+Math.max(.6,dur-.35));g.gain.linearRampToValueAtTime(0,t+dur);o.connect(g);g.connect(f);o.start(t);o.stop(t+dur+.05)})}
-function wah(t,f){const o=AC.createOscillator(),b=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.value=f;b.type='bandpass';b.Q.value=6;b.frequency.setValueAtTime(450,t);b.frequency.exponentialRampToValueAtTime(2400,t+.14);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(.07,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(b);b.connect(g);g.connect(MG);o.start(t);o.stop(t+.22)}
+function wah(t,f){const o=AC.createOscillator(),b=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.value=f;b.type='bandpass';b.Q.value=6;b.frequency.setValueAtTime(450,t);b.frequency.exponentialRampToValueAtTime(2400,t+.14);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(.07,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(b);b.connect(g);g.connect(BUS);o.start(t);o.stop(t+.22)}
 function mStep(step,t,spb){const bar=(step>>4)%8,s=step&15,half=s>=8?1:0,pr=PROG[bar],ci=pr[half],chord=CH[ci],root=ROOT[ci];
  if(s===0||(s===8&&pr[1]!==pr[0]))mPad(t,chord,(pr[0]===pr[1]&&s===0?16:8)*spb);
  const rc=RC[s];if(rc)chord.forEach((n,i)=>mRhodes(t+i*.007,mf(n),rc[0],.05*rc[1]));
@@ -2232,11 +2279,25 @@ function mStep(step,t,spb){const bar=(step>>4)%8,s=step&15,half=s>=8?1:0,pr=PROG
  mNoise(t,s===14?.16:.035,8000,s===14?.03:(s%4===0?.034:s%2===0?.024:.014));
  if((bar===2||bar===6)&&s===14)wah(t,mf(chord[2]+12));
  for(const m of MEL[bar])if(m[0]===s){mTone(t,mf(m[1]),Math.max(.25,m[2]*spb*1.4),.06,'triangle',.02,true);mTone(t,mf(m[1]+12),.16,.01,'sine',.004)}}
-function musicTick(){if(!AC)return;if(!MG){MG=AC.createGain();MG.gain.value=0;MG.connect(OUT)}
- const want=!S.mute&&!app.classList.contains('playing')&&!document.hidden,now=AC.currentTime;MG.gain.setTargetAtTime(want?1.7:0,now,.35);
- if(!want){MU.next=0;return}
- const spb=60/MU.bpm/4;if(!MU.next||MU.next<now-.15){MU.next=now+.1;MU.step=0}
- while(MU.next<now+.4){mStep(MU.step,MU.next+((MU.step&1)?spb*.22:0),spb);MU.next+=spb;MU.step=(MU.step+1)%128}}
+
+/* battle theme: a bouncy chiptune polka (oom-pah bass, offbeat stabs, snare on the 2) in the spirit of Kevin MacLeod's "Pixel Peeler Polka" */
+const BCH=[[60,64,67],[60,64,67],[59,62,67],[59,62,67],[60,64,67],[57,60,64],[57,60,62,66],[59,62,67],[60,64,67],[57,60,65],[60,64,67],[59,62,65,67],[60,64,67],[57,60,65],[59,62,65,67],[60,64,67]],
+BRT=[48,48,43,43,48,45,50,43,48,41,48,43,48,41,43,48],
+BMEL=[[[0,76,2],[2,79,2],[4,84,2],[6,79,2]],[[0,76,2],[2,79,2],[4,76,4]],[[0,74,2],[2,79,2],[4,83,2],[6,79,2]],[[0,74,2],[2,79,2],[4,74,4]],[[0,72,2],[2,76,2],[4,79,2],[6,84,2]],[[0,81,2],[2,79,2],[4,76,2],[6,72,2]],[[0,74,2],[2,78,2],[4,81,2],[6,78,2]],[[0,79,4],[4,74,2],[6,71,2]],
+ [[0,72,2],[2,76,2],[4,79,2],[6,76,2]],[[0,77,2],[2,81,2],[4,84,2],[6,81,2]],[[0,79,2],[2,76,2],[4,72,4]],[[0,74,2],[2,77,2],[4,79,2],[6,83,2]],[[0,84,2],[2,79,2],[4,76,2],[6,79,2]],[[0,81,2],[2,77,2],[4,72,2],[6,77,2]],[[0,79,2],[2,83,2],[4,86,2],[6,83,2]],[[0,84,4],[4,79,2],[6,72,2]]];
+function bStep(step,t,spb){const bar=(step>>3)%16,s=step&7,ch=BCH[bar],r=BRT[bar];
+ if(s===0&&(bar===0||bar===8))mNoise(t,.5,5000,.05);
+ if(s===0||s===4){const f=mf(r+(s===4?7:0));mTone(t,f,.13,.19,'triangle',.004);mTone(t,f*2,.06,.04,'square',.002)}
+ if(s===2||s===6)ch.forEach(n=>mTone(t,mf(n),.075,.028,'square',.002));
+ if(s===0)mKick(t,.9);if(s===4)mSnare(t,.9);if(s===6)mSnare(t,.22);
+ if(s%2===0)mNoise(t,.03,8000,s%4===0?.028:.02);
+ for(const m of BMEL[bar])if(m[0]===s){const f=mf(m[1]),d=Math.max(.09,m[2]*spb*.95);mTone(t,f,d,.04,'square',.003);mTone(t,f*2.002,d*.7,.012,'square',.003)}}
+function musicTick(){if(!AC)return;if(!MG){MG=AC.createGain();MG.gain.value=0;MG.connect(OUT);MB=AC.createGain();MB.gain.value=0;MB.connect(OUT)}
+ const now=AC.currentTime,vis=!S.mute&&!document.hidden,play=app.classList.contains('playing'),wantL=vis&&!play,wantB=vis&&play&&G.s!=='pause',which=wantL?'L':wantB?'B':'';
+ MG.gain.setTargetAtTime(wantL?1.7:0,now,.35);MB.gain.setTargetAtTime(wantB?.8:0,now,.25);
+ if(which!==MU.mode){MU.mode=which;MU.next=0}if(!which)return;
+ BUS=which==='L'?MG:MB;const bpm=which==='L'?92:152,spb=60/bpm/(which==='L'?4:4),sw=which==='L'?.22:.02;if(!MU.next||MU.next<now-.15){MU.next=now+.1;MU.step=0}
+ while(MU.next<now+.4){(which==='L'?mStep:bStep)(MU.step,MU.next+((MU.step&1)?spb*sw:0),spb);MU.next+=spb;MU.step=(MU.step+1)%128}}
 setInterval(musicTick,110);addEventListener('pointerdown',()=>audio(),{passive:true});
 
 boot();cloudPing();partyUI();
