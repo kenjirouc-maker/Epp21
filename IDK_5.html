@@ -678,7 +678,7 @@ function buildShop(){const el=$('#goods'),ok=S.gift!==today();
   d.lastChild.onclick=()=>{if(own){put();save();buildShop();return}
    if(S.gems<it.p){retrig(d,'no');return toast('Not enough gems!')}
    S.own[it.id]=1;put();jn=it.id;gems(S.gems-it.p);toast('Unlocked '+it.n+'!');buildShop()};
-  el.appendChild(d)});el.appendChild(devEl('div','Music: the lobby groove and the battle polka are synthesised in the game. The battle theme is inspired by "Pixel Peeler Polka" by Kevin MacLeod (incompetech.com), licensed CC BY 4.0.','qcred'));jn=''}
+  el.appendChild(d)});el.appendChild(devEl('div','Music: the lobby groove and the battle score are original and synthesised live in the game.','qcred'));jn=''}
 function drawCards(t=0){bp=Math.max(0,bp-.03);const col=sk(cls),b=$('#big').getContext('2d'),w=Math.abs(Math.sin(t*2.6));
  b.clearRect(0,0,360,360);figure(b,cls,180,214-w*14-Math.sin(bp*PI)*26,3.4,{col,sq:Math.sin(t*5.2)*.035-bp*.1,rot:Math.sin(t*1.7)*.05});
  const a=$('#av')?.getContext('2d');if(a){a.clearRect(0,0,64,64);figure(a,cls,32,38,.75,{col})}
@@ -2321,26 +2321,30 @@ function lStep(step,t,spb){const bar=(step>>4)%8,s=step&15,pass=MU.loop,pr=PROG[
  hat(t+jit(7),s===14?.034:(s%4===0?.034:s%2===0?.024:.013)*rnd(.8,1.15),s===14,s%2?.3:-.25);
  if((bar===2||bar===6)&&s===14&&pass%2===0)wah(t+jit(8),mf(chord[2]+12));
  for(const m of bv.mel)if(m[0]===s){const f=mf(m[1]),d=Math.max(.28,m[2]*spb*1.5),tt=t+jit(14)-.006;tone(tt,f,d,vv(.065),'triangle',.02,{vib:.006,vd:.14,from:f*(Math.random()<.35?.975:1),slide:.07,pan:.12});tone(tt,f*2,.2,vv(.012),'sine',.004,{pan:.12});noise(tt,.05,'bandpass',f*2,2.2,.018,{pan:.12})}}
-/* ----- battle polka: chiptune-flavoured, but with pulse-width variety, echo, bends and a fresh variation each pass ----- */
-const BCH=[[60,64,67],[60,64,67],[59,62,67],[59,62,67],[60,64,67],[57,60,64],[57,60,62,66],[59,62,67],[60,64,67],[57,60,65],[60,64,67],[59,62,65,67],[60,64,67],[57,60,65],[59,62,65,67],[60,64,67]],
-BRT=[48,48,43,43,48,45,50,43,48,41,48,43,48,41,43,48],
-BMEL=[[[0,76,2],[2,79,2],[4,84,2],[6,79,2]],[[0,76,2],[2,79,2],[4,76,4]],[[0,74,2],[2,79,2],[4,83,2],[6,79,2]],[[0,74,2],[2,79,2],[4,74,4]],[[0,72,2],[2,76,2],[4,79,2],[6,84,2]],[[0,81,2],[2,79,2],[4,76,2],[6,72,2]],[[0,74,2],[2,78,2],[4,81,2],[6,78,2]],[[0,79,4],[4,74,2],[6,71,2]],
- [[0,72,2],[2,76,2],[4,79,2],[6,76,2]],[[0,77,2],[2,81,2],[4,84,2],[6,81,2]],[[0,79,2],[2,76,2],[4,72,4]],[[0,74,2],[2,77,2],[4,79,2],[6,83,2]],[[0,84,2],[2,79,2],[4,76,2],[6,79,2]],[[0,81,2],[2,77,2],[4,72,2],[6,77,2]],[[0,79,2],[2,83,2],[4,86,2],[6,83,2]],[[0,84,4],[4,79,2],[6,72,2]]];
-function bMut(bar,pass){const pm=[.05,.2,.3,.22][pass%4],out=[];let sd=pass*9.1+bar*4.3,i=0;const r=()=>R(sd+(++i)*3.3);for(const m of BMEL[bar]){const x=r();if(x<pm*.3)continue;let n=m[1];if(x<pm)n=snapN(n,r()<.5?1:-1,MAJ);out.push([m[0],n,m[2]]);if(pass%4===3)out.push([m[0],snapN(n,2,MAJ)-12,m[2],1])}return out}
-function bStep(step,t,spb){const bar=(step>>3)%16,s=step&7,pass=MU.loop,inten=[.75,1,1,.92][pass%4],ch=BCH[bar],r=BRT[bar];if(!PW)PW=[pulseW(.125),pulseW(.25),pulseW(.5)];
- if(s===0)MU.bm=bMut(bar,pass);
- if(s===0){kick(t+jit(5),vv(.9*inten));if(bar%8===0)noise(t,.6,'highpass',5000,.6,.05,{})}
- if(s===4)snare(t+.008+jit(7),vv(.9*inten),0);else if(s===6&&Math.random()<.55)snare(t+jit(7),vv(.2),.1);
- if((bar===7||bar===15)&&s>=4&&pass%2===1)snare(t+jit(5),.3+(s-4)*.13,0);
- if(s%2===0)hat(t+jit(6),(s%4===0?.026:.018)*rnd(.85,1.15),false,s%4?.3:-.3);
- if(s===0||s===4){const walk=s===4&&Math.random()<.18,n=walk?r+(Math.random()<.5?5:2):r+(s===4?7:0),f=mf(n);tone(t+jit(6),f,.13,vv(.2),'triangle',.004,{dry:1});tone(t+jit(6),f*2,.06,vv(.035),'sine',.002,{dry:1})}
- if(s===2||s===6)ch.forEach((n,i)=>tone(t+jit(7)+i*.004,mf(n),.075,vv(.03),'square',.002,{wave:PW[1],pan:s===2?-.25:.25}));
- for(const m of MU.bm)if(m[0]===s){const f=mf(m[1]+(pass%4===2&&!m[3]?12:0)),d=Math.max(.09,m[2]*spb*.95),wv=PW[(bar>>2)%3];tone(t+jit(9),f,d,vv(m[3]?.02:.042),'square',.004,{wave:wv,from:Math.random()<.3?f*.96:0,slide:.04,vib:m[2]>=4?.008:0,vd:.08,pan:m[3]?.3:0});if(!m[3])tone(t+jit(9),f*2.002,d*.7,vv(.011),'square',.003,{wave:PW[0],pan:-.15})}}
-function musicTick(){if(!AC)return;if(!IRB){mkIR();LB=mkBus(.24,.2,.489);BB=mkBus(.12,.17,.296);MG=LB.fade;MB=BB.fade}
+/* ----- battle: a tense "outbreak" documentary score (heartbeat, ticking clock, dissonant strings, risers and impacts) ----- */
+const BRT=[38,38,34,33,38,31,34,33],BPD=[[50,53,57,51],[50,53,57,51],[46,50,53,57],[45,49,52,58],[50,53,57,51],[43,46,50,55],[46,50,53,57],[45,49,52,58]],
+BLEAD=[[[8,74,6]],[[0,77,4],[8,75,6]],[[4,82,6],[12,81,4]],[[0,73,3],[3,74,3],[8,70,8]],[[8,74,4],[12,77,4]],[[0,79,6],[8,77,4],[12,74,4]],[[4,82,4],[8,81,4],[12,77,4]],[[0,73,2],[2,74,2],[4,73,2],[6,74,2],[8,70,8]]];
+function thump(t,v){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(95,t);o.frequency.exponentialRampToValueAtTime(34,t+.18);g.gain.setValueAtTime(.34*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.42);o.connect(g);g.connect(BUS.dry);o.start(t);o.stop(t+.45);noise(t,.03,'lowpass',500,.7,.05*v,{dry:1})}
+function riser(t,dur){const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;s.loop=true;f.type='bandpass';f.Q.value=2.4;f.frequency.setValueAtTime(300,t);f.frequency.exponentialRampToValueAtTime(7000,t+dur);g.gain.setValueAtTime(.0005,t);g.gain.exponentialRampToValueAtTime(.075,t+dur);g.gain.linearRampToValueAtTime(0,t+dur+.05);s.connect(f);f.connect(g);g.connect(BUS.in);s.start(t,Math.random()*.5);s.stop(t+dur+.1);
+ tone(t,1100,dur,.02,'sine',dur*.9,{from:180,slide:dur})}
+function boom(t){tone(t,30,1.3,.34,'sine',.004,{from:62,slide:.5,dry:1});noise(t,1.2,'lowpass',380,.6,.1,{});noise(t,.12,'highpass',3000,.7,.05,{})}
+function bStep(step,t,spb){const bar=(step>>4)%8,s=step&15,pass=MU.loop,lv=pass%4,inten=[.72,.92,1,.86][lv],r=BRT[bar],pd=BPD[bar];
+ if(s===0){pad(t,pd,16*spb,.017*inten);tone(t,mf(r),16*spb,.2*inten,'sine',.3,{dry:1});if(bar===0&&pass>0)boom(t)}
+ if(bar===7&&s===0)riser(t,16*spb);
+ if(s===0)thump(t+jit(5),vv(inten));if(s===3)thump(t+jit(6),vv(.6*inten));if(lv>=2&&(s===8||s===11))thump(t+jit(6),vv(s===8?.8:.5)*inten);
+ if(s%4===2)noise(t+jit(3),.022,'highpass',rnd(6500,8500),.8,.03*rnd(.8,1.2),{pan:s%8===2?-.35:.35});
+ if(s===4||s===12)tone(t+jit(2),1760,.05,.012*rnd(.8,1.2),'sine',.002,{pan:.4});
+ if(lv>=1&&s%2===0){const f=mf(r+12),acc=s===0?1:s%4===0?.85:.7;tone(t+jit(5),f,.17,vv(.1*inten*acc),'sawtooth',.004,{lp:[1100,200],lpt:.13,dry:1});tone(t+jit(5),mf(r),.2,vv(.17*inten*acc),'sine',.005,{dry:1})}
+ if(s===8||(lv>=2&&s===14&&bar%2===1))pd.forEach((n,i)=>tone(t+jit(6)+i*.005,mf(n+12),.24,vv(.026*inten),'sawtooth',.01,{lp:[2400,500],lpt:.2,pan:i%2?.3:-.3}));
+ if(lv>=2&&s===8)snare(t+.01+jit(8),vv(.85*inten),0);
+ if(s===0||s===8)noise(t+jit(4),.03,'highpass',9000,.7,(lv>=1?.022:.012),{pan:.3});
+ for(const m of BLEAD[bar])if(m[0]===s&&(lv>=1||bar%2===0)){const f=mf(m[1]),d=Math.max(.35,m[2]*spb*1.7);tone(t+jit(12),f,d,vv(.05),'sawtooth',.03,{lp:[2400,700],lpt:d,vib:.011,vd:.1,from:f*.944,slide:.11,pan:.12});tone(t+jit(12),f*2,d*.6,vv(.01),'sine',.04,{pan:.12})}
+ if(lv%2===1&&bar===5&&s>=12)noise(t+jit(3),.03,'bandpass',rnd(900,5200),4,.05,{pan:rnd(-.5,.5)})}
+function musicTick(){if(!AC)return;if(!IRB){mkIR();LB=mkBus(.24,.2,.489);BB=mkBus(.22,.14,.32);MG=LB.fade;MB=BB.fade}
  const now=AC.currentTime,vis=!S.mute&&!document.hidden,play=app.classList.contains('playing'),wantL=vis&&!play,wantB=vis&&play&&G.s!=='pause',which=wantL?'L':wantB?'B':'';
  MG.gain.setTargetAtTime(wantL?.8:0,now,.35);MB.gain.setTargetAtTime(wantB?.5:0,now,.25);
  if(which!==MU.mode){MU.mode=which;MU.next=0;MU.loop=0;MU.pv=null}if(!which)return;
- BUS=which==='L'?LB:BB;const bpm=which==='L'?92:152,spb=60/bpm/4;if(!MU.next||MU.next<now-.15){MU.next=now+.1;MU.step=0}
+ BUS=which==='L'?LB:BB;const bpm=which==='L'?92:140,spb=60/bpm/4;if(!MU.next||MU.next<now-.15){MU.next=now+.1;MU.step=0}
  while(MU.next<now+.4){const sw=which==='L'?.2+((MU.step>>4)%2?.035:0):.02;(which==='L'?lStep:bStep)(MU.step,MU.next+((MU.step&1)?spb*sw:0),spb);MU.next+=spb;MU.step=(MU.step+1)%128;if(!MU.step)MU.loop++}}
 setInterval(musicTick,110);['click','touchend','pointerup','keydown','mouseup'].forEach(ev=>addEventListener(ev,()=>audio(),{passive:true,capture:true}));document.addEventListener('visibilitychange',()=>{if(!document.hidden&&AC&&AC.state!=='running')try{AC.resume()}catch(e){}});
 
