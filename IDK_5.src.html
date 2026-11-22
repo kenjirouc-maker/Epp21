@@ -437,6 +437,16 @@ function devShopPanel(el){if(!isKirky())return;const box=devEl('div','','devbox'
    if(!st){const b3=devEl('button','Disown','buy');b3.onclick=()=>{devClass(k,'disown');buildShop()};r.appendChild(b3)}box.appendChild(r)}
   box.appendChild(devEl('div','Skins','dv-note'));
   for(const it of SHOP.filter(x=>x.t==='skin')){const r=devEl('div','','dv-row');r.appendChild(devEl('span',it.n+' · '+(S.own[it.id]?'owned':'not owned')));const ba=devEl('button','Own','buy'),bd=devEl('button','Disown','buy');ba.onclick=()=>{S.own[it.id]=1;if(it.id==='p4'&&!S.icons.includes('cake'))S.icons.push('cake');save();buildShop()};bd.onclick=()=>{delete S.own[it.id];save();buildShop()};r.append(ba,bd);box.appendChild(r)}
+  box.appendChild(devEl('div','Gift a player','dv-note'));
+  {const ni=devEl('input');ni.placeholder='Player username';ni.autocomplete='off';ni.spellcheck=false;
+   const ks=devEl('select');ks.appendChild(Object.assign(devEl('option','Gems'),{value:'gems'}));for(const k of CLS_KEYS)ks.appendChild(Object.assign(devEl('option','Class: '+CN[k]),{value:'cls:'+k}));for(const it of SHOP.filter(x=>x.t==='skin'))ks.appendChild(Object.assign(devEl('option','Skin: '+it.n),{value:'skin:'+it.id}));
+   const ai=devNum(100,1,1),gb=devEl('button','Send gift','buy');
+   gb.onclick=async()=>{const nm=ni.value.trim();if(!nm){toast('Type the player username');return}if(!CLOUD){toast('Online features are off');return}gb.disabled=true;
+    try{const a=await cfetch('/acc/'+cKey(nm));if(!a||!a.pw){toast('No online account named '+nm);return}
+     const [t,v]=ks.value==='gems'?['gems',Math.max(1,Math.min(100000,Math.floor(+ai.value)||0))]:ks.value.split(':');
+     await cput('/gifts/'+cKey(nm)+'/'+Date.now().toString(36)+rid8(),{t,v,f:S.user,ts:Date.now()});toast('Gift sent to '+(a.n||nm)+' · they get it within 15s')}
+    catch(e){toast('Could not send: '+(cloudWhyMsg||'unknown error'))}finally{gb.disabled=false}};
+   row('To',ni);row('Gift',ks,ai,gb)}
   box.appendChild(devEl('div','In a match, press pause for damage, health, reload, speed and scribble spawns.','dv-note'))}
  el.firstChild.after(box)}
 /* a hand-drawn attack range: polygons in the fighter's own space (x = the way you aim), tested against the enemy's position and size */
@@ -540,8 +550,8 @@ try{localStorage.setItem('__t','1');localStorage.removeItem('__t')}catch(e){canL
 /* ---------- account + save system ----------
    DB holds every account plus the guest profile. It is written (with a checksum) on every change,
    when the page is hidden/closed and every 15s, with the previous good copy kept as a backup. */
-const SKEYS=['gems','tro','own','eq','trail','gift','best','med','cl','badges','icons','icon','box','map','st','elo','qs','rs'],
-DEF=()=>({gems:120,tro:0,own:{},eq:{},trail:'',gift:'',best:0,med:{rammer:0,catcher:0,puncher:0,grabber:0,blitz:0,medic:0,smasher:0,mauler:0},cl:{},badges:[],icons:[],icon:'excl',box:'',map:'desk',st:{g:0,w:0,ko:0,cap:0},elo:0,qs:{w:-1,s:0,l:[]},rs:{w:-1,n:0}}),
+const SKEYS=['gems','tro','own','eq','trail','gift','best','med','cl','badges','icons','icon','box','map','st','elo','qs','rs','gc'],
+DEF=()=>({gems:120,tro:0,own:{},eq:{},trail:'',gift:'',best:0,med:{rammer:0,catcher:0,puncher:0,grabber:0,blitz:0,medic:0,smasher:0,mauler:0},cl:{},badges:[],icons:[],icon:'excl',box:'',map:'desk',st:{g:0,w:0,ko:0,cap:0},elo:0,qs:{w:-1,s:0,l:[]},rs:{w:-1,n:0},gc:{}}),
 KEY='idk-v2',KEYB='idk-v2-bak';
 let S=Object.assign(DEF(),{user:'Guest',mute:false}),gs=120,bp=0,jn='',DB={v:2,acc:{},guest:null,last:'',mute:false},lastSave=0,saveFail=false;
 function cs(str){let h1=0xdeadbeef,h2=0x41c6ce57;for(let i=0;i<str.length;i++){const ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}
@@ -1946,6 +1956,16 @@ async function accPull(force){if(!CLOUD||!accReady||apBusy||S.user==='Guest'||G.
   if(!dirty){const mine={mute:S.mute};Object.assign(S,JSON.parse(JSON.stringify(pickK(rd))));norm()}else{const g=S.gems;mergeData(rd);S.gems=Math.max(g,S.gems);gs=S.gems}
   accTs=rec.ts||ts;gs=S.gems;save();accLast=JSON.stringify(pickK(S));if(dirty)accLast='';uiRefresh()}
  catch(e){}finally{apBusy=false}}
+async function giftCheck(){if(!CLOUD||!accReady||S.user==='Guest'||G.s==='play'||G.net||giftCheck.b)return;giftCheck.b=1;
+ try{const name=S.user,r=await cfetch('/gifts/'+cKey(name));if(!r||typeof r!=='object'||S.user!==name)return;if(!S.gc||typeof S.gc!=='object')S.gc={};let got=[];
+  for(const id of Object.keys(r).sort()){const g=r[id];if(S.gc[id]||!g||typeof g!=='object'||String(g.f||'').toLowerCase()!=='kirky')continue;S.gc[id]=1;
+   if(g.t==='gems'){const v=Math.max(0,Math.min(100000,Math.floor(+g.v)||0));if(v){gems(S.gems+v);got.push(v+' gems')}}
+   else if(g.t==='cls'&&CLS_KEYS.includes(g.v)){S.own[g.v]=1;got.push(CN[g.v]+' class')}
+   else if(g.t==='skin'){const it=SHOP.find(x=>x.t==='skin'&&x.id===g.v);if(it){S.own[it.id]=1;if(it.id==='p4'&&!S.icons.includes('cake'))S.icons.push('cake');got.push(it.n+' skin')}}}
+  const ks=Object.keys(S.gc);if(ks.length>400)for(const k of ks.sort().slice(0,ks.length-400))delete S.gc[k];
+  if(got.length){save();accPush(true);cloudPush(true);uiRefresh();toast('Gift received: '+got.join(', '));sfx('win',.6)}else if(Object.keys(r).length)save()}
+ catch(e){}finally{giftCheck.b=0}}
+setInterval(giftCheck,15000);setTimeout(giftCheck,4000);
 setInterval(accPull,12000);
 async function accPush(force){if(!CLOUD||!accReady||accBusy||S.user==='Guest'||typeof fetch!=='function')return;const n=Date.now();if(!force&&n-accT<8000)return;
  const dj=JSON.stringify(pickK(S));if(dj===accLast)return;accBusy=true;accT=n;const name=S.user,ck='/acc/'+cKey(name);
@@ -2039,7 +2059,7 @@ function buildProfile(){drawIcon($('#pf-ico').getContext('2d'),S.icon,160);
  $('#pf-save').textContent=canLS?'Auto-saved on this device'+(lastSave?' · '+new Date(lastSave).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''):'Saving is unavailable here';profOnline()}
 function backupCode(){const j=JSON.stringify({u:S.user,d:pickK(S)});return'IDK1.'+cs(j)+'.'+btoa(unescape(encodeURIComponent(j)))}
 function mergeData(d){if(d.qs&&Array.isArray(d.qs.l)&&(!S.qs||d.qs.w>S.qs.w))S.qs=d.qs;S.gems=Math.max(S.gems,d.gems|0);S.tro=Math.max(S.tro,d.tro|0);S.best=Math.max(S.best,d.best|0);S.elo=Math.max(S.elo|0,d.elo|0);for(const k of CLS_KEYS)S.med[k]=Math.max(S.med[k],((d.med||{})[k])|0);
- Object.assign(S.own,d.own||{});Object.assign(S.cl,d.cl||{});for(const a of['badges','icons'])for(const v of d[a]||[])if(typeof v==='string'&&!S[a].includes(v))S[a].push(v);
+ Object.assign(S.own,d.own||{});Object.assign(S.cl,d.cl||{});S.gc=Object.assign({},d.gc||{},S.gc||{});for(const a of['badges','icons'])for(const v of d[a]||[])if(typeof v==='string'&&!S[a].includes(v))S[a].push(v);
  S.eq=Object.assign({},d.eq||{},S.eq);S.trail=S.trail||'';if(!S.trail&&d.trail)S.trail=d.trail;if(d.box&&!S.box)S.box=d.box;if(d.icon&&S.icon==='excl'&&ICONS.some(i=>i.id===d.icon&&(!i.lock||S.icons.includes(d.icon))))S.icon=d.icon;for(const k of['g','w','ko','cap'])S.st[k]=Math.max(S.st[k]|0,((d.st||{})[k])|0);norm()}
 /* is this account stored online (so it can be used from other devices)? */
 async function profOnline(){const el=$('#pf-save');if(!CLOUD||S.user==='Guest'){return}const key=S.user.toLowerCase(),a=DB.acc[key];if(!a)return;let st;
