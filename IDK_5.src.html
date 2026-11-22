@@ -2217,11 +2217,11 @@ function netUpSlot(sl){if(sl.on)return;sl.on=true;sl.lastIn=performance.now();cl
  cput(pbase()+'/offer'+spfx(sl.n),null).catch(()=>{});cput(pbase()+'/join',null).catch(()=>{});
  clearInterval(sl.hb);sl.hb=setInterval(()=>netBeatSlot(sl),1000);partyUI();refresh();
  const nc=NET.slots.filter(s=>s.on).length;toast((NET.relay?'Connected (relay mode)':'Connected')+(nc>1?' · '+nc+' friends connected':''))}
-function netUp(){if(NET.on)return;NET.on=true;NET.state='connected';NET.lastIn=performance.now();clearTimeout(NET.t0);clearTimeout(NET.t1);clearInterval(NET.poll);NET.poll=0;
+function netUp(){if(NET.on)return;NET.lastCls='';NET.on=true;NET.state='connected';NET.lastIn=performance.now();clearTimeout(NET.t0);clearTimeout(NET.t1);clearInterval(NET.poll);NET.poll=0;
  netSend({t:'hello',name:NET.myDn,cls,med:totMed(),isG:S.user==='Guest',skin:sk(cls),icon:S.icon,v:1});
  clearInterval(NET.hb);NET.hb=setInterval(netBeat,1000);partyUI();refresh();toast(NET.relay?'Connected (relay mode)':'Connected')}
 function netBeatSlot(sl){if(!sl.on)return;slotSend(sl,{t:'p',ts:performance.now()});const idle=performance.now()-sl.lastIn;if(idle>(sl.m||(G&&G.net)?2500:9000))netDownSlot('Connection lost',sl)}
-function netBeat(){if(!NET.on)return;netSend({t:'p',ts:performance.now()});const idle=performance.now()-NET.lastIn;if(idle>(NET.m||(G&&G.net)?2500:9000))netDown('Connection lost');partyUI(true)}
+function netBeat(){if(!NET.on)return;netSend({t:'p',ts:performance.now()});if(NET.role==='guest'&&!(G&&G.net))netSend({t:'cls',cls,skin:sk(cls),med:totMed(),isG:S.user==='Guest'});const idle=performance.now()-NET.lastIn;if(idle>(NET.m||(G&&G.net)?2500:9000))netDown('Connection lost');partyUI(true)}
 function netDownSlot(reason,sl){hostGuestGone(reason,sl)}
 function netDown(reason){if(!NET.role||(!NET.on&&NET.state==='idle'))return;if(NET.role==='host'){const sl=NET.slots.find(s=>s.on);if(sl)hostGuestGone(reason,sl)}else partyLeave(reason||'Disconnected from the host')}
 function hostGuestGone(reason,sl){const nm=(sl&&sl.peer&&sl.peer.dn)||'The other player';
