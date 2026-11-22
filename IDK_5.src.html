@@ -435,6 +435,8 @@ function devShopPanel(el){if(!isKirky())return;const box=devEl('div','','devbox'
   for(const k of CLS_KEYS){const st=STARTERS.includes(k),state=DEVLOCK.has(k)?'locked (temp)':st||S.own[k]?'owned':'not owned',r=devEl('div','','dv-row');r.appendChild(devEl('span',CN[k]+' · '+state));
    const b1=devEl('button','Unlock','buy'),b2=devEl('button','Lock','buy');b1.onclick=()=>{devClass(k,'unlock');buildShop()};b2.onclick=()=>{devClass(k,'lock');buildShop()};r.append(b1,b2);
    if(!st){const b3=devEl('button','Disown','buy');b3.onclick=()=>{devClass(k,'disown');buildShop()};r.appendChild(b3)}box.appendChild(r)}
+  box.appendChild(devEl('div','Skins','dv-note'));
+  for(const it of SHOP.filter(x=>x.t==='skin')){const r=devEl('div','','dv-row');r.appendChild(devEl('span',it.n+' · '+(S.own[it.id]?'owned':'not owned')));const ba=devEl('button','Own','buy'),bd=devEl('button','Disown','buy');ba.onclick=()=>{S.own[it.id]=1;if(it.id==='p4'&&!S.icons.includes('cake'))S.icons.push('cake');save();buildShop()};bd.onclick=()=>{delete S.own[it.id];save();buildShop()};r.append(ba,bd);box.appendChild(r)}
   box.appendChild(devEl('div','In a match, press pause for damage, health, reload, speed and scribble spawns.','dv-note'))}
  el.firstChild.after(box)}
 /* a hand-drawn attack range: polygons in the fighter's own space (x = the way you aim), tested against the enemy's position and size */
@@ -676,8 +678,8 @@ function buildShop(){const el=$('#goods'),ok=S.gift!==today();if(S.own.p4&&!S.ic
   for(const o of OFF)if(o.st()&&!o.own()){any=true;const d=document.createElement('div');d.className='good';d.innerHTML=`<canvas width="208" height="208" data-i="${o.i}"></canvas><span>${o.n} · ${o.r}</span><button class="buy"><i class="gemi"></i>${o.p}</button>`;
    d.lastChild.onclick=()=>{if(!o.st())return toast('Sold out!');if(S.gems<o.p){retrig(d,'no');return toast('Not enough gems!')}S.own[o.k]=1;gems(S.gems-o.p);toast('Unlocked '+o.n+'!');sfx('win',.6);buildShop()};el.insertBefore(d,h3)}
   if(!any){const q=document.createElement('div');q.className='lim-none';q.textContent=S.user==='Guest'?'Guests have every class unlocked.':Object.keys(LOCK).every(owns)?'Every class unlocked!':'Nothing special in stock right now.';el.insertBefore(q,h3)}}
- SHOP.forEach((it,i)=>{if(clsLocked(it.c))return;if(it.fo&&!S.own[it.id]&&!foOK())return;if(it.ex&&!S.own[it.id]&&!bullStock())return;if(it.t==='trail'&&!el.querySelector('.tr'))el.insertAdjacentHTML('beforeend','<h3 class="tr">Trails</h3>');
-  const own=S.own[it.id],eq=it.t==='skin'?S.eq[it.c]===it.id:S.trail===it.id,d=document.createElement('div'),
+ SHOP.forEach((it,i)=>{if(clsLocked(it.c))return;if(it.fo&&!owns(it.id)&&!foOK())return;if(it.ex&&!owns(it.id)&&!bullStock())return;if(it.t==='trail'&&!el.querySelector('.tr'))el.insertAdjacentHTML('beforeend','<h3 class="tr">Trails</h3>');
+  const own=owns(it.id),eq=it.t==='skin'?S.eq[it.c]===it.id:S.trail===it.id,d=document.createElement('div'),
   put=()=>{if(it.t==='skin')S.eq[it.c]=eq?'':it.id;else S.trail=eq?'':it.id};
   d.className='good'+(eq?' eq':'')+(it.id===jn?' pop':'');if(it.id!==jn)d.style.animationDelay=i*.04+'s';
   d.innerHTML=`<canvas width="208" height="208" data-i="${i}"></canvas><span>${it.n}${it.fo?' · Mythic':it.ex?' · Epic':''}</span><button class="buy${own?' own':''}">${own?(eq?'Equipped':'Equip'):it.fo?'Claim free':'<i class="gemi"></i>'+it.p}</button>`;
@@ -685,7 +687,7 @@ function buildShop(){const el=$('#goods'),ok=S.gift!==today();if(S.own.p4&&!S.ic
    if(it.fo){S.own[it.id]=1;if(!S.icons.includes('cake'))S.icons.push('cake');put();cls='puncher';jn=it.id;save();sfx('win',.6);toast('Founder reward: Birthday Cake Puncher + Cake & Candle icon!',3200);buildShop();return}
    if(S.gems<it.p){retrig(d,'no');return toast('Not enough gems!')}
    S.own[it.id]=1;put();jn=it.id;gems(S.gems-it.p);toast('Unlocked '+it.n+'!');buildShop()};
-  el.appendChild(d)});if(!S.own.p4&&!foOK())el.insertBefore(devEl('div',S.user==='Guest'?'Founder reward (Mythic Birthday Cake Puncher + Cake & Candle icon): log in or sign up with an account made in the first month.':'Founder reward: only for accounts made in the first month.','lim-none'),el.querySelector('h3.tr'));el.appendChild(devEl('div','Music: the lobby groove and the battle score are original and synthesised live in the game. Build: cake-2','qcred'));jn=''}
+  el.appendChild(d)});if(!owns('p4')&&!foOK())el.insertBefore(devEl('div',S.user==='Guest'?'Founder reward (Mythic Birthday Cake Puncher + Cake & Candle icon): log in or sign up with an account made in the first month.':'Founder reward: only for accounts made in the first month.','lim-none'),el.querySelector('h3.tr'));el.appendChild(devEl('div','Music: the lobby groove and the battle score are original and synthesised live in the game. Build: cake-2','qcred'));jn=''}
 function drawCards(t=0){bp=Math.max(0,bp-.03);const col=sk(cls),b=$('#big').getContext('2d'),w=Math.abs(Math.sin(t*2.6));
  b.clearRect(0,0,360,360);figure(b,cls,180,214-w*14-Math.sin(bp*PI)*26,3.4,{col,sq:Math.sin(t*5.2)*.035-bp*.1,rot:Math.sin(t*1.7)*.05});
  const a=$('#av')?.getContext('2d');if(a){a.clearRect(0,0,64,64);figure(a,cls,32,38,.75,{col})}
@@ -1343,7 +1345,7 @@ function launch(f,a,pw){const C=CL[f.cls],v=vol(f.x,f.y);f.a=a;f.ammo--;f.ammoT=
   /* somebody in his face: 180° arm sweep. otherwise the arm shoots out and hooks the first enemy it touches */
   f.atk=nr?{k:'sweep',a,t:0,d:.34,hit:new Set(),ang:a-PI/2}:{k:'hook',a,t:0,d:3,hit:new Set(),len:10,st:'out',tgt:null,pt:0,L:Math.max(40,Math.min(C.reach*(GU?1.35:1)*RM(f),ray(f.x,f.y,Math.cos(a),Math.sin(a),C.reach*(GU?1.35:1)*RM(f),4)-2)),w:C.w};sfx('swish',v)}
  else if(f.cls==='medic'){f.atk={k:'throw',a,t:0,d:.2,hit:new Set(),done:0};sfx('swish',v)}
- else if(f.cls==='mauler'){const sd=f.ms?-1:1;f.ms=f.ms?0:1;f.atk={k:'maul',a,t:0,d:1.8,sd,hit:new Set()};sfx('tick',v)}
+ else if(f.cls==='mauler'){const sd=f.ms?-1:1;f.ms=f.ms?0:1;f.atk={k:'maul',a,t:0,d:1.1,sd,hit:new Set()};sfx('tick',v)}
  else if(f.cls==='smasher'){f.atk={k:'smash',a,t:0,d:.55,hit:new Set(),done:0};sfx('swish',v)}
  else if(f.cls==='blitz'){f.atk={k:'zap',a,t:0,d:.16,hit:new Set(),done:0};sfx('zap',v)}
  else{f.atk={k:'net',a,t:0,d:.3,hit:new Set(),ang:a-PI/2};sfx('swish',v)}}
@@ -1659,12 +1661,20 @@ function drawProj(pr){c.save();c.translate(pr.x,pr.y-4);c.rotate(pr.a);c.lineCap
  c.fillStyle=pr.heal?'#3FBF9A':'#D4503C';c.fillRect(-9,-2,10,4);c.beginPath();c.moveTo(6,0);c.lineTo(18,0);c.moveTo(-12,-5);c.lineTo(-12,5);c.moveTo(-16,0);c.lineTo(-12,0);c.stroke();c.restore()}
 function medicShield(f){const g=G;if(g.ctf||g.fb||g.u)for(const o of g.f)if(o!==f&&o.team===f.team&&o.hp>0&&Math.hypot(o.x-f.x,o.y-f.y)<420){o.imm=UDUR.medic;ring(o.x,o.y,16,.5,'#3FBF9A');sparkle(o.x,o.y,8,'#3FBF9A')}ring(f.x,f.y,18,.6,'#3FBF9A');tx(f.x,f.y-80,'IMMUNE!','#3FBF9A',true)}
 function smashFx(f,a){const x=f.x+Math.cos(a)*70,y=f.y+Math.sin(a)*70;ring(x,y,26,.5,'#C8693A');ring(f.x,f.y,40,.35);shards(x,y,a,14,'#8A8D93',1.4);dust(x,y,10,90);splat(x,y,28,'#2A251E',a,40,.3);word(x,y-60,pick(['SMASH!','CRUNCH!','BONK!']),1);trauma(f===G.p?.5:.2*vol(f.x,f.y));sfx('big',vol(f.x,f.y))}
-function maulDraw(L,s){c.lineCap='round';c.lineJoin='round';c.strokeStyle='#2A251E';c.lineWidth=9*s;c.beginPath();c.moveTo(14,0);c.lineTo(L,0);c.stroke();c.strokeStyle='#8B5A2B';c.lineWidth=5*s;c.beginPath();c.moveTo(14,0);c.lineTo(L,0);c.stroke();
- c.fillStyle='#9AA0A8';c.lineWidth=3*s;c.strokeStyle='#2A251E';c.beginPath();rrp(c,L-24*s,-27*s,50*s,54*s,7*s);c.fill();c.stroke();c.fillStyle='#6E7279';c.beginPath();rrp(c,L-24*s,-27*s,12*s,54*s,5*s);c.fill();c.stroke();c.beginPath();rrp(c,L+14*s,-27*s,12*s,54*s,5*s);c.fill();c.stroke();c.globalAlpha=.5;c.fillStyle='#fff';c.beginPath();c.rect(L-8*s,-22*s,18*s,5*s);c.fill();c.globalAlpha=1}
+function maulDraw(L,s){c.lineCap='round';c.lineJoin='round';
+ c.strokeStyle='#2A251E';c.lineWidth=9*s;c.beginPath();c.moveTo(14,0);c.lineTo(L-28*s,0);c.stroke();
+ c.strokeStyle='#6B3F14';c.lineWidth=5*s;c.beginPath();c.moveTo(14,0);c.lineTo(L-28*s,0);c.stroke();
+ c.strokeStyle='#4A2C0C';c.lineWidth=1.6*s;for(let i=0;i<5;i++){const bx=20+i*15;c.beginPath();c.moveTo(bx,-5.5*s);c.lineTo(bx,5.5*s);c.stroke()}
+ c.fillStyle='#787C84';c.strokeStyle='#2A251E';c.lineWidth=2.5*s;c.beginPath();rrp(c,L-34*s,-10*s,11*s,20*s,3*s);c.fill();c.stroke();
+ c.fillStyle='#9AA0A8';c.lineWidth=3.2*s;c.beginPath();rrp(c,L-26*s,-36*s,52*s,72*s,8*s);c.fill();c.stroke();
+ c.fillStyle='#6A6E76';c.lineWidth=2.6*s;c.beginPath();rrp(c,L-26*s,-36*s,13*s,72*s,6*s);c.fill();c.stroke();
+ c.fillStyle='#BBC0CA';c.lineWidth=2.4*s;c.beginPath();rrp(c,L+14*s,-36*s,12*s,72*s,5*s);c.fill();c.stroke();
+ c.globalAlpha=.38;c.fillStyle='#fff';c.beginPath();c.rect(L-19*s,-31*s,32*s,10*s);c.fill();c.globalAlpha=1;
+ c.fillStyle='#2A251E';c.beginPath();c.arc(L,0,4.5*s,0,TAU);c.fill();c.fillStyle='#8A8D96';c.beginPath();c.arc(L,0,2.4*s,0,TAU);c.fill()}
 function maulFx(f){const q=f.atk,u=Math.min(1,q.t/q.d),R=CL.mauler.reach*RM(f);c.save();c.translate(f.x,f.y);
  if(q.k==='mspin'){const ang=q.a+u*TAU,Rs=200,al=Math.sin(u*PI);c.globalAlpha=.2*al;c.fillStyle='#F0A868';c.beginPath();c.arc(0,0,Rs,0,TAU);c.fill();c.globalAlpha=.85*al;c.strokeStyle=T.ink;c.lineWidth=3;c.setLineDash([10,8]);c.lineDashOffset=-G.t*50;c.beginPath();c.arc(0,0,Rs,0,TAU);c.stroke();c.setLineDash([]);
   c.globalAlpha=.4*al;c.fillStyle='#FFD9A8';c.beginPath();c.moveTo(0,0);c.arc(0,0,Rs,ang-1.2,ang);c.closePath();c.fill();c.globalAlpha=1;c.rotate(ang);maulDraw(Rs-44,1.25);c.restore();return}
- const ch=u<.5,cp=Math.min(1,u*2),sw=Math.max(0,(u-.5)*2),e=sw*sw*(3-2*sw),sd=q.sd||1,a0=sd>0?0:-PI/2,a1=sd>0?PI/2:0;
+ const CH=5/11,ch=u<CH,cp=Math.min(1,u/CH),sw=Math.max(0,(u-CH)/(1-CH)),e=sw*sw*(3-2*sw),sd=q.sd||1,a0=sd>0?0:-PI/2,a1=sd>0?PI/2:0;
  c.save();c.rotate(q.a);c.fillStyle=T.acc;c.strokeStyle=T.acc;c.lineWidth=2.6;
  if(ch){c.globalAlpha=.1;c.beginPath();c.moveTo(0,0);c.arc(0,0,R,a0,a1);c.closePath();c.fill();c.globalAlpha=.28;c.beginPath();c.moveTo(0,0);c.arc(0,0,R*cp,a0,a1);c.closePath();c.fill();c.globalAlpha=.85;c.setLineDash([8,6]);c.lineDashOffset=-G.t*40;c.beginPath();c.arc(0,0,R,a0,a1);c.stroke();c.setLineDash([])}
  else{const cur=sd*(PI/2)*(1-e);c.globalAlpha=.4*(1-sw*.6);c.fillStyle='#F0A868';c.beginPath();c.moveTo(0,0);c.arc(0,0,R+8,Math.min(cur,sd*PI/2),Math.max(cur,sd*PI/2));c.closePath();c.fill()}
