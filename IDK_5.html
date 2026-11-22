@@ -2321,30 +2321,39 @@ function lStep(step,t,spb){const bar=(step>>4)%8,s=step&15,pass=MU.loop,pr=PROG[
  hat(t+jit(7),s===14?.034:(s%4===0?.034:s%2===0?.024:.013)*rnd(.8,1.15),s===14,s%2?.3:-.25);
  if((bar===2||bar===6)&&s===14&&pass%2===0)wah(t+jit(8),mf(chord[2]+12));
  for(const m of bv.mel)if(m[0]===s){const f=mf(m[1]),d=Math.max(.28,m[2]*spb*1.5),tt=t+jit(14)-.006;tone(tt,f,d,vv(.065),'triangle',.02,{vib:.006,vd:.14,from:f*(Math.random()<.35?.975:1),slide:.07,pan:.12});tone(tt,f*2,.2,vv(.012),'sine',.004,{pan:.12});noise(tt,.05,'bandpass',f*2,2.2,.018,{pan:.12})}}
-/* ----- battle: a tense "outbreak" documentary score (heartbeat, ticking clock, dissonant strings, risers and impacts) ----- */
-const BRT=[38,38,34,33,38,31,34,33],BPD=[[50,53,57,51],[50,53,57,51],[46,50,53,57],[45,49,52,58],[50,53,57,51],[43,46,50,55],[46,50,53,57],[45,49,52,58]],
-BLEAD=[[[8,74,6]],[[0,77,4],[8,75,6]],[[4,82,6],[12,81,4]],[[0,73,3],[3,74,3],[8,70,8]],[[8,74,4],[12,77,4]],[[0,79,6],[8,77,4],[12,74,4]],[[4,82,4],[8,81,4],[12,77,4]],[[0,73,2],[2,74,2],[4,73,2],[6,74,2],[8,70,8]]];
+/* ----- battle: a tense "outbreak" documentary score (heartbeat, ticking clock, dissonant strings, risers and impacts).
+   Enhanced with traits measured from a reference clip: E-minor centre, a heavy sub drone that sits on G# (a dissonant pedal), ~150 bpm half-time,
+   a constant airy shimmer, irregular ticks, loud dense low end and unpredictable impacts instead of an obvious loop ----- */
+const BRT=[40,40,36,35,40,33,36,35],BPD=[[52,55,59,53],[52,55,59,53],[48,52,55,59],[47,51,54,60],[52,55,59,53],[45,48,52,57],[48,52,55,59],[47,51,54,60]],
+BLEAD=[[[8,76,6]],[[0,79,4],[8,77,6]],[[4,84,6],[12,83,4]],[[0,75,3],[3,76,3],[8,72,8]],[[8,76,4],[12,79,4]],[[0,81,6],[8,79,4],[12,76,4]],[[4,84,4],[8,83,4],[12,79,4]],[[0,75,2],[2,76,2],[4,75,2],[6,76,2],[8,72,8]]],PEDS=[32,32,32,32,28,28,27,29];
 function thump(t,v){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(95,t);o.frequency.exponentialRampToValueAtTime(34,t+.18);g.gain.setValueAtTime(.34*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.42);o.connect(g);g.connect(BUS.dry);o.start(t);o.stop(t+.45);noise(t,.03,'lowpass',500,.7,.05*v,{dry:1})}
 function riser(t,dur){const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;s.loop=true;f.type='bandpass';f.Q.value=2.4;f.frequency.setValueAtTime(300,t);f.frequency.exponentialRampToValueAtTime(7000,t+dur);g.gain.setValueAtTime(.0005,t);g.gain.exponentialRampToValueAtTime(.075,t+dur);g.gain.linearRampToValueAtTime(0,t+dur+.05);s.connect(f);f.connect(g);g.connect(BUS.in);s.start(t,Math.random()*.5);s.stop(t+dur+.1);
  tone(t,1100,dur,.02,'sine',dur*.9,{from:180,slide:dur})}
 function boom(t){tone(t,30,1.3,.34,'sine',.004,{from:62,slide:.5,dry:1});noise(t,1.2,'lowpass',380,.6,.1,{});noise(t,.12,'highpass',3000,.7,.05,{})}
+/* the sub drone: a G# pedal (felt more than heard), with harmonics so phone speakers can reproduce it */
+function drone(t,dur,note,v){const f=mf(note);tone(t,f,dur,.26*v,'sine',.45,{dry:1,vib:.0015,vibr:.18,vd:0});tone(t,f*2,dur,.085*v,'sine',.6,{dry:1});tone(t,f*3,dur,.04*v,'sine',.8,{dry:1});tone(t,f*4.01,dur,.02*v,'triangle',.9,{pan:-.2});tone(t,mf(note+7),dur,.03*v,'sawtooth',1,{lp:[260,160],lpt:dur,pan:.2})}
+/* airy shimmer bed that breathes over a bar */
+function air(t,dur,v,band){const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain(),pn=AC.createStereoPanner?AC.createStereoPanner():null;s.buffer=NB;s.loop=true;f.type=band?'bandpass':'highpass';f.frequency.value=band?rnd(3000,4200):rnd(6500,8500);f.Q.value=band?.5:.6;g.gain.setValueAtTime(.0005,t);g.gain.linearRampToValueAtTime(v,t+dur*.4);g.gain.linearRampToValueAtTime(.0005,t+dur);s.connect(f);f.connect(g);if(pn){pn.pan.value=rnd(-.5,.5);g.connect(pn);pn.connect(BUS.in)}else g.connect(BUS.in);s.start(t,Math.random()*.5);s.stop(t+dur+.05)}
 function bStep(step,t,spb){const bar=(step>>4)%8,s=step&15,pass=MU.loop,lv=pass%4,inten=[.72,.92,1,.86][lv],r=BRT[bar],pd=BPD[bar];
- if(s===0){pad(t,pd,16*spb,.017*inten);tone(t,mf(r),16*spb,.2*inten,'sine',.3,{dry:1});if(bar===0&&pass>0)boom(t)}
+ if(s===0){pad(t,pd,16*spb,.017*inten);tone(t,mf(r),16*spb,.2*inten,'sine',.3,{dry:1});if(bar===0&&pass>0)boom(t);
+  if(bar%2===0)MU.ped=PEDS[Math.floor(R(pass*5.1+bar*2.3)*PEDS.length)];drone(t,16*spb+.1,MU.ped||32,inten);air(t,16*spb,.008+.006*inten);air(t,16*spb,.01,true);
+  if(pass>0&&bar>0&&Math.random()<.3){boom(t+jit(10))}}
  if(bar===7&&s===0)riser(t,16*spb);
  if(s===0)thump(t+jit(5),vv(inten));if(s===3)thump(t+jit(6),vv(.6*inten));if(lv>=2&&(s===8||s===11))thump(t+jit(6),vv(s===8?.8:.5)*inten);
  if(s%4===2)noise(t+jit(3),.022,'highpass',rnd(6500,8500),.8,.03*rnd(.8,1.2),{pan:s%8===2?-.35:.35});
+ if(Math.random()<.4)noise(t+rnd(0,spb),rnd(.015,.04),'highpass',rnd(7000,10500),.9,rnd(.012,.03),{pan:rnd(-.6,.6)});
  if(s===4||s===12)tone(t+jit(2),1760,.05,.012*rnd(.8,1.2),'sine',.002,{pan:.4});
- if(lv>=1&&s%2===0){const f=mf(r+12),acc=s===0?1:s%4===0?.85:.7;tone(t+jit(5),f,.17,vv(.1*inten*acc),'sawtooth',.004,{lp:[1100,200],lpt:.13,dry:1});tone(t+jit(5),mf(r),.2,vv(.17*inten*acc),'sine',.005,{dry:1})}
- if(s===8||(lv>=2&&s===14&&bar%2===1))pd.forEach((n,i)=>tone(t+jit(6)+i*.005,mf(n+12),.24,vv(.026*inten),'sawtooth',.01,{lp:[2400,500],lpt:.2,pan:i%2?.3:-.3}));
+ if(lv>=1&&s%2===0){const f=mf(r+12),acc=s===0?1:s%4===0?.85:.7;tone(t+jit(5),f,.17,vv(.09*inten*acc),'sawtooth',.004,{lp:[1100,200],lpt:.13,dry:1});tone(t+jit(5),mf(r),.2,vv(.15*inten*acc),'sine',.005,{dry:1})}
+ if(s===8||(lv>=2&&s===14&&bar%2===1))pd.forEach((n,i)=>tone(t+jit(6)+i*.005,mf(n+12),.24,vv(.026*inten),'sawtooth',.01,{lp:[3200,600],lpt:.2,pan:i%2?.3:-.3}));
  if(lv>=2&&s===8)snare(t+.01+jit(8),vv(.85*inten),0);
  if(s===0||s===8)noise(t+jit(4),.03,'highpass',9000,.7,(lv>=1?.022:.012),{pan:.3});
- for(const m of BLEAD[bar])if(m[0]===s&&(lv>=1||bar%2===0)){const f=mf(m[1]),d=Math.max(.35,m[2]*spb*1.7);tone(t+jit(12),f,d,vv(.05),'sawtooth',.03,{lp:[2400,700],lpt:d,vib:.011,vd:.1,from:f*.944,slide:.11,pan:.12});tone(t+jit(12),f*2,d*.6,vv(.01),'sine',.04,{pan:.12})}
+ for(const m of BLEAD[bar])if(m[0]===s&&(lv>=1||bar%2===0)){const f=mf(m[1]),d=Math.max(.35,m[2]*spb*1.7);tone(t+jit(12),f,d,vv(.05),'sawtooth',.03,{lp:[2800,800],lpt:d,vib:.011,vd:.1,from:f*.944,slide:.11,pan:.12});tone(t+jit(12),f*2,d*.6,vv(.012),'sine',.04,{pan:.12})}
  if(lv%2===1&&bar===5&&s>=12)noise(t+jit(3),.03,'bandpass',rnd(900,5200),4,.05,{pan:rnd(-.5,.5)})}
 function musicTick(){if(!AC)return;if(!IRB){mkIR();LB=mkBus(.24,.2,.489);BB=mkBus(.22,.14,.32);MG=LB.fade;MB=BB.fade}
  const now=AC.currentTime,vis=!S.mute&&!document.hidden,play=app.classList.contains('playing'),wantL=vis&&!play,wantB=vis&&play&&G.s!=='pause',which=wantL?'L':wantB?'B':'';
- MG.gain.setTargetAtTime(wantL?.8:0,now,.35);MB.gain.setTargetAtTime(wantB?.5:0,now,.25);
+ MG.gain.setTargetAtTime(wantL?.8:0,now,.35);MB.gain.setTargetAtTime(wantB?.62:0,now,.25);
  if(which!==MU.mode){MU.mode=which;MU.next=0;MU.loop=0;MU.pv=null}if(!which)return;
- BUS=which==='L'?LB:BB;const bpm=which==='L'?92:140,spb=60/bpm/4;if(!MU.next||MU.next<now-.15){MU.next=now+.1;MU.step=0}
+ BUS=which==='L'?LB:BB;const bpm=which==='L'?92:150,spb=60/bpm/4;if(!MU.next||MU.next<now-.15){MU.next=now+.1;MU.step=0}
  while(MU.next<now+.4){const sw=which==='L'?.2+((MU.step>>4)%2?.035:0):.02;(which==='L'?lStep:bStep)(MU.step,MU.next+((MU.step&1)?spb*sw:0),spb);MU.next+=spb;MU.step=(MU.step+1)%128;if(!MU.step)MU.loop++}}
 setInterval(musicTick,110);['click','touchend','pointerup','keydown','mouseup'].forEach(ev=>addEventListener(ev,()=>audio(),{passive:true,capture:true}));document.addEventListener('visibilitychange',()=>{if(!document.hidden&&AC&&AC.state!=='running')try{AC.resume()}catch(e){}});
 
