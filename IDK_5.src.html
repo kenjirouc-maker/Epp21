@@ -2101,7 +2101,8 @@ addEventListener('resize',size);size();theme();refresh();
    - the host runs the match; guests send inputs and render snapshots (up to 3 players)
    ===================================================================== */
 const PARTY_MODES=['ffa','ctf','fb','ul'],CODE_CH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',
-ICE=[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302','stun:global.stun.twilio.com:3478']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}];
+ICE=[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302','stun:stun2.l.google.com:19302','stun:stun.cloudflare.com:3478','stun:global.stun.twilio.com:3478']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turns:openrelay.metered.ca:443?transport=tcp','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'},{urls:['turn:staticauth.openrelay.metered.ca:80','turn:staticauth.openrelay.metered.ca:443','turns:staticauth.openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}];
+async function loadIce(){try{const x=await Promise.race([cfetch('/ice'),new Promise(r=>setTimeout(()=>r(null),2500))]);const l=arr(x).filter(e=>e&&e.urls);if(l.length)ICE.splice(0,ICE.length,...l)}catch(e){}}
 let FRAME=0;const VP={x:0,y:0,f:-1},pbase=()=>'/party/'+NET.code,rid8=()=>Math.random().toString(36).slice(2,10),r1=v=>Math.round(v*10)/10,
  lerpAng=(a,b,k)=>a+adiff(b,a)*k,arr=x=>Array.isArray(x)?x:Object.keys(x||{}).sort((a,b)=>a-b).map(k=>x[k]);
 const MAX_GUESTS=2,spfx=n=>n?String(n):''; // slot firebase path suffix: slot0='' slot1='1'
@@ -2122,18 +2123,18 @@ function cleanConn(){try{NET.dcR&&NET.dcR.close()}catch(e){}try{NET.dcS&&NET.dcS
 
 /* ---------- signaling through the database ---------- */
 async function partyCreate(){if(NET.role)return;NET.err='';if(!CLOUD){NET.err='Online features are off in this build.';partyUI();return}
- NET.state='creating';partyUI();
+ NET.state='creating';partyUI();await loadIce();
  try{let code='',tries=0;while(tries++<6&&!code){const c0=Array.from({length:5},()=>CODE_CH[Math.random()*CODE_CH.length|0]).join(''),ex=await cfetch('/party/'+c0);if(!ex||Date.now()-(ex.t||0)>6*3600e3)code=c0}
   if(!code)throw 0;NET.code=code;NET.role='host';NET.slots=[];NET.mode=PARTY_MODES.includes(mode)?mode:'ffa';NET.myDn=S.user==='Guest'?'Host':S.user;
   await cput(pbase(),{t:Date.now(),h:{name:S.user,v:1}});NET.state='waiting';clearInterval(NET.poll);NET.poll=setInterval(hostPoll,500)}
  catch(x){const w=cloudWhyMsg;resetNet();NET.err='Could not create a party: '+(w||'unknown error')+(/permission/.test(w||'')?'. The database rules need the "party" entry from the setup note.':'')}
  partyUI()}
 async function partyJoin(code){code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(NET.role)return;NET.err='';if(code.length!==5){NET.err='Enter the 5-letter party code.';partyUI();return}
- NET.state='joining';partyUI();
+ NET.state='joining';partyUI();await loadIce();
  try{const n=await cfetch('/party/'+code);if(!n||Date.now()-(n.t||0)>6*3600e3){NET.state='idle';NET.err='No party with that code.';partyUI();return}
   if(n.full){NET.state='idle';NET.err='That party is full (3 players).';partyUI();return}
-  NET.code=code;NET.role='guest';NET.joinId=rid8();NET.myDn=S.user==='Guest'?'Guest':S.user;await cput(pbase()+'/gc',null);await cput(pbase()+'/join',{id:NET.joinId,name:NET.myDn,t:Date.now(),v:1});
-  clearInterval(NET.poll);NET.poll=setInterval(guestPoll,400);NET.t0=setTimeout(()=>{if(!NET.on&&!NET.relay)requestRelay()},9000);NET.t1=setTimeout(()=>{if(NET.role==='guest'&&!NET.on)partyLeave('Could not connect to the host. Check the code and try again.')},28000)}
+  NET.code=code;NET.role='guest';NET.joinId=rid8();NET.myDn=S.user==='Guest'?'Guest':S.user;await cput(pbase()+'/join',{id:NET.joinId,name:NET.myDn,t:Date.now(),v:1});
+  clearInterval(NET.poll);NET.poll=setInterval(guestPoll,400);NET.t0=setTimeout(()=>{if(!NET.on&&!NET.relay)requestRelay()},6000);NET.t1=setTimeout(()=>{if(NET.role==='guest'&&!NET.on)partyLeave('Could not connect to the host. Check the code and try again.')},28000)}
  catch(x){const w=cloudWhyMsg;resetNet();NET.err='Could not join: '+(w||'unknown error')+(/permission/.test(w||'')?'. The database rules need the "party" entry from the setup note.':'')}
  partyUI()}
 function mkPC(){const pc=new RTCPeerConnection({iceServers:ICE});NET.pc=pc;
@@ -2152,18 +2153,18 @@ async function hostPoll(){if(NET.role!=='host'||hpBusy)return;hpBusy=true;
    else if(sl.pc&&sl.gotAns)await addCandsSlot(n['gc'+sx],sl)}
   // accept a new join if we have a free slot
   if(NET.slots.length<MAX_GUESTS&&n.join&&n.join.id&&!NET.slots.some(sl=>sl.joinId===n.join.id))
-   await hostBeginSlot(n.join,NET.slots.length)}
+   {let fn=0;while(NET.slots.some(s=>s.n===fn))fn++;await hostBeginSlot(n.join,fn)}}
  catch(e){}finally{hpBusy=false}}
 async function hostBeginSlot(j,slotN){
  const sx=spfx(slotN),sl=mkSlot(slotN);NET.slots.push(sl);sl.joinId=j.id;NET.state='connecting';partyUI();
- for(const k of['hc'+sx,'answer'+sx,'relay'+sx,'rh'+sx,'rg'+sx,'offer'+sx])await cput(pbase()+'/'+k,null).catch(()=>{});sl.hci=0;
+ for(const k of['hc'+sx,'gc'+sx,'answer'+sx,'relay'+sx,'rh'+sx,'rg'+sx,'offer'+sx])await cput(pbase()+'/'+k,null).catch(()=>{});sl.hci=0;
  if(!window.RTCPeerConnection||NET.forceRelay){await requestRelaySlot(sl);return}
  const pc=new RTCPeerConnection({iceServers:ICE});sl.pc=pc;
  pc.onconnectionstatechange=()=>{if(sl.pc!==pc)return;const st=pc.connectionState;if(st==='failed'&&!sl.on&&!sl.relay)requestRelaySlot(sl);if((st==='disconnected'||st==='failed'||st==='closed')&&sl.on&&!sl.relay)netDownSlot('Connection lost',sl)};
  pc.onicecandidate=e=>{if(!e.candidate||sl.pc!==pc)return;const i=sl.hci++;cput(pbase()+'/hc'+sx+'/'+i,e.candidate.toJSON()).catch(()=>{})};
  sl.dcR=pc.createDataChannel('rel',{ordered:true});sl.dcS=pc.createDataChannel('snap',{ordered:false,maxRetransmits:0});wireDC_slot(sl.dcR,1,sl);wireDC_slot(sl.dcS,0,sl);
  const o=await pc.createOffer();await pc.setLocalDescription(o);await cput(pbase()+'/offer'+sx,{id:j.id,sdp:o.sdp,type:'offer'});
- sl.t0=setTimeout(()=>{if(!sl.on&&!sl.relay)requestRelaySlot(sl)},9000);sl.t1=setTimeout(()=>{if(NET.role==='host'&&!sl.on){NET.slots=NET.slots.filter(s=>s!==sl);_cleanSlot(sl)}},28000)}
+ sl.t0=setTimeout(()=>{if(!sl.on&&!sl.relay)requestRelaySlot(sl)},6000);sl.t1=setTimeout(()=>{if(NET.role==='host'&&!sl.on){NET.slots=NET.slots.filter(s=>s!==sl);_cleanSlot(sl)}},28000)}
 async function guestPoll(){if(NET.role!=='guest'||gpBusy)return;gpBusy=true;
  try{const n=await cfetch(pbase());
   if(!n){if(!NET.on)partyLeave('The party was closed.');gpBusy=false;return}
@@ -2181,21 +2182,25 @@ async function requestRelay(){if(NET.relay||NET.on)return;try{await cput(pbase()
  if(NET.role==='host'){/* guest-only; host uses requestRelaySlot */}}
 async function requestRelaySlot(sl){if(sl.relay||sl.on)return;const sx=spfx(sl.n);try{await cput(pbase()+'/relay'+sx,true)}catch(e){}await goRelaySlot(sl)}
 /* relay: both sides stream small JSON blobs through two database nodes */
+function sseHandler(cb){let st=null;return e=>{try{const o=JSON.parse(e.data);if(!o)return;const p=o.path||'/';
+ if(e.type==='patch'){if(st&&typeof st==='object')for(const k in o.data)st[k.replace(/^\//,'')]=o.data[k]}
+ else if(p==='/')st=o.data;else{if(!st||typeof st!=='object')st={};const ks=p.split('/').filter(Boolean);let t=st;for(let i=0;i<ks.length-1;i++){const v=t[ks[i]];t=t[ks[i]]=(v&&typeof v==='object')?v:{}}if(o.data===null)delete t[ks[ks.length-1]];else t[ks[ks.length-1]]=o.data}
+ if(st&&typeof st==='object')cb(st)}catch(x){}}}
 async function goRelay(){if(NET.relay||NET.on)return;try{NET.pc&&NET.pc.close()}catch(e){}NET.pc=NET.dcR=NET.dcS=null;clearTimeout(NET.t0);NET.relay=true;NET.state='connecting';
  NET.rq=[];NET.rsnap=null;NET.rid=0;NET.rrecv=0;NET.rseq=0;NET.rlast=-1;const sx=NET._jsfx||'';
- try{const es=new EventSource(CLOUD+pbase()+'/rh'+sx+'.json');NET.es=es;es.addEventListener('put',e=>{try{const o=JSON.parse(e.data);if(o&&o.path==='/'&&o.data)relayIn(o.data)}catch(x){}});es.onerror=()=>{}}catch(e){netDown('Could not open the relay');return}
+ try{const es=new EventSource(CLOUD+pbase()+'/rh'+sx+'.json');NET.es=es;{const h=sseHandler(relayIn);es.addEventListener('put',h);es.addEventListener('patch',h)}es.onerror=()=>{}}catch(e){netDown('Could not open the relay');return}
  NET.rmine='rg'+sx;NET.rt=setInterval(relayFlush,90);setTimeout(()=>{if(!NET.on)netUp()},300)}
 async function goRelaySlot(sl){if(sl.relay||sl.on)return;try{sl.pc&&sl.pc.close()}catch(e){}sl.pc=sl.dcR=sl.dcS=null;clearTimeout(sl.t0);sl.relay=true;const sx=spfx(sl.n);
  sl.rq=[];sl.rsnap=null;sl.rid=0;sl.rrecv=0;sl.rseq=0;sl.rlast=-1;
- try{const es=new EventSource(CLOUD+pbase()+'/rg'+sx+'.json');sl.es=es;es.addEventListener('put',e=>{try{const o=JSON.parse(e.data);if(o&&o.path==='/'&&o.data)relayInSlot(o.data,sl)}catch(x){}});es.onerror=()=>{}}catch(e){netDownSlot('Could not open the relay',sl);return}
+ try{const es=new EventSource(CLOUD+pbase()+'/rg'+sx+'.json');sl.es=es;{const h=sseHandler(o=>relayInSlot(o,sl));es.addEventListener('put',h);es.addEventListener('patch',h)}es.onerror=()=>{}}catch(e){netDownSlot('Could not open the relay',sl);return}
  sl.rmine='rh'+sx;sl.rt=setInterval(()=>relayFlushSlot(sl),90);setTimeout(()=>{if(!sl.on)netUpSlot(sl)},300)}
 function relayFlush(){if(!NET.relay||!NET.role)return;const need=NET.rq.length||NET.rsnap||NET.rackDirty;if(!need)return;const body={n:++NET.rseq,a:NET.rrecv,r:NET.rq.map(x=>[x.i,x.m]),s:NET.rsnap};NET.rsnap=null;NET.rackDirty=false;cput(pbase()+'/'+NET.rmine,body).catch(()=>{})}
 function relayFlushSlot(sl){if(!sl.relay)return;const need=sl.rq.length||sl.rsnap||sl.rackDirty;if(!need)return;const body={n:++sl.rseq,a:sl.rrecv,r:sl.rq.map(x=>[x.i,x.m]),s:sl.rsnap};sl.rsnap=null;sl.rackDirty=false;cput(pbase()+'/'+sl.rmine,body).catch(()=>{})}
-function relayIn(o){if(typeof o.n!=='number'||o.n<=NET.rlast)return;NET.rlast=o.n;
+function relayIn(o){if(typeof o.n!=='number'||o.n<NET.rlast)return;NET.rlast=o.n;
  if(typeof o.a==='number')NET.rq=NET.rq.filter(x=>x.i>o.a);
  for(const e of arr(o.r)){if(e&&e[0]>NET.rrecv){NET.rrecv=e[0];NET.rackDirty=true;netRecv(e[1],null)}}
  if(o.s)netRecv(o.s,null)}
-function relayInSlot(o,sl){if(typeof o.n!=='number'||o.n<=sl.rlast)return;sl.rlast=o.n;
+function relayInSlot(o,sl){if(typeof o.n!=='number'||o.n<sl.rlast)return;sl.rlast=o.n;
  if(typeof o.a==='number')sl.rq=sl.rq.filter(x=>x.i>o.a);
  for(const e of arr(o.r)){if(e&&e[0]>sl.rrecv){sl.rrecv=e[0];sl.rackDirty=true;netRecv(e[1],sl)}}
  if(o.s)netRecv(o.s,sl)}
@@ -2257,6 +2262,7 @@ function netRecv(raw,sl){let m;try{m=JSON.parse(raw)}catch(e){return}
   case'vt':if(NET.role==='guest')guestVote(m);break;
   case'start':if(NET.role==='guest')netStart(m);break;
   case's':if(NET.role==='guest'&&G.net)applySnap(m);break;
+  case'ev':if(NET.role==='guest'&&G.net)for(const e of m.ev||[])applyEv(e);break;
   case'abort':if(NET.role==='guest'&&G.net){toast('The host ended the match');leaveMatchGuest()}break}}
 const hostGuestBySl=sl=>sl&&NET.role==='host'&&sl.m&&G&&G.f?G.f.find(f=>f.human&&f.nid===sl.nid):null;
 const hostGuest=()=>NET.role==='host'&&G&&G.f?G.f.find(f=>f.human):null;
@@ -2269,7 +2275,7 @@ function partySetup(md){const g=G;g.f.forEach((f,i)=>f.nid=i);for(const sl of NE
    if(md==='ffa')gf=mkF(P.cls,old?old.x:WW/2+200*(ni-1),old?old.y:WH/2,false,ni);
    else{const[sx,sy]=CSPAWN[old?old.team:'b'][old?old.slot:0];gf=mkF(P.cls,sx,sy,false,ni);if(old){gf.team=old.team;gf.slot=old.slot;gf.role=old.role;gf.a=old.a}}
    gf.human=true;gf.nid=ni;sl.nid=ni;gf.name=P.dn;gf.col=P.skin||null;gf.net={mx:0,my:0,aim:{on:false,v:{x:0,y:0}}};g.f[ni]=gf;if(g.all)g.all[ni]=gf;sl.m=true;ni++}
-  NET.gvote=''}}
+  NET.gvote='';NET.m=true}}
 function netSendStart(){if(!NET.slots.some(s=>s.m))return;const g=G;const base={t:'start',md:g.mode,mode:g.ul?'ul':g.mode,ul:g.ul?1:0,map:AR.id,fx:AR.fx?1:0,fy:AR.fy?1:0,tm:+g.t.toFixed(2),
  z:g.z?{r:Math.round(g.z.r)}:null,hn:NET.myDn,roster:g.f.map(f=>({n:f.nid,cls:f.cls,x:Math.round(f.x),y:Math.round(f.y),a:+f.a.toFixed(2),team:f.team,slot:f.slot,role:f.role,hum:(f===g.p||f.human)?1:0,name:f===g.p?NET.myDn:f.name,col:f===g.p?sk(f.cls):f.col,i:f.nid}))};for(const sl of NET.slots)if(sl.m)slotSend(sl,Object.assign({},base,{myn:sl.nid}))}
 const serFlag=F=>({x:Math.round(F.x),y:Math.round(F.y),h:F.home?1:0,c:F.carrier?F.carrier.nid:-1,rt:+F.rt.toFixed(1)});
@@ -2285,15 +2291,15 @@ function buildSnap(guestNid){const g=G,s={t:'s',n:++NET.seq,tm:+g.t.toFixed(2),f
  if(g.z)s.z={r:Math.round(g.z.r),on:g.z.on};s.pk=AR.pick.map(x=>x.on?1:0);s.pj=(g.pj||[]).map(q=>[q.id,Math.round(q.x),Math.round(q.y),+q.a.toFixed(2),q.heal?1:0]);
  const gf=guestNid>=0?g.f.find(f=>f.nid===guestNid):g.f.find(f=>f.human);if(gf)s.me={ko:gf.kn|0,pn:gf.pn|0,pc:gf.capn|0,pl:gf.place|0,hk:g.ko|0};
  if(g.end)s.end={t:+g.end.t.toFixed(2),win:(g.endWin&&gf)?!!g.endWin[gf.nid]:!!g.end.win};
- s.ev=NET.ev.splice(0);return s}
-function netHostTick(dt){if(!NET.slots.some(s=>s.m&&s.on))return;for(const sl of NET.slots){if(!sl.m||!sl.on)continue;sl.sendT=(sl.sendT||0)+dt;if(sl.sendT<(sl.relay?.12:.033))continue;sl.sendT=0;slotSend(sl,buildSnap(sl.nid),false)}}
+ return s}
+function netHostTick(dt){if(!NET.slots.some(s=>s.m&&s.on))return;if(NET.ev.length){const evs=NET.ev.splice(0);for(const sl of NET.slots)if(sl.m&&sl.on)slotSend(sl,{t:'ev',ev:evs},true)}for(const sl of NET.slots){if(!sl.m||!sl.on)continue;sl.sendT=(sl.sendT||0)+dt;if(sl.sendT<(sl.relay?.12:.033))continue;sl.sendT=0;slotSend(sl,buildSnap(sl.nid),false)}}
 /* the guest left (or dropped): remove them by nid, no ghost left behind */
 function removeGuestFromMatch(nm,nid){const g=G;if(!g||!g.f)return;
  const gf=nid>=0?g.f.find(f=>f.human&&f.nid===nid):g.f.find(f=>f.human);if(!gf)return;
  try{if(g.fb&&g.fb.ball.carrier===gf)fbDrop(gf,'ko');if(g.ctf&&gf.flag&&gf.flag!=='ball')dropFlag(gf)}catch(e){}
  g.f=g.f.filter(f=>f!==gf);if(g.all)g.all=g.all.filter(f=>f!==gf);if(gf.row)gf.row.remove();if(g.u)g.u.bud=g.u.bud.filter(b=>b.f!==gf);
  for(const f of g.f)if(f.ai&&f.ai.tg===gf){f.ai.tg=null;f.ai.mem.delete(gf)}
- if(!NET.slots.some(s=>s.m))NET.ev=[];if(g.s==='play'||g.s==='pause')toast((nm||'The other player')+' left the match');lbUpdate();info()}
+ {const q=NET.slots.find(s=>s.nid===nid);if(q)q.m=false;NET.m=NET.slots.some(s=>s.m&&s.on);if(!NET.m)NET.ev=[]}if(g.s==='play'||g.s==='pause')toast((nm||'The other player')+' left the match');lbUpdate();info()}
 function leaveMatchGuest(){if(!G)return;G.s='menu';G.net=0;over.classList.remove('on');$('#vote').classList.remove('on');menu.classList.add('on');app.classList.remove('playing');$('#spawnbtn').hidden=$('#deploybtn').hidden=true;refresh()}
 
 /* ---------- guest: build the match from the host's start message ---------- */
@@ -2310,12 +2316,12 @@ function applySnap(s){const g=G;if(!g.net||s.n<=NET.lastN)return;NET.lastN=s.n;c
  const seen=new Set();
  for(const o of s.f){seen.add(o.n);const f=fByN(o.n);if(!f)continue;
   f.hc=o.hc||0;f.imm=o.im?1:0;f.hp=o.hp;f.max=o.mx;f.stun=o.st||0;f.inv=o.iv||0;f.rev=o.rv?1:0;f.flag=o.fg||'';f.hs=o.hs||0;f.db=o.db||0;f.bn=o.db&1?1:0;f.sl=o.db&2?1:0;f.dm=o.dm||1;f.sc=!!o.sc;f.dep=!!o.dp;f.rs=o.rs||0;f.k=o.k;if(o.fl)f.fl=.07;
-  if(f===p){const dx=o.x-p.x,dy=o.y-p.y,d=Math.hypot(dx,dy);if(p.hp<=0||o.hp<=0||d>220||f.snapNext){p.x=o.x;p.y=o.y;p.snapNext=false}else if(d>36){p.x+=dx*.3;p.y+=dy*.3}
+  if(f===p){const dx=o.x-p.x,dy=o.y-p.y,d=Math.hypot(dx,dy);if(p.hp<=0||o.hp<=0||d>(NET.relay?420:220)||f.snapNext){p.x=o.x;p.y=o.y;p.snapNext=false}else if(d>(NET.relay?90:36)){const kk=NET.relay?.12:.3;p.x+=dx*kk;p.y+=dy*kk}
    if(o.uc>=UMAX[p.cls]&&p.uc<UMAX[p.cls]&&o.hp>0){toast('ULTIMATE READY!');sfx('ready')}p.uc=o.uc;
    if(now>(p.gLock||0)){p.ammo=o.am;p.ammoT=o.at}
    p.ult=o.ul?{k:o.ul.k,t:o.ul.t,d:o.ul.d,tk:0}:null;if(o.hp<=0){p.atk=null;p.wu=null}}
   else{f.tx=o.x;f.ty=o.y;f.tvx=o.vx;f.tvy=o.vy;f.ta=o.a;f.sa=now;f.ammo=o.am;f.ammoT=o.at;f.uc=o.uc;
-   if(Math.hypot(o.x-f.x,o.y-f.y)>260){f.x=o.x;f.y=o.y}
+   if(Math.hypot(o.x-f.x,o.y-f.y)>(NET.relay?700:260)){f.x=o.x;f.y=o.y}
    if(o.ak){const a=o.ak,cur=f.atk;if(!cur||cur.k!==a.k||Math.abs(cur.a-a.a)>.02||a.t<cur.t-.2){f.pop=1;f.atk={k:a.k,a:a.a,t:a.t,d:a.d,sd:a.sd,hand:a.hd,len:a.ln,st:a.st,L:a.L,w:a.w,x0:a.x0,y0:a.y0,x1:a.x1,y1:a.y1,bonk:!!a.bn,tgt:a.tg>=0?fByN(a.tg):null,hit:new Set(),ang:a.a-PI/2}}else{cur.t=a.t;cur.len=a.ln;cur.st=a.st;cur.tgt=a.tg>=0?fByN(a.tg):null}}else f.atk=null;
    f.wu=o.wu?{t:o.wu.t,d:o.wu.d,a:o.wu.a,pw:o.wu.pw,L:o.wu.L}:null;f.ult=o.ul?{k:o.ul.k,t:o.ul.t,d:o.ul.d,tk:0}:null}}
  for(let i=g.f.length-1;i>=0;i--){const f=g.f[i];if(f!==p&&!seen.has(f.nid)){g.f.splice(i,1);if(g.all){const j=g.all.indexOf(f);if(j>=0&&g.mode==='ffa'){f.hp=0}}}}
@@ -2349,15 +2355,15 @@ function guestStep(dt){const g=G,p=g.p,now=performance.now();g.t+=dt;FRAME++;
  if(p.hp>0){g.nh=1;stepF(p,dt,mx,my);g.nh=0}
  p.bush=inBush(p);p.rev-=dt;p.h.push(g.t,p.x,p.y);while(p.h.length>6&&g.t-p.h[0]>.75)p.h.splice(0,3);
  if(!g.end)netSendInput(mx,my);
- const k=1-Math.exp(-dt*22);
- for(const f of g.f){if(f===p)continue;const age=Math.min(.12,(now-(f.sa||now))/1000),ex=f.tx+f.tvx*age,ey=f.ty+f.tvy*age;f.x+=(ex-f.x)*k;f.y+=(ey-f.y)*k;f.a=lerpAng(f.a,f.ta,k);f.vx=f.tvx;f.vy=f.tvy;f.t+=dt;
+ const k=1-Math.exp(-dt*(NET.relay?11:22)),AGE=NET.relay?.35:.12;
+ for(const f of g.f){if(f===p)continue;const age=Math.min(AGE,(now-(f.sa||now))/1000),ex=f.tx+f.tvx*age,ey=f.ty+f.tvy*age;f.x+=(ex-f.x)*k;f.y+=(ey-f.y)*k;f.a=lerpAng(f.a,f.ta,k);f.vx=f.tvx;f.vy=f.tvy;f.t+=dt;
   f.mv=lerp(f.mv,Math.hypot(f.tvx,f.tvy)>30?1:0,Math.min(1,dt*10));f.pop=Math.max(0,f.pop-dt*4);f.fl-=dt;f.lag=lerp(f.lag,f.hp,Math.min(1,dt*2.5));f.bush=inBush(f);f.rev-=dt;
   const a=f.atk;if(a){a.t+=dt;const u=Math.min(1,a.t/a.d);if(a.k==='net'||a.k==='sweep'){a.ang=a.a-PI/2+PI*u;if(a.k==='net'){f.na.push(a.ang);if(f.na.length>10)f.na.shift()}}if(a.k==='dash'){f.tr.push(f.x,f.y);if(f.tr.length>20)f.tr.splice(0,2)}else if(f.tr.length)f.tr.splice(0,2)}else{if(f.na.length)f.na.length=0;if(f.tr.length)f.tr.splice(0,2)}
   if(f.wu)f.wu.t+=dt;if(f.ult)f.ult.t+=dt;
   if(f.mv>.6&&!a&&(f.dg=(f.dg||0)-dt)<=0){f.dg=.11;dust(f.x,f.y+18)}}
  for(const o of g.f.concat(g.en))if(o.db&&Math.random()<dt*10)sparkle(o.x,o.y-6,1,o.db&1?'#FF7A1A':'#7FD6FF');
  for(const pr of g.pj){pr.x+=pr.vx*dt;pr.y+=pr.vy*dt}
- for(const e of g.en){e.t+=dt;e.fl-=dt;e.bush=inBush(e);const age=Math.min(.12,(now-e.sa)/1000);e.x+=(e.tx+(e.tvx||0)*age-e.x)*k;e.y+=(e.ty+(e.tvy||0)*age-e.y)*k}
+ for(const e of g.en){e.t+=dt;e.fl-=dt;e.bush=inBush(e);const age=Math.min(AGE,(now-e.sa)/1000);e.x+=(e.tx+(e.tvx||0)*age-e.x)*k;e.y+=(e.ty+(e.tvy||0)*age-e.y)*k}
  if(g.fb)g.fb.ball.spin+=dt*10;
  if(g.u){const U=g.u,me=U.bud.find(b=>b.f===p),spw=U.def!==p.team&&p.hp<=0&&U.st==='fight',sb=$('#spawnbtn'),db=$('#deploybtn'),show=!!me&&me.left>0&&spw;sb.hidden=!show;if(show){const t=`Spawn blob ${me.left}/${USV_PER}`;if(sb.textContent!==t)sb.textContent=t}
   db.hidden=!(spw&&!p.dep);if(!db.hidden){const t=`Deploy as ${CN[p.cls]} (35%)`;if(db.textContent!==t)db.textContent=t}}
