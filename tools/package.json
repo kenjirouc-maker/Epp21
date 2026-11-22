@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@gfx/zopfli": "^1.0.15",
+    "clean-css": "^5.3.3",
+    "html-minifier-terser": "^7.2.0",
+    "postcss": "^8.5.33",
+    "terser": "^5.51.4"
+  }
+}
