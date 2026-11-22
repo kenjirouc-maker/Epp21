@@ -677,10 +677,10 @@ function buildShop(){const el=$('#goods'),ok=S.gift!==today();if(S.own.p4&&!S.ic
   d.className='good'+(eq?' eq':'')+(it.id===jn?' pop':'');if(it.id!==jn)d.style.animationDelay=i*.04+'s';
   d.innerHTML=`<canvas width="208" height="208" data-i="${i}"></canvas><span>${it.n}${it.fo?' · Mythic':''}</span><button class="buy${own?' own':''}">${own?(eq?'Equipped':'Equip'):it.fo?'Claim free':'<i class="gemi"></i>'+it.p}</button>`;
   d.lastChild.onclick=()=>{if(own){put();save();buildShop();return}
-   if(it.fo){S.own[it.id]=1;if(!S.icons.includes('cake'))S.icons.push('cake');put();jn=it.id;save();sfx('win',.6);toast('Founder reward: Birthday Cake Puncher + Cake & Candle icon!',3200);buildShop();return}
+   if(it.fo){S.own[it.id]=1;if(!S.icons.includes('cake'))S.icons.push('cake');put();cls='puncher';jn=it.id;save();sfx('win',.6);toast('Founder reward: Birthday Cake Puncher + Cake & Candle icon!',3200);buildShop();return}
    if(S.gems<it.p){retrig(d,'no');return toast('Not enough gems!')}
    S.own[it.id]=1;put();jn=it.id;gems(S.gems-it.p);toast('Unlocked '+it.n+'!');buildShop()};
-  el.appendChild(d)});el.appendChild(devEl('div','Music: the lobby groove and the battle score are original and synthesised live in the game.','qcred'));jn=''}
+  el.appendChild(d)});if(!S.own.p4&&!foOK())el.insertBefore(devEl('div',S.user==='Guest'?'Founder reward (Mythic Birthday Cake Puncher + Cake & Candle icon): log in or sign up with an account made in the first month.':'Founder reward: only for accounts made in the first month.','lim-none'),el.querySelector('h3.tr'));el.appendChild(devEl('div','Music: the lobby groove and the battle score are original and synthesised live in the game. Build: cake-2','qcred'));jn=''}
 function drawCards(t=0){bp=Math.max(0,bp-.03);const col=sk(cls),b=$('#big').getContext('2d'),w=Math.abs(Math.sin(t*2.6));
  b.clearRect(0,0,360,360);figure(b,cls,180,214-w*14-Math.sin(bp*PI)*26,3.4,{col,sq:Math.sin(t*5.2)*.035-bp*.1,rot:Math.sin(t*1.7)*.05});
  const a=$('#av')?.getContext('2d');if(a){a.clearRect(0,0,64,64);figure(a,cls,32,38,.75,{col})}
