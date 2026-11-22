@@ -757,7 +757,8 @@ function figure0(c,k,x,y,s,o){c.save();c.translate(x,y);c.rotate(o.rot||0);c.sca
  if(k==='rammer'){
   if(o.col===OGC){c.strokeStyle='#2A251E';const horn=sx=>{c.save();c.scale(sx,1);c.fillStyle=o.fl?'#fff':'#FBF8F0';c.beginPath();c.moveTo(20,-6);c.quadraticCurveTo(66,-4,58,-58);c.quadraticCurveTo(42,-32,20,-24);c.closePath();c.fill();st();c.restore()};horn(-1);horn(1);
    c.fillStyle=o.fl?'#fff':o.col;sq(c,-23,-23,46,46,6);c.fill();st();
-   c.fillStyle=o.fl?'#fff':'#B87C5A';c.beginPath();c.moveTo(-23,-18);c.lineTo(-23,-12);for(let q=0;q<8;q++)c.lineTo(-23+(q+.5)*46/8,q%2?-5:-11);c.lineTo(23,-12);c.lineTo(23,-18);c.closePath();c.fill();c.lineWidth=2.4;st();
+   c.save();c.beginPath();sq(c,-23,-23,46,46,6);c.clip();c.fillStyle=o.fl?'#fff':'#B87C5A';c.beginPath();c.moveTo(-24,-24);c.lineTo(24,-24);c.lineTo(24,-10);for(let q=0;q<4;q++){const x1=24-q*12;c.quadraticCurveTo(x1-3,-5.5,x1-6,-9);c.quadraticCurveTo(x1-9,-12.5,x1-12,-10)}c.closePath();c.fill();c.lineWidth=2.4;c.beginPath();c.moveTo(24,-10);for(let q=0;q<4;q++){const x1=24-q*12;c.quadraticCurveTo(x1-3,-5.5,x1-6,-9);c.quadraticCurveTo(x1-9,-12.5,x1-12,-10)}c.stroke();c.restore();
+   c.beginPath();sq(c,-23,-23,46,46,6);c.lineWidth=2.6;st();
    c.strokeStyle='#2A251E';c.lineWidth=5;c.beginPath();c.moveTo(-18,-1);c.quadraticCurveTo(-11,-8,-3,-2);c.moveTo(18,-1);c.quadraticCurveTo(11,-8,3,-2);c.stroke();
    c.fillStyle=o.fl?'#fff':'#fff';c.lineWidth=2.2;c.beginPath();c.moveTo(-16,6);c.quadraticCurveTo(0,3,16,6);c.quadraticCurveTo(18,16,10,21);c.quadraticCurveTo(0,23,-10,21);c.quadraticCurveTo(-18,16,-16,6);c.closePath();c.fill();st();
    c.lineWidth=1.8;line(-7,5,-6,22);line(1,4.5,0,22.5);line(8,5,7,22)}
@@ -1384,7 +1385,7 @@ function ffaPartyEnd(){const g=G,p=g.p,alive=g.f.filter(o=>o.hp>0),hum=alive.fil
 function camTarget(g,p){let fx=p.x,fy=p.y;if(p.hp<=0){if(g.u){const d=g.f.filter(f=>f.hp>0&&f.team===g.u.def);if(d.length){fx=d.reduce((a,f)=>a+f.x,0)/d.length;fy=d.reduce((a,f)=>a+f.y,0)/d.length}}
  else if(g.mode==='ffa'){const o=g.f.find(f=>f.hp>0&&f!==p&&(f.human||f===g.p))||g.f.find(f=>f.hp>0&&f!==p);if(o){fx=o.x;fy=o.y}}}return[fx,fy]}
 /* one fighter, one frame */
-function stepF(f,dt,mx,my){if(f.hp<=0)return;const C=CL[f.cls],g=G;if(f.cls==='rammer'){f.r=OG(f)?46:BL(f)?27:23;if(OG(f)&&!f.ogd&&!g.net){f.ogd=1;f.max+=10000;f.hp+=10000;f.lag=f.hp}}
+function stepF(f,dt,mx,my){if(f.hp<=0)return;const C=CL[f.cls],g=G;if(f.cls==='rammer'){f.r=BL(f)?27:23;if(OG(f)&&!f.ogd&&!g.net){f.ogd=1;f.max+=10000;f.hp+=10000;f.lag=f.hp}}
  /* ammo recharge */
   const MAXA=MA(f);if(f.ammo<MAXA){f.ammoT+=dt*AS(f)*(f===g.p&&devOn()?DEV.rl:1)*(1+angerRl(f));while(f.ammoT>=C.recharge&&f.ammo<MAXA){f.ammo++;f.ammoT-=C.recharge;if(f===g.p){ring(f.x,f.y+20,20,.3,T.acc);sfx('ready')}}}
   if(f.ult){f.ult.t+=dt;if(f.ult.k==='catcher'&&!f.flag)tornado(f,dt);if(f.ult.t>=f.ult.d)endUlt(f)}
@@ -1397,7 +1398,7 @@ function stepF(f,dt,mx,my){if(f.hp<=0)return;const C=CL[f.cls],g=G;if(f.cls==='r
  if(f.mv>.6&&!a&&(f.dg=(f.dg||0)-dt)<=0){f.dg=.11;dust(f.x,f.y+18);if(f.bush&&Math.random()<.35)shards(f.x,f.y,Math.random()*TAU,1,dark?'#5FB874':'#4FA563',.4);if(inSpill(f))ring(f.x,f.y+16,4,.4,AR.sc)}
  if(a){a.t+=dt*AS(f);const u=Math.min(1,a.t/a.d),ts=tg(f);
   if(a.k==='dash'){const e=u*u*(3-2*u);f.x=lerp(a.x0,a.x1,e);f.y=lerp(a.y0,a.y1,e);if(a.t<.25)f.inv=.15;if(Math.random()<.6)dust(f.x,f.y+16);
-   const RU=f.ult&&f.ult.k==='rammer';for(const n of ts)if(!a.hit.has(n)&&!(n.inv>0)&&(SH(f)?inShape(f,n,a.a):Math.hypot(n.x-f.x,n.y-f.y)<n.r+28*(RU?1.2:1)*(OG(f)?2:BL(f)?1.18:1))){a.hit.add(n);hit(n,RU?1485:1100,Math.cos(a.a)*560,Math.sin(a.a)*560,f)}
+   const RU=f.ult&&f.ult.k==='rammer';for(const n of ts)if(!a.hit.has(n)&&!(n.inv>0)&&(SH(f)?inShape(f,n,a.a):Math.hypot(n.x-f.x,n.y-f.y)<n.r+28*(RU?1.2:1)*(BL(f)?1.18:1))){a.hit.add(n);hit(n,RU?1485:1100,Math.cos(a.a)*560,Math.sin(a.a)*560,f)}
    const wall=pushOut(f,f.r);
    if(u>=1||wall){ring(f.x,f.y+14,10,.32);dust(f.x,f.y+16,5,40);trauma(f===g.p?.12:.05*vol(f.x,f.y));
     if(a.bonk||wall){star(f.x+Math.cos(a.a)*26,f.y+Math.sin(a.a)*26-8,24);sfx('bonk',vol(f.x,f.y));f.kx-=Math.cos(a.a)*160;f.ky-=Math.sin(a.a)*160}f.atk=null}}
@@ -1758,7 +1759,7 @@ function drawF(f){const g=G,q=f.atk,ds=q&&q.k==='dash',nt=q&&q.k==='net',jb=q&&q
  if(f.flag){c.save();c.globalAlpha=.35+.2*Math.sin(g.t*6);c.strokeStyle=TC[f.flag]||'#B8662B';c.lineWidth=4;c.beginPath();c.ellipse(f.x,f.y+21,46,17,0,0,TAU);c.stroke();c.restore()}
  if(hid||(f.inv>.4&&(g.ctf||g.fb)&&(g.t*8|0)%2))c.globalAlpha=.55;
  c.save();c.translate(f.x,f.y);if(ds){c.rotate(q.a);c.scale(1+.4*st,1-.25*st);c.rotate(-q.a)}c.translate(-f.x,-f.y);
- figSc(f,f.x+jx,f.y-4-Math.abs(Math.sin(f.t*11))*5*f.mv,OG(f)?2:BL(f)?1.15:1,{col:sc,gl:glc(f),fl:f.fl>0,hold:nt||jb||tn||gb||mb,sq:Math.sin(f.t*13)*.05*f.mv+Math.sin(f.t*3+f.id)*.015-kick+.12*wu,rot:f.vx*.0005+lean+(tn?f.spin:0)});c.restore();c.globalAlpha=1;if(f.flag==='ball')ballGfx(f.x+(Math.cos(f.a)>=0?22:-22),f.y+10,.5*Math.sin(g.t*9)*f.mv,1.05,0);else if(f.flag)flagGfx(f.x+20,f.y+16,TC[f.flag],g.t,.55);
+ figSc(f,f.x+jx,f.y-4-Math.abs(Math.sin(f.t*11))*5*f.mv,BL(f)?1.15:1,{col:sc,gl:glc(f),fl:f.fl>0,hold:nt||jb||tn||gb||mb,sq:Math.sin(f.t*13)*.05*f.mv+Math.sin(f.t*3+f.id)*.015-kick+.12*wu,rot:f.vx*.0005+lean+(tn?f.spin:0)});c.restore();c.globalAlpha=1;if(f.flag==='ball')ballGfx(f.x+(Math.cos(f.a)>=0?22:-22),f.y+10,.5*Math.sin(g.t*9)*f.mv,1.05,0);else if(f.flag)flagGfx(f.x+20,f.y+16,TC[f.flag],g.t,.55);
  if(f.stun>0){c.save();c.translate(f.x,f.y-44);for(let i=0;i<3;i++){const a=g.t*5+i*TAU/3;c.save();c.translate(Math.cos(a)*20,Math.sin(a)*6);c.rotate(a*2);c.fillStyle='#F2C230';c.strokeStyle=T.ink;c.lineWidth=1.5;c.beginPath();for(let j=0;j<10;j++){const r=j%2?3:7,b=j*PI/5;c.lineTo(Math.cos(b)*r,Math.sin(b)*r)}c.closePath();c.fill();c.stroke();c.restore()}c.restore()}
  if(w){const s=1+Math.abs(Math.sin(wu*PI*5))*.25;c.save();c.translate(f.x,f.y-104);c.scale(s,s);c.font=`700 38px ${FT}`;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=7;c.strokeStyle=T.ink;c.strokeText('!',0,0);c.fillStyle='#F2C230';c.fillText('!',0,0);c.restore()}
  const r=f.hp/f.max;hb(f.x,f.y-68,72,12,r,r>.3?'#5A9E6F':T.acc,f.lag/f.max);
