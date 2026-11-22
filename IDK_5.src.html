@@ -755,7 +755,7 @@ function figure0(c,k,x,y,s,o){c.save();c.translate(x,y);c.rotate(o.rot||0);c.sca
  c.lineWidth=2.6;c.lineJoin=c.lineCap='round';c.strokeStyle=T.ink;
  const rr=(x,y,w,h,r)=>c.roundRect?c.roundRect(x,y,w,h,r):c.rect(x,y,w,h),st=()=>c.stroke(),line=(...p)=>{c.beginPath();c.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)c.lineTo(p[i],p[i+1]);c.stroke()};
  if(k==='rammer'){
-  if(o.col===OGC){c.strokeStyle='#2A251E';const horn=sx=>{c.save();c.scale(sx,1);c.fillStyle=o.fl?'#fff':'#FBF8F0';c.beginPath();c.moveTo(20,-6);c.quadraticCurveTo(66,-4,58,-58);c.quadraticCurveTo(42,-32,20,-24);c.closePath();c.fill();st();c.restore()};horn(-1);horn(1);
+  if(o.col===OGC){c.strokeStyle='#2A251E';const horn=sx=>{c.save();c.scale(sx,1);c.fillStyle=o.fl?'#fff':'#FBF8F0';c.beginPath();c.moveTo(21,-6);c.quadraticCurveTo(46,-4,45,-36);c.quadraticCurveTo(34,-22,21,-20);c.closePath();c.fill();st();c.restore()};horn(-1);horn(1);
    c.fillStyle=o.fl?'#fff':o.col;sq(c,-23,-23,46,46,6);c.fill();st();
    c.save();c.beginPath();sq(c,-23,-23,46,46,6);c.clip();c.fillStyle=o.fl?'#fff':'#B87C5A';c.beginPath();c.moveTo(-24,-24);c.lineTo(24,-24);c.lineTo(24,-10);for(let q=0;q<4;q++){const x1=24-q*12;c.quadraticCurveTo(x1-3,-5.5,x1-6,-9);c.quadraticCurveTo(x1-9,-12.5,x1-12,-10)}c.closePath();c.fill();c.lineWidth=2.4;c.beginPath();c.moveTo(24,-10);for(let q=0;q<4;q++){const x1=24-q*12;c.quadraticCurveTo(x1-3,-5.5,x1-6,-9);c.quadraticCurveTo(x1-9,-12.5,x1-12,-10)}c.stroke();c.restore();
    c.beginPath();sq(c,-23,-23,46,46,6);c.lineWidth=2.6;st();
