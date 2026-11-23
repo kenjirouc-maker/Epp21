@@ -1,0 +1,6 @@
+This game embeds the following third-party software.
+
+qrcode-generator 2.0.4 (QR code drawing for the LAN party)
+Copyright (c) 2009 Kazuhiko Arase
+Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+The word 'QR Code' is a registered trademark of DENSO WAVE INCORPORATED.
