@@ -232,6 +232,8 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 .pt-card input{width:130px;padding:6px 10px;font:700 30px var(--title);letter-spacing:.2em;text-align:center;text-transform:uppercase;color:var(--ink);background:var(--paper);border:1.8px solid var(--ink);border-radius:10px;box-sizing:border-box}
 .pt-err{color:var(--accent);font-size:16px;min-height:1.1em}.pt-note{color:var(--soft);font-size:15px}.pt-mem{display:flex;justify-content:space-between;align-items:center;width:100%;padding:6px 12px;background:var(--paper);border:1.4px solid var(--line);border-radius:10px}.pt-mem i{color:var(--soft);font-style:normal;font-size:16px}
 #ptchip{background:var(--sheet);border:1.4px solid var(--accent);border-radius:10px;padding:2px 10px}.nav.inparty::before{content:"";position:absolute;right:6px;top:4px;width:10px;height:10px;border-radius:50%;background:#3FBF5A;border:1.5px solid var(--ink)}
+.lan-qr{width:260px;max-width:100%;height:auto;image-rendering:pixelated;background:#fff;border-radius:8px;align-self:center;border:1.6px solid var(--ink)}.pt-card textarea{width:100%;box-sizing:border-box;font:13px/1.3 monospace;color:var(--ink);background:var(--paper);border:1.6px solid var(--ink);border-radius:8px;padding:6px;resize:vertical}.lan-scan{position:fixed;top:0;right:0;bottom:0;left:0;z-index:99998;background:#000;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:20px var(--hand)}.lan-scan video{max-width:100%;max-height:70%}
+.nbc{border-radius:10px}.lb-n.nbc{flex:0 1 auto;padding:0 10px}#pf-nb{display:flex;flex-wrap:wrap;gap:8px;align-items:center}#pf-nb .dv-note{flex:1 0 100%;margin-top:2px}#pf-nb .mode.sel{outline:2.4px solid var(--accent);outline-offset:1px}#pf-nb .mode.lock{opacity:.45}#pf-nb input[type=color]{width:48px;height:38px;padding:0;border:1.6px solid var(--ink);border-radius:8px;background:var(--paper)}.pt-mem b{display:inline-block}
 .devbox{display:flex;flex-direction:column;gap:6px;margin:8px 0;padding:10px;background:var(--sheet);border:1.8px dashed var(--accent);border-radius:12px;text-align:left}.devbox[hidden]{display:none}#goods .devbox{grid-column:1/-1}
 .qbox{grid-column:1/-1;display:flex;flex-direction:column;gap:8px}.qcred{grid-column:1/-1;font-size:14px;color:var(--soft);padding:10px 4px 20px}.qh{font:700 30px/1 var(--title);margin-top:6px}.qh small{font:15px var(--hand);color:var(--soft);margin-left:8px}
 .qcard{display:flex;flex-direction:column;gap:6px;padding:10px;background:var(--sheet);border:1.8px solid var(--line);border-radius:12px;box-shadow:var(--sh)}.qclass{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),var(--sh)}.qdone{opacity:.55}
@@ -298,7 +300,7 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 <body>
 <div id="app">
 <canvas id="cv"></canvas><div id="vig"></div>
-<div id="hud"><div class="chip" id="info"></div><div class="hr"><button class="chip" id="snd" aria-label="Toggle sound"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="x" d="M17 9l5 6M22 9l-5 6"/></svg></button><button class="chip" id="pause" aria-label="Pause"><i></i><i></i></button></div></div>
+<div id="hud"><div class="chip" id="info"></div><div class="hr"><button class="chip" id="admhud" hidden>ADM</button><button class="chip" id="snd" aria-label="Toggle sound"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="x" d="M17 9l5 6M22 9l-5 6"/></svg></button><button class="chip" id="pause" aria-label="Pause"><i></i><i></i></button></div></div>
 <canvas id="mini" width="264" height="198"></canvas><div id="feed"></div>
 <div id="banner"></div><div id="lbd"></div><div id="toast"></div>
 <div class="stick" id="mv"></div><div class="stick" id="aim"></div>
@@ -327,7 +329,7 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 </div></section>
 <!-- Menu -->
 <section class="screen" id="menu"><div class="lobby">
-<div class="bar"><div class="ubox"><button class="pill" id="user-pill" aria-label="Profile"><canvas id="uicon" width="64" height="64"></canvas><span id="uname">Guest</span></button><button class="pill" id="devbtn" hidden>DEV</button></div><b class="ttl">IDK</b><div class="pill" id="g1"><i class="gemi"></i><b class="gv">0</b><em>+</em></div></div>
+<div class="bar"><div class="ubox"><button class="pill" id="user-pill" aria-label="Profile"><canvas id="uicon" width="64" height="64"></canvas><span id="uname">Guest</span></button><button class="pill" id="devbtn" hidden>DEV</button><button class="pill" id="admbtn" hidden>ADM</button></div><b class="ttl">IDK</b><div class="pill" id="g1"><i class="gemi"></i><b class="gv">0</b><em>+</em></div></div>
 <div class="stage"><button class="llb" id="llb"><div class="llb-h">Leaderboard <small id="llb-n"></small></div><div id="llb-rows"></div></button><canvas id="big" width="360" height="360"></canvas><div class="plate" id="pn"></div><div class="info2" id="pi"></div><button class="mapbtn" id="teambtn" hidden><canvas id="teamth" width="120" height="90"></canvas><span class="mapt"><small>Your team</small><b id="teamn"></b></span><i class="mapar">&#8250;</i></button><button class="mapbtn" id="mapbtn"><canvas id="mapth" width="120" height="90"></canvas><span class="mapt"><small>Map</small><b id="mapn"></b></span><i class="mapar">&#8250;</i></button><div class="info2" id="ptchip" hidden></div><div class="info2 hint" id="hint"></div></div>
 <div class="foot"><button class="nav" id="tshop"><i class="cart"></i><span>Shop</span><i class="bd">!</i></button><button class="nav" id="tparty"><i class="clsi"></i><span>Party</span></button><button class="nav" id="tcls"><i class="clsi"></i><span>Classes</span><i class="bd" id="clsbd" hidden>!</i></button><div class="go2"><button class="mode" id="mode"></button><button class="play" id="play">PLAY</button></div></div>
 </div></section>
@@ -353,6 +355,7 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 <section class="screen" id="profile"><div class="lobby"><div class="bar"><button class="mode" id="pf-back">&#8249; Back</button><b class="ttl">Profile</b><button class="mode" id="pf-out">Log out</button></div>
 <div class="pf-body"><canvas id="pf-ico" width="160" height="160"></canvas><div id="pf-name"></div><div class="pf-stats" id="pf-stats"></div>
 <h3>Medals</h3><div class="pf-badges" id="pf-badges"></div>
+<h3>Name border</h3><div id="pf-nb"></div>
 <h3>Profile icon</h3><div class="pf-grid" id="pf-grid"></div>
 <h3>Progress</h3><div class="pf-save" id="pf-save"></div>
 <div class="pf-bkrow"><button class="mode" id="pf-sync">Sync online</button><button class="mode" id="pf-bk">Backup code</button><button class="mode" id="pf-rs">Restore</button></div>
@@ -363,6 +366,7 @@ h1::after{content:"";display:block;width:132px;height:10px;margin:8px auto 0;bac
 <section class="screen" id="vote"><div class="sheet"><h1 style="font-size:54px">Ultra League</h1><p class="sub" id="vt-sub"></p>
 <div class="vt-row"><button class="vt-b" id="vt-surv" data-m="surv"><b>Survival</b><span>10 waves · teams swap</span><em>0</em></button><button class="vt-b" id="vt-ctf" data-m="ctf"><b>Capture the Flag</b><span>3v3 · steal the flag</span><em>0</em></button></div>
 <div class="auth-note" id="vt-note"></div><div class="auth-btns"><button class="ghost" id="vt-leave">Leave</button></div></div></section>
+<section class="screen" id="admin"><div class="lobby"><div class="bar"><button class="mode" id="adm-back">&#8249; Back</button><b class="ttl">Admin</b><span style="width:84px"></span></div><div class="pf-body" id="adm-body"></div></div></section>
 <section class="screen" id="party"><div class="lobby"><div class="bar"><button class="mode" id="pt-back">&#8249; Back</button><b class="ttl">Party</b><span style="width:84px"></span></div><div class="pf-body" id="pt-body"></div></div></section>
 <section class="screen" id="maps"><div class="lobby"><div class="bar"><button class="mode" id="mp-back">&#8249; Back</button><b class="ttl">Maps</b><span style="width:84px"></span></div>
 <div class="mp-list" id="mp-list"></div></div></section>
@@ -412,9 +416,9 @@ const TC={b:'#3D7BE0',r:'#E0483A'},TN={b:'Blue',r:'Red'},FLAG_SLOW=1-.695,CTF_WI
 CBASE={b:{x:170,y:600},r:{x:1430,y:600}},CSPAWN={b:[[250,440],[250,600],[250,760]],r:[[1350,440],[1350,600],[1350,760]]},MODE_ORDER=['ffa','surv','ctf','fb','ul'];
 let myTeam='b';
 /* ---------- developer mode (only for the account named Kirky) ---------- */
-const NET={role:'',code:'',on:false,state:'idle',slots:[],pc:null,dcR:null,dcS:null,es:null,relay:false,peer:null,mode:'ffa',ping:0,lastIn:0,joinId:'',_jsfx:'',m:false,ev:[],sendT:0,seq:0,inSeq:-1,hci:0,gci:0,hcn:0,gcn:0,gotAns:0,forceRelay:false,err:'',poll:0,hb:0,rt:0,t0:0,myDn:'',gvote:'',lastMode:'',lastCls:'',codeIn:'',pend:[],rq:[],rsnap:null};
+const NET={role:'',code:'',on:false,state:'idle',slots:[],pc:null,dcR:null,dcS:null,es:null,relay:false,peer:null,mode:'ffa',ping:0,lastIn:0,joinId:'',_jsfx:'',m:false,ev:[],sendT:0,seq:0,inSeq:-1,hci:0,gci:0,hcn:0,gcn:0,gotAns:0,lan:false,lanPend:null,lanCode:'',lanOffer:'',forceRelay:false,err:'',poll:0,hb:0,rt:0,t0:0,myDn:'',gvote:'',lastMode:'',lastCls:'',codeIn:'',pend:[],rq:[],rsnap:null};
 const DEV={on:false,inf:false,dmg:1,flat:0,hp:0,rl:1,spd:1,ud:0,rng:1,shape:null},DEVLOCK=new Set(),STARTERS=['rammer','catcher','puncher'],
-BUILD='v12 · dev menu',isKirky=()=>{try{return S.user.normalize('NFKC').trim().toLowerCase()==='kirky'}catch(e){return S.user.toLowerCase()==='kirky'}},devOn=()=>DEV.on&&isKirky()&&!NET.on;
+BUILD='v12 · dev menu',unm=u=>{try{return String(u||'').normalize('NFKC').trim().toLowerCase()}catch(e){return String(u||'').toLowerCase()}},DEVNAMES=['kirky','jace'],GIFTERS=['kirky','jace','gm jireh'],isDev=()=>DEVNAMES.includes(unm(S.user)),isAdmin=()=>unm(S.user)==='gm jireh',devOn=()=>DEV.on&&isDev()&&!NET.on,ADM={god:false,paused:false};
 try{DEV.on=localStorage.getItem('idk-dev')==='1'}catch(e){}
 function devApply(){const p=G&&G.p;if(!p||!devOn())return;if(DEV.hp>0){const r=p.hp/p.max;p.max=DEV.hp;p.hp=G.s==='pause'?Math.max(1,Math.round(DEV.hp*Math.min(1,r||1))):DEV.hp;p.lag=p.hp}}
 function devSetMedals(which,n){n=Math.max(0,Math.floor(+n)||0);if(which==='total'){const K=CLS_KEYS,b=Math.floor(n/K.length);K.forEach((k,i)=>S.med[k]=b+(i<n-b*K.length?1:0))}else S.med[which]=n;save();cloudPush(true);accPush(true);refresh()}
@@ -423,7 +427,38 @@ function devClass(k,act){if(act==='unlock'){DEVLOCK.delete(k);if(!STARTERS.inclu
 function devSpawn(n){const g=G;if(!g||g.mode!=='surv'||g.end)return false;n=clamp(Math.floor(+n)||0,0,200);for(let i=0;i<n;i++)spawn();return n>0}
 const devEl=(tag,txt,cls)=>{const e=document.createElement(tag);if(txt!==undefined)e.textContent=txt;if(cls)e.className=cls;return e};
 function devNum(v,min,step){const i=devEl('input');i.type='number';i.value=v;i.min=min;i.step=step||'any';i.inputMode='decimal';return i}
-function devShopPanel(el){if(!isKirky())return;const box=devEl('div','','devbox'),t=devEl('button','Developer mode: '+(DEV.on?'ON':'OFF'),'buy'+(DEV.on?' own':''));
+function giftUI(box,allowDv){const row=(lab,...ctl)=>{const r=devEl('div','','dv-row');r.appendChild(devEl('span',lab));ctl.forEach(x=>r.appendChild(x));box.appendChild(r)};box.appendChild(devEl('div','Gift a player','dv-note'));
+ const ni=devEl('input');ni.placeholder='Player username';ni.autocomplete='off';ni.spellcheck=false;
+   const ks=devEl('select');ks.appendChild(Object.assign(devEl('option','Gems'),{value:'gems'}));for(const k of CLS_KEYS)ks.appendChild(Object.assign(devEl('option','Class: '+CN[k]),{value:'cls:'+k}));for(const it of SHOP.filter(x=>x.t==='skin'&&(allowDv||!x.dv)))ks.appendChild(Object.assign(devEl('option','Skin: '+it.n),{value:'skin:'+it.id}));
+   const ai=devNum(100,1,1),gb=devEl('button','Send gift','buy');
+   gb.onclick=async()=>{const nm=ni.value.trim();if(!nm){toast('Type the player username');return}if(!CLOUD){toast('Online features are off');return}gb.disabled=true;
+    try{const a=await cfetch('/acc/'+cKey(nm));if(!a||!a.pw){toast('No online account named '+nm);return}
+     const [t,v]=ks.value==='gems'?['gems',Math.max(1,Math.min(100000,Math.floor(+ai.value)||0))]:ks.value.split(':');
+     await cput('/gifts/'+cKey(nm)+'/'+Date.now().toString(36)+rid8(),{t,v,f:S.user,ts:Date.now()});toast('Gift sent to '+(a.n||nm)+' · they get it within 15s')}
+    catch(e){toast('Could not send: '+(cloudWhyMsg||'unknown error'))}finally{gb.disabled=false}};
+   row('To',ni);row('Gift',ks,ai,gb)}
+
+/* ---------- admin panel (GM Jireh): in-game tools, separate from the dev menu ---------- */
+function openAdmin(){if(!isAdmin())return;const g=G;if(g&&g.s==='play'&&!NET.m&&!g.net&&!over.classList.contains('on')){g.s='pause';ADM.paused=true;mv.reset();aim.reset()}buildAdmin();$('#admin').classList.add('on');sfx('ui')}
+function closeAdmin(){$('#admin').classList.remove('on');if(ADM.paused&&G&&G.s==='pause')G.s='play';ADM.paused=false}
+function buildAdmin(){const b=$('#adm-body');b.innerHTML='';const box=devEl('div','','devbox');b.appendChild(box);
+ const row=(lab,...ctl)=>{const r=devEl('div','','dv-row');r.appendChild(devEl('span',lab));ctl.forEach(x=>r.appendChild(x));box.appendChild(r)},btn=(t,fn)=>{const x=devEl('button',t,'buy');x.onclick=()=>{fn();buildAdmin()};return x};
+ const g=G,inM=!!(g&&(g.s==='play'||g.s==='pause')&&!g.net&&g.f&&g.p);
+ box.appendChild(devEl('div','Match tools','dv-note'));
+ if(!inM)box.appendChild(devEl('div',g&&g.net?'Match tools are only available to the party host.':'Start a match to use the match tools.','dv-note'));
+ else{
+  row('God mode ('+(ADM.god?'on':'off')+')',btn(ADM.god?'Turn off':'Turn on',()=>{ADM.god=!ADM.god;toast('God mode '+(ADM.god?'on':'off'))}));
+  row('Health',btn('Heal me',()=>{g.p.hp=g.p.max;g.p.lag=g.p.max;toast('Healed')}),btn('Heal everyone',()=>{for(const f of g.f)if(f.hp>0){f.hp=f.max;f.lag=f.max}toast('Everyone healed')}));
+  row('Charge',btn('Fill ult + ammo',()=>{const p=g.p;p.uc=UMAX[p.cls];p.ammo=CL[p.cls].ammo;toast('Charged')}));
+  row('Clear',btn('Erase bots / enemies',()=>{for(const f of g.f.slice())if(f.bot&&f.hp>0)hit(f,1e9,0,0,g.p);for(const e of g.en.slice())hit(e,1e9,0,0,g.p);toast('Cleared')}));
+  if(g.mode==='surv'){const ni=devNum(5,1,1);row('Spawn enemies',ni,btn('Spawn',()=>{devSpawn(ni.value);toast('Spawned')}))}
+  row('Match',btn('End match (win)',()=>{if(!g.end){g.end={t:.6,win:true};banner('Victory!')}closeAdmin()}))}
+ if(NET.role==='host'){box.appendChild(devEl('div','Party tools','dv-note'));
+  const act=NET.slots.filter(s=>s.on&&s.peer);if(!act.length)box.appendChild(devEl('div','No friends connected yet.','dv-note'));
+  for(const sl of act)row(sl.peer.dn,btn('Kick',()=>{try{slotSend(sl,{t:'kick'});if(sl.relay)relayFlushSlot(sl)}catch(e){}setTimeout(()=>{if(NET.slots.includes(sl))hostGuestGone('kicked',sl)},350);toast('Kicked '+sl.peer.dn)}));
+  const ai=devEl('input');ai.placeholder='Message to the party';ai.maxLength=80;ai.style.width='170px';row('Announce',ai,btn('Send',()=>{const t=ai.value.trim().slice(0,80);if(!t)return;netSend({t:'ann',s:t});toast('Sent: '+t);if(NET.m)banner(t)}))}
+ giftUI(box,false)}
+function devShopPanel(el){if(!isDev())return;const box=devEl('div','','devbox'),t=devEl('button','Developer mode: '+(DEV.on?'ON':'OFF'),'buy'+(DEV.on?' own':''));
  t.onclick=()=>{DEV.on=!DEV.on;try{localStorage.setItem('idk-dev',DEV.on?'1':'0')}catch(e){}buildShop()};box.appendChild(t);
  if(DEV.on){const row=(lab,...ctl)=>{const r=devEl('div','','dv-row');r.appendChild(devEl('span',lab));ctl.forEach(x=>r.appendChild(x));box.appendChild(r)};
   const sel=devEl('select');sel.appendChild(Object.assign(devEl('option','All classes (total)'),{value:'total'}));for(const k of CLS_KEYS)sel.appendChild(Object.assign(devEl('option',CN[k]),{value:k}));
@@ -437,16 +472,7 @@ function devShopPanel(el){if(!isKirky())return;const box=devEl('div','','devbox'
    if(!st){const b3=devEl('button','Disown','buy');b3.onclick=()=>{devClass(k,'disown');buildShop()};r.appendChild(b3)}box.appendChild(r)}
   box.appendChild(devEl('div','Skins','dv-note'));
   for(const it of SHOP.filter(x=>x.t==='skin')){const r=devEl('div','','dv-row');r.appendChild(devEl('span',it.n+' · '+(S.own[it.id]?'owned':'not owned')));const ba=devEl('button','Own','buy'),bd=devEl('button','Disown','buy');ba.onclick=()=>{S.own[it.id]=1;if(it.id==='p4'&&!S.icons.includes('cake'))S.icons.push('cake');save();buildShop()};bd.onclick=()=>{delete S.own[it.id];save();buildShop()};r.append(ba,bd);box.appendChild(r)}
-  box.appendChild(devEl('div','Gift a player','dv-note'));
-  {const ni=devEl('input');ni.placeholder='Player username';ni.autocomplete='off';ni.spellcheck=false;
-   const ks=devEl('select');ks.appendChild(Object.assign(devEl('option','Gems'),{value:'gems'}));for(const k of CLS_KEYS)ks.appendChild(Object.assign(devEl('option','Class: '+CN[k]),{value:'cls:'+k}));for(const it of SHOP.filter(x=>x.t==='skin'))ks.appendChild(Object.assign(devEl('option','Skin: '+it.n),{value:'skin:'+it.id}));
-   const ai=devNum(100,1,1),gb=devEl('button','Send gift','buy');
-   gb.onclick=async()=>{const nm=ni.value.trim();if(!nm){toast('Type the player username');return}if(!CLOUD){toast('Online features are off');return}gb.disabled=true;
-    try{const a=await cfetch('/acc/'+cKey(nm));if(!a||!a.pw){toast('No online account named '+nm);return}
-     const [t,v]=ks.value==='gems'?['gems',Math.max(1,Math.min(100000,Math.floor(+ai.value)||0))]:ks.value.split(':');
-     await cput('/gifts/'+cKey(nm)+'/'+Date.now().toString(36)+rid8(),{t,v,f:S.user,ts:Date.now()});toast('Gift sent to '+(a.n||nm)+' · they get it within 15s')}
-    catch(e){toast('Could not send: '+(cloudWhyMsg||'unknown error'))}finally{gb.disabled=false}};
-   row('To',ni);row('Gift',ks,ai,gb)}
+  giftUI(box,true);
   box.appendChild(devEl('div','In a match, press pause for damage, health, reload, speed and scribble spawns.','dv-note'))}
  el.firstChild.after(box)}
 /* a hand-drawn attack range: polygons in the fighter's own space (x = the way you aim), tested against the enemy's position and size */
@@ -550,8 +576,8 @@ try{localStorage.setItem('__t','1');localStorage.removeItem('__t')}catch(e){canL
 /* ---------- account + save system ----------
    DB holds every account plus the guest profile. It is written (with a checksum) on every change,
    when the page is hidden/closed and every 15s, with the previous good copy kept as a backup. */
-const SKEYS=['gems','tro','own','eq','trail','gift','best','med','cl','badges','icons','icon','box','map','st','elo','qs','rs','gc'],
-DEF=()=>({gems:120,tro:0,own:{},eq:{},trail:'',gift:'',best:0,med:{rammer:0,catcher:0,puncher:0,grabber:0,blitz:0,medic:0,smasher:0,mauler:0},cl:{},badges:[],icons:[],icon:'excl',box:'',map:'desk',st:{g:0,w:0,ko:0,cap:0},elo:0,qs:{w:-1,s:0,l:[]},rs:{w:-1,n:0},gc:{}}),
+const SKEYS=['gems','tro','own','eq','trail','gift','best','med','cl','badges','icons','icon','box','map','st','elo','qs','rs','gc','nb'],
+DEF=()=>({gems:120,tro:0,own:{},eq:{},trail:'',gift:'',best:0,med:{rammer:0,catcher:0,puncher:0,grabber:0,blitz:0,medic:0,smasher:0,mauler:0},cl:{},badges:[],icons:[],icon:'excl',box:'',map:'desk',st:{g:0,w:0,ko:0,cap:0},elo:0,qs:{w:-1,s:0,l:[]},rs:{w:-1,n:0},gc:{},nb:null}),
 KEY='idk-v2',KEYB='idk-v2-bak';
 let S=Object.assign(DEF(),{user:'Guest',mute:false}),gs=120,bp=0,jn='',DB={v:2,acc:{},guest:null,last:'',mute:false},lastSave=0,saveFail=false;
 function cs(str){let h1=0xdeadbeef,h2=0x41c6ce57;for(let i=0;i<str.length;i++){const ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}
@@ -1156,7 +1182,7 @@ function start(m){if(NET.role==='guest')return;if(mode==='ul'&&!m){if(!ulOK()){t
  else{const q={x:WW/2,y:WH/2+170};pushOut(q,30);G.p=mkF(cls,q.x,q.y,false,0);G.f=[G.p]}
  partySetup(md);
  for(const f of G.f){ring(f.x,f.y,14,.6);dust(f.x,f.y+18,6,60)}
-  G.cx=G.p.x;G.cy=G.p.y;G.cam=null;devApply();drawUlt.k='';buildLB();shop.classList.remove('on');menu.classList.remove('on');$('#classes').classList.remove('on');over.classList.remove('on');app.classList.add('playing');info();sfx('spawn');netSendStart()}
+  G.cx=G.p.x;G.cy=G.p.y;G.cam=null;devApply();drawUlt.k='';buildLB();for(const q of['#party','#profile','#mastery','#maps','#lboard','#pview','#admin'])$(q).classList.remove('on');shop.classList.remove('on');menu.classList.remove('on');$('#classes').classList.remove('on');over.classList.remove('on');app.classList.add('playing');info();sfx('spawn');netSendStart()}
 function fin(win){NET.m=false;const g=G,k=g.p.cls;let t,st,gm=0,tr=0,md=0;
  if(g.mode==='ffa'){const pl=win?1:(g.p.place||g.f.filter(o=>o!==g.p&&o.hp>0).length+1);t=win?'Last doodle standing!':'Knocked out!';st=win?`Victory · ${g.ko} KOs`:`Place #${pl} of 6 · ${g.ko} KOs`;
   if(win)md=8;else{gm=g.ko*4+Math.max(0,(6-pl)*3);tr=[0,10,5,2,0,-3,-5][pl]}}
@@ -1621,7 +1647,7 @@ function fxTail(dt){const g=G,p=g.p;
  const rv=Math.round(clamp(p.ammo>0?1:(p.ammoT/CL[p.cls].recharge),0,1)*10)/10;
  if(rv!==g.rv){g.rv=rv;aimEl.style.setProperty('--r',rv)}
  if(p.ammo>0&&!g.rdy&&p.hp>0){g.rdy=1}else if(p.ammo<=0)g.rdy=0}
-function update(dt){const g=G,p=g.p;g.t+=dt;FRAME++;
+function update(dt){const g=G,p=g.p;g.t+=dt;FRAME++;if(ADM.god&&isAdmin()&&p.hp>0){p.hp=p.max;p.lag=p.max}
  for(const f of g.f){f.bush=inBush(f);f.rev-=dt;f.h.push(g.t,f.x,f.y);while(f.h.length>6&&g.t-f.h[0]>.75)f.h.splice(0,3)}
  let mx=mv.v.x+PAD.mx,my=mv.v.y+PAD.my;
  if(keys.has('KeyA')||keys.has('ArrowLeft'))mx--;if(keys.has('KeyD')||keys.has('ArrowRight'))mx++;
@@ -1655,6 +1681,10 @@ function update(dt){const g=G,p=g.p;g.t+=dt;FRAME++;
 function hb(x,y,w,h,f,col,lag){c.fillStyle=T.sheet;c.strokeStyle=T.ink;c.lineWidth=2;c.beginPath();rr(x-w/2,y,w,h,h/2);c.fill();c.stroke();
  if(lag>f){c.globalAlpha=.4;c.fillStyle=T.acc;c.beginPath();rr(x-w/2+2,y+2,Math.max(h-4,(w-4)*lag),h-4,(h-4)/2);c.fill();c.globalAlpha=1}
  if(f>0){c.fillStyle=col;c.beginPath();rr(x-w/2+2,y+2,Math.max(h-4,(w-4)*f),h-4,(h-4)/2);c.fill();c.globalAlpha=.35;c.fillStyle='#fff';c.fillRect(x-w/2+5,y+3,Math.max(0,(w-10)*f),2);c.globalAlpha=1}}
+function nbCanvas(c,nb,x,y,w,h){c.save();c.lineWidth=2.6;c.setLineDash([]);const l=x-w/2,t=y-h/2;
+ if(nb.s==='rainbow'){const g=c.createLinearGradient(l,0,l+w,0);['#E4604C','#F2C230','#7BC043','#3DB5D6','#8E5BD0'].forEach((q,i)=>g.addColorStop(i/4,q));c.strokeStyle=g}else c.strokeStyle=nb.c;
+ if(nb.s==='dashed')c.setLineDash([5,3]);if(nb.s==='glow'){c.shadowColor=nb.c;c.shadowBlur=9}
+ c.beginPath();rrp(c,l,t,w,h,8);c.stroke();if(nb.s==='double'){c.shadowBlur=0;c.lineWidth=1.4;c.beginPath();rrp(c,l+4,t+4,w-8,h-8,5);c.stroke()}c.restore()}
 function drawAmmo(f,x,y){
  const C=CL[f.cls],max=C.ammo+(f.ult&&f.ult.k==='puncher'?1:0),am=f.ammo,re=f.ammoT/C.recharge,pw=22,ph=10,gap=4,tw=max*pw+(max-1)*gap;
  c.save();c.translate(x-tw/2,y-ph/2);c.lineWidth=1.8;c.strokeStyle=T.ink;
@@ -1765,7 +1795,7 @@ function drawF(f){const g=G,q=f.atk,ds=q&&q.k==='dash',nt=q&&q.k==='net',jb=q&&q
  const r=f.hp/f.max;hb(f.x,f.y-68,72,12,r,r>.3?'#5A9E6F':T.acc,f.lag/f.max);
  drawAmmo(f,f.x,f.y-54);
  c.font=`700 ${pl?17:15}px ${F}`;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=5;c.strokeStyle=T.sheet;c.fillStyle=T.ink;
- const s=pl?String(Math.ceil(f.hp)):f.name+(f.k?' ✕'+f.k:'');c.strokeText(s,f.x,f.y-80);c.fillText(s,f.x,f.y-80)}
+ const s=pl?String(Math.ceil(f.hp)):f.name+(f.k?' ✕'+f.k:'');if(!pl&&nbOK(f.nb))nbCanvas(c,f.nb,f.x,f.y-80,c.measureText(s).width+18,25);c.strokeText(s,f.x,f.y-80);c.fillText(s,f.x,f.y-80)}
 function preview(a,pw,al){const p=G.p,C=CL[p.cls];c.save();c.translate(p.x,p.y);c.rotate(a);c.globalAlpha=al;c.setLineDash([9,7]);c.lineDashOffset=-G.t*28;c.lineWidth=2.4;c.strokeStyle=T.acc;c.lineCap='round';
  if(SH(p)){drawShape(al)}else if(p.cls==='rammer'){const d0=(C.min+(C.max-C.min)*pw)*RM(p),d=Math.max(0,ray(p.x,p.y,Math.cos(a),Math.sin(a),d0,p.r-2)-2),bl=d<d0-1;c.globalAlpha=al*.15;c.fillStyle=T.acc;c.fillRect(0,-24*UW(p),d,48*UW(p));c.globalAlpha=al;c.strokeRect(0,-24*UW(p),d,48*UW(p));
   c.setLineDash([]);c.lineWidth=3.2;c.beginPath();if(bl){c.moveTo(d,-22);c.lineTo(d,22);c.moveTo(d-6,-16);c.lineTo(d+6,-10);c.moveTo(d-6,10);c.lineTo(d+6,16)}else{c.moveTo(d-14,-15);c.lineTo(d,0);c.lineTo(d-14,15)}c.stroke()}
@@ -1931,7 +1961,15 @@ function buildMaps(){const L=$('#mp-list');L.innerHTML='';for(const id of MAP_ID
 $('#teambtn').onclick=()=>{myTeam=myTeam==='b'?'r':'b';updateTeamBtn();sfx('ui')};
 $('#mapbtn').onclick=()=>{buildMaps();menu.classList.remove('on');$('#maps').classList.add('on');sfx('ui')};
 $('#mp-back').onclick=()=>{$('#maps').classList.remove('on');menu.classList.add('on');sfx('ui')};
-const boxCls=b=>b==='catcher'?'netbox':b==='puncher'?'ringbox':b==='grabber'?'gearbox':b==='blitz'?'boltbox':b==='medic'?'medbox':b==='smasher'?'smashbox':b==='mauler'?'maulbox':'rambox';
+const NBS=[['solid','Solid'],['dashed','Dashed'],['double','Double'],['glow','Glow'],['rainbow','Rainbow']],NBD='#E4604C',NBR='linear-gradient(90deg,#E4604C,#F2C230,#7BC043,#3DB5D6,#8E5BD0)',
+nbOK=nb=>!!nb&&typeof nb==='object'&&NBS.some(x=>x[0]===nb.s)&&/^#[0-9a-f]{6}$/i.test(nb.c||''),
+nbClean=nb=>nbOK(nb)?{s:nb.s,c:nb.c.toLowerCase()}:null,
+nbProps=nb=>{if(!nbOK(nb))return{border:'',boxShadow:'',background:''};const c=nb.c;return nb.s==='solid'?{border:'3px solid '+c,boxShadow:'',background:''}:nb.s==='dashed'?{border:'3px dashed '+c,boxShadow:'',background:''}:nb.s==='double'?{border:'5px double '+c,boxShadow:'',background:''}:nb.s==='glow'?{border:'2px solid '+c,boxShadow:'0 0 10px '+c+',inset 0 0 6px '+c+'88',background:''}:{border:'3px solid transparent',boxShadow:'',background:'linear-gradient(var(--sheet),var(--sheet)) padding-box,'+NBR+' border-box'}},
+nbStyle=(el,nb)=>{const q=nbProps(nb);el.style.border=q.border;el.style.boxShadow=q.boxShadow;el.style.background=q.background},
+nbInline=nb=>{if(!nbOK(nb))return'';const q=nbProps(nb);return'border-radius:8px;padding:0 8px;border:'+q.border+(q.boxShadow?';box-shadow:'+q.boxShadow:'')+(q.background?';background:'+q.background:'')},
+nameCls=(base,box,nb)=>base+(nbOK(nb)?' nbc':box?' '+boxCls(box):''),
+ownedBoxes=()=>isDev()?CLS_KEYS.slice():CLS_KEYS.filter(k=>MIL[k].some(m=>m.box&&isCl(k,m))),
+boxCls=b=>b==='catcher'?'netbox':b==='puncher'?'ringbox':b==='grabber'?'gearbox':b==='blitz'?'boltbox':b==='medic'?'medbox':b==='smasher'?'smashbox':b==='mauler'?'maulbox':'rambox';
 /* Tracks every registered account saved on this device. Each tab ranks by a different stat; tap a player for their full progress. */
 /* ---- online leaderboard (Firebase Realtime Database over plain HTTPS). Paste your database URL below, e.g. 'https://my-idk-default-rtdb.firebaseio.com'. Empty = this-device-only. ---- */
 const CLOUD='https://idk123-14320-default-rtdb.firebaseio.com';
@@ -1940,7 +1978,7 @@ const cKey=n=>encodeURIComponent(n.toLowerCase()).replace(/\./g,'%2E');
 /* ---- cloud accounts: stored at /acc/<name>, so the same login works on every device ---- */
 let cloudWhyMsg='';
 const cfetch=(path,opt)=>fetch(CLOUD+path+'.json',opt).then(r=>{if(!r.ok){cloudWhyMsg=(r.status===401||r.status===403)?'the online database refused access (permission denied)':r.status===404?'the online database was not found':'the online database returned error '+r.status;throw 0}cloudWhyMsg='';return r.json()},()=>{cloudWhyMsg="this page can't connect to the internet, or it blocks outside connections";throw 0}),
-cput=(path,v)=>cfetch(path,{method:'PUT',body:JSON.stringify(v)}),parseJ=t=>{try{const o=JSON.parse(t||'{}');return o&&typeof o==='object'?o:{}}catch(e){return{}}};
+cput=(path,v)=>NET.lan&&/^\/party\//.test(path)?Promise.resolve(null):cfetch(path,{method:'PUT',body:JSON.stringify(v)}),parseJ=t=>{try{const o=JSON.parse(t||'{}');return o&&typeof o==='object'?o:{}}catch(e){return{}}};
 async function sha(t){try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,'0')).join('')}}catch(e){}return''}
 const pw2=(u,p)=>sha('idk2\u0001'+u.toLowerCase()+'\u0001'+p);
 async function checkPw(rec,u,p){const h=await pw2(u,p);if(rec.p2&&h)return rec.p2===h;return rec.pw===pwh(u,p)}
@@ -1966,10 +2004,10 @@ async function accPull(force){if(!CLOUD||!accReady||apBusy||S.user==='Guest'||G.
  catch(e){}finally{apBusy=false}}
 async function giftCheck(){if(!CLOUD||!accReady||S.user==='Guest'||G.s==='play'||G.net||giftCheck.b)return;giftCheck.b=1;
  try{const name=S.user,r=await cfetch('/gifts/'+cKey(name));if(!r||typeof r!=='object'||S.user!==name)return;if(!S.gc||typeof S.gc!=='object')S.gc={};let got=[];
-  for(const id of Object.keys(r).sort()){const g=r[id];if(S.gc[id]||!g||typeof g!=='object'||String(g.f||'').toLowerCase()!=='kirky')continue;S.gc[id]=1;
+  for(const id of Object.keys(r).sort()){const g=r[id];if(S.gc[id]||!g||typeof g!=='object'||!GIFTERS.includes(unm(g.f)))continue;S.gc[id]=1;
    if(g.t==='gems'){const v=Math.max(0,Math.min(100000,Math.floor(+g.v)||0));if(v){gems(S.gems+v);got.push(v+' gems')}}
    else if(g.t==='cls'&&CLS_KEYS.includes(g.v)){S.own[g.v]=1;got.push(CN[g.v]+' class')}
-   else if(g.t==='skin'){const it=SHOP.find(x=>x.t==='skin'&&x.id===g.v);if(it){S.own[it.id]=1;if(it.id==='p4'&&!S.icons.includes('cake'))S.icons.push('cake');got.push(it.n+' skin')}}}
+   else if(g.t==='skin'){const it=SHOP.find(x=>x.t==='skin'&&x.id===g.v&&(!x.dv||DEVNAMES.includes(unm(g.f))));if(it){S.own[it.id]=1;if(it.id==='p4'&&!S.icons.includes('cake'))S.icons.push('cake');got.push(it.n+' skin')}}}
   const ks=Object.keys(S.gc);if(ks.length>400)for(const k of ks.sort().slice(0,ks.length-400))delete S.gc[k];
   if(got.length){save();accPush(true);cloudPush(true);uiRefresh();toast('Gift received: '+got.join(', '));sfx('win',.6)}else if(Object.keys(r).length)save()}
  catch(e){}finally{giftCheck.b=0}}
@@ -1982,15 +2020,15 @@ async function accPush(force){if(!CLOUD||!accReady||accBusy||S.user==='Guest'||t
  catch(x){}finally{accBusy=false}}
 function cloudPush(force){if(!CLOUD||S.user==='Guest'||typeof fetch!=='function')return;const n=Date.now();if(!force&&n-cloudPushT<20000)return;cloudPushT=n;
  let tot=0;for(const k of CLS_KEYS)tot+=S.med[k]|0;
- const b={n:S.user,ic:S.icon,bx:S.box,m:{r:S.med.rammer|0,c:S.med.catcher|0,p:S.med.puncher|0,g:S.med.grabber|0,b:S.med.blitz|0,d:S.med.medic|0,s:S.med.smasher|0,u:S.med.mauler|0},tot,w:S.st.w|0,g:S.st.g|0,ko:S.st.ko|0,cap:S.st.cap|0,best:S.best|0,tro:S.tro|0,el:S.elo|0,bd:S.badges.slice(0,12),t:n};
+ const b={n:S.user,ic:S.icon,bx:S.box,nb:nbClean(S.nb),m:{r:S.med.rammer|0,c:S.med.catcher|0,p:S.med.puncher|0,g:S.med.grabber|0,b:S.med.blitz|0,d:S.med.medic|0,s:S.med.smasher|0,u:S.med.mauler|0},tot,w:S.st.w|0,g:S.st.g|0,ko:S.st.ko|0,cap:S.st.cap|0,best:S.best|0,tro:S.tro|0,el:S.elo|0,bd:S.badges.slice(0,12),t:n};
  try{fetch(CLOUD+'/lb/'+cKey(S.user)+'.json',{method:'PUT',body:JSON.stringify(b)}).then(r=>{cloudOk=r.ok},()=>{cloudOk=false})}catch(e){}}
-function cloudPull(){if(!CLOUD||typeof fetch!=='function')return;try{fetch(CLOUD+'/lb.json').then(r=>r.ok?r.json():Promise.reject()).then(o=>{cloudOk=true;cloudRows=Object.values(o||{}).filter(x=>x&&typeof x.n==='string'&&x.n.length<=20).map(x=>({name:x.n,key:x.n.toLowerCase(),d:{icon:x.ic,box:x.bx,med:{rammer:x.m&&x.m.r,catcher:x.m&&x.m.c,puncher:x.m&&x.m.p,grabber:x.m&&x.m.g,blitz:x.m&&x.m.b,medic:x.m&&x.m.d,smasher:x.m&&x.m.s,mauler:x.m&&x.m.u},best:x.best,tro:x.tro,elo:x.el,badges:Array.isArray(x.bd)?x.bd.filter(v=>typeof v==='string'):undefined,st:{g:x.g,w:x.w,ko:x.ko,cap:x.cap}}}));
+function cloudPull(){if(!CLOUD||typeof fetch!=='function')return;try{fetch(CLOUD+'/lb.json').then(r=>r.ok?r.json():Promise.reject()).then(o=>{cloudOk=true;cloudRows=Object.values(o||{}).filter(x=>x&&typeof x.n==='string'&&x.n.length<=20).map(x=>({name:x.n,key:x.n.toLowerCase(),d:{icon:x.ic,box:x.bx,nb:x.nb,med:{rammer:x.m&&x.m.r,catcher:x.m&&x.m.c,puncher:x.m&&x.m.p,grabber:x.m&&x.m.g,blitz:x.m&&x.m.b,medic:x.m&&x.m.d,smasher:x.m&&x.m.s,mauler:x.m&&x.m.u},best:x.best,tro:x.tro,elo:x.el,badges:Array.isArray(x.bd)?x.bd.filter(v=>typeof v==='string'):undefined,st:{g:x.g,w:x.w,ko:x.ko,cap:x.cap}}}));
   if(menu.classList.contains('on'))renderLLB();if($('#lboard').classList.contains('on'))renderLboard()}).catch(()=>{cloudOk=false})}catch(e){}}
 if(CLOUD){setInterval(cloudPull,10000);setTimeout(cloudPull,500)}
 const LBT=[{id:'med',n:'Medals'},{id:'win',n:'Wins'},{id:'cap',n:'Flags'},{id:'surv',n:'Survival'}];let lbTab='med',lbOpen='';
 function lbRows(tab='med'){let db=DB;if(canLS){try{const o=parseDB(localStorage.getItem(KEY));if(o)db=o}catch(e){}}
  const mk=(name,d,key)=>{const m=d.med||{},s=d.st||{};let tot=0,stars=0;for(const k of CLS_KEYS){const v=m[k]|0;tot+=v;stars+=MIL[k].filter(x=>v>=x.at).length}
-  return{key,name,icon:d.icon||'excl',box:d.box||'',tot,stars,gems:d.gems|0,tro:d.tro|0,elo:d.elo|0,badges:Array.isArray(d.badges)?d.badges:[],best:d.best|0,med:m,st:{g:s.g|0,w:s.w|0,ko:s.ko|0,cap:s.cap|0}}},rows=[];
+  return{key,name,icon:d.icon||'excl',box:d.box||'',nb:nbClean(d.nb),tot,stars,gems:d.gems|0,tro:d.tro|0,elo:d.elo|0,badges:Array.isArray(d.badges)?d.badges:[],best:d.best|0,med:m,st:{g:s.g|0,w:s.w|0,ko:s.ko|0,cap:s.cap|0}}},rows=[];
  for(const key in db.acc){const a=db.acc[key];rows.push(mk(a.name,a.d||{},key))}
  if(S.user!=='Guest'){const key=S.user.toLowerCase(),r=mk(S.user,S,key),i=rows.findIndex(x=>x.key===key);if(i>=0)rows[i]=r;else rows.push(r)}
  for(const c of cloudRows){const r=mk(c.name,c.d,c.key),i=rows.findIndex(x=>x.key===c.key);if(i<0)rows.push(r);else if(r.tot>rows[i].tot&&!(S.user!=='Guest'&&c.key===S.user.toLowerCase())){r.gems=rows[i].gems;r.tro=Math.max(r.tro,rows[i].tro);r.elo=Math.max(r.elo,rows[i].elo);if(!r.badges.length)r.badges=rows[i].badges;rows[i]=r}}
@@ -2000,7 +2038,7 @@ const lbVal=(r,tab)=>tab==='win'?r.st.w:tab==='cap'?r.st.cap:tab==='surv'?r.best
 lbSub=(r,tab)=>tab==='win'?`${r.st.g} games · ${r.st.g?Math.round(r.st.w/r.st.g*100):0}% won`:tab==='cap'?`${r.st.ko} KOs`:tab==='surv'?'best score':`R ${r.med.rammer|0} · C ${r.med.catcher|0} · P ${r.med.puncher|0} · G ${r.med.grabber|0} · B ${r.med.blitz|0} · M ${r.med.medic|0} · S ${r.med.smasher|0} · U ${r.med.mauler|0}`;
 function lbRow(r,i,full,tab='med'){const d=document.createElement('div');d.className='lb-r'+(S.user!=='Guest'&&r.key===S.user.toLowerCase()?' me':'');
  const rk=document.createElement('div');rk.className='lb-rk'+(i<3?' r'+(i+1):'');rk.textContent=i+1;d.appendChild(rk);const q=document.createElement('canvas');q.width=q.height=60;drawIcon(q.getContext('2d'),ICONS.some(x=>x.id===r.icon)?r.icon:'excl',60);d.appendChild(q);
- const n=document.createElement('span');n.className='lb-n'+(r.box?' '+boxCls(r.box):'');n.textContent=r.name;d.appendChild(n);
+ const n=document.createElement('span');n.className=nameCls('lb-n',r.box,r.nb);nbStyle(n,r.nb);n.textContent=r.name;d.appendChild(n);
  if(full){const cm=document.createElement('span');cm.className='lb-cm';cm.textContent=lbSub(r,tab);d.appendChild(cm)}
  const m=document.createElement('span');m.className='lb-m';if(tab==='med')m.innerHTML='<i class="medi"></i>';m.appendChild(document.createTextNode(lbVal(r,tab)));d.appendChild(m);return d}
 function lbDetail(r){const d=document.createElement('div');d.className='lb-d';
@@ -2010,7 +2048,7 @@ let pvKey='';
 function badgeList(bd,list){bd.innerHTML='';for(const id of list||[]){const k=String(id).slice(0,-1),t=+String(id).slice(-1);if(!MIL[k]||!(t>0))continue;const d=document.createElement('div');d.className='pf-bd';const q=document.createElement('canvas');q.width=q.height=96;drawMedal(q.getContext('2d'),96,t,k);d.appendChild(q);const sp=document.createElement('span');sp.textContent=`Tier ${t} ${CN[k]} Medal`;d.appendChild(sp);bd.appendChild(d)}
  if(!bd.firstChild)bd.innerHTML='<span class="pf-none">No profile medals yet</span>'}
 function renderPlayer(){const r=lbRows(lbTab).find(x=>x.key===pvKey);if(!r)return;const me=S.user!=='Guest'&&r.key===S.user.toLowerCase(),rank=lbRows('med').findIndex(x=>x.key===r.key)+1;
- drawIcon($('#pv-ico').getContext('2d'),ICONS.some(x=>x.id===r.icon)?r.icon:'excl',160);const nm=$('#pv-name');nm.innerHTML='<span class="pf-nm"></span>';nm.firstChild.textContent=r.name;nm.firstChild.className='pf-nm'+(r.box?' '+boxCls(r.box):'');
+ drawIcon($('#pv-ico').getContext('2d'),ICONS.some(x=>x.id===r.icon)?r.icon:'excl',160);const nm=$('#pv-name');nm.innerHTML='<span class="pf-nm"></span>';nm.firstChild.textContent=r.name;nm.firstChild.className=nameCls('pf-nm',r.box,r.nb);nbStyle(nm.firstChild,r.nb);
  $('#pv-sub').textContent=(me?'You · ':'')+'#'+rank+' in medals';
  $('#pv-stats').innerHTML=`<span><i class="medi"></i> <b>${r.tot}</b> medals</span><span>Wins <b>${r.st.w}</b></span><span>Flags <b>${r.st.cap}</b></span>`;
  badgeList($('#pv-badges'),r.badges);const cl=$('#pv-cls');cl.innerHTML='';
@@ -2028,8 +2066,8 @@ $('#llb').onclick=()=>{renderLboard();menu.classList.remove('on');$('#lboard').c
 $('#lbk').onclick=()=>{$('#lboard').classList.remove('on');menu.classList.add('on');renderLLB();sfx('ui')};
 setInterval(()=>{if(menu.classList.contains('on'))renderLLB();if($('#lboard').classList.contains('on'))renderLboard();if($('#pview').classList.contains('on'))renderPlayer()},2500);
 addEventListener('storage',()=>{if(menu.classList.contains('on'))renderLLB();if($('#lboard').classList.contains('on'))renderLboard();if($('#pview').classList.contains('on'))renderPlayer()});
-function updateUser(){const reg=S.user!=='Guest',p=$('#user-pill'),ic=$('#uicon'),db=$('#devbtn');if(db)db.hidden=!isKirky();$('#uname').textContent=S.user;ic.style.display=reg?'block':'none';if(reg)drawIcon(ic.getContext('2d'),S.icon,64);
- p.className='pill'+(reg&&S.box?(' '+boxCls(S.box)):'')}
+function updateUser(){const reg=S.user!=='Guest',p=$('#user-pill'),ic=$('#uicon'),db=$('#devbtn'),ab=$('#admbtn'),ah=$('#admhud');if(db)db.hidden=!isDev();if(ab)ab.hidden=!isAdmin();if(ah)ah.hidden=!isAdmin();$('#uname').textContent=S.user;ic.style.display=reg?'block':'none';if(reg)drawIcon(ic.getContext('2d'),S.icon,64);
+ p.className='pill'+(reg?nameCls('',S.box,S.nb):'');nbStyle(p,reg?S.nb:null)}
 function updMedalRow(k){$('#cls-medn').textContent=S.med[k];$('#cls-medbd').hidden=!readyN(k);const n=reachedN(k);
  $('#cls-stars').innerHTML=MIL[k].map((m,i)=>`<svg viewBox="0 0 24 24" class="st${i<n?' on':''}"><path d="M12 2.2l3.1 6.7 7.2.8-5.4 4.9 1.5 7.2L12 18.1 5.6 21.8l1.5-7.2L1.7 9.7l7.2-.8z"/></svg>`).join('')}
 function claim(k,i){const m=MIL[k][i];if(S.med[k]<m.at||isCl(k,m))return;S.cl[clKey(k,m)]=1;let note=m.txt,extra=0;
@@ -2055,9 +2093,20 @@ function buildMastery(k){const tr=$('#ms-track'),med=S.med[k],L=MIL[k];tr.innerH
    const bt=document.createElement('button');bt.className='buy'+(done?' own':'');bt.textContent=done?'Claimed':ready?'Claim':'Locked';bt.disabled=!ready;if(ready)bt.onclick=()=>claim(k,i-1);card.appendChild(bt)}
   row.appendChild(card);tr.appendChild(row)})}
 function openMastery(k){buildMastery(k);$('#classes').classList.remove('on');$('#mastery').classList.add('on');sfx('ui')}
+function buildNB(){const el=$('#pf-nb');if(!el)return;el.innerHTML='';const col=nbOK(S.nb)?S.nb.c:NBD,
+ commit=()=>{save();accPush(true);cloudPush(true);updateUser()},
+ add=(t,sel,fn,cls)=>{const b=devEl('button',t,'mode'+(sel?' sel':'')+(cls?' '+cls:''));b.onclick=()=>{fn();commit();buildProfile();sfx('ui')};el.appendChild(b)};
+ el.appendChild(devEl('div','Class borders (claim them in class milestones)','dv-note'));
+ add('None',!S.box&&!nbOK(S.nb),()=>{S.box='';S.nb=null});
+ const own=ownedBoxes();for(const k of CLS_KEYS){const has=own.includes(k);add(CN[k],has&&S.box===k&&!nbOK(S.nb),()=>{if(!has){toast('Locked: claim the '+CN[k]+' border in its milestones');return}S.box=k;S.nb=null},has?boxCls(k):'lock')}
+ el.appendChild(devEl('div','Custom border','dv-note'));
+ for(const[id,nm]of NBS)add(nm,nbOK(S.nb)&&S.nb.s===id,()=>{S.nb={s:id,c:col}});
+ const ci=devEl('input');ci.type='color';ci.value=col;ci.setAttribute('aria-label','Border colour');
+ ci.oninput=()=>{S.nb={s:nbOK(S.nb)?S.nb.s:'solid',c:ci.value};const pn=document.querySelector('#pf-name .pf-nm');if(pn){pn.className=nameCls('pf-nm','',S.nb);nbStyle(pn,S.nb)}nbStyle($('#user-pill'),S.nb)};
+ ci.onchange=()=>{commit();buildProfile()};el.appendChild(ci)}
 function openProfile(){if(S.user==='Guest')return;buildProfile();menu.classList.remove('on');$('#profile').classList.add('on');sfx('ui')}
 function buildProfile(){drawIcon($('#pf-ico').getContext('2d'),S.icon,160);
- const nm=$('#pf-name');nm.innerHTML='<span class="pf-nm"></span>';nm.firstChild.textContent=S.user;nm.firstChild.className='pf-nm'+(S.box?(' '+boxCls(S.box)):'');
+ const nm=$('#pf-name');nm.innerHTML='<span class="pf-nm"></span>';nm.firstChild.textContent=S.user;nm.firstChild.className=nameCls('pf-nm',S.box,S.nb);nbStyle(nm.firstChild,S.nb);buildNB();
  $('#pf-stats').innerHTML=`<span><i class="medi"></i> Rammer <b>${S.med.rammer}</b></span><span><i class="medi"></i> Catcher <b>${S.med.catcher}</b></span><span><i class="medi"></i> Puncher <b>${S.med.puncher}</b></span><span><i class="medi"></i> Grabber <b>${S.med.grabber}</b></span><span><i class="medi"></i> Blitz <b>${S.med.blitz}</b></span><span><i class="medi"></i> Medic <b>${S.med.medic}</b></span><span><i class="medi"></i> Smasher <b>${S.med.smasher}</b></span><span><i class="medi"></i> Mauler <b>${S.med.mauler|0}</b></span><span>Wins <b>${S.st.w}</b></span><span>Flags <b>${S.st.cap}</b></span><span><i class="gemi"></i> <b>${S.gems}</b></span><span><i class="cup"></i> <b>${S.tro}</b></span><span>Ultra League <b>${rankName(S.elo)}</b> · ${S.elo} Elo</span>`;
  const bd=$('#pf-badges');bd.innerHTML='';for(const id of S.badges){const k=id.slice(0,-1),t=+id.slice(-1);if(!MIL[k])continue;const d=document.createElement('div');d.className='pf-bd';const q=document.createElement('canvas');q.width=q.height=96;drawMedal(q.getContext('2d'),96,t,k);d.appendChild(q);const sp=document.createElement('span');sp.textContent=`Tier ${t} ${CN[k]} Medal`;d.appendChild(sp);bd.appendChild(d)}
  if(!S.badges.length)bd.innerHTML='<span class="pf-none">Earn medals in a class to unlock profile medals</span>';
@@ -2067,7 +2116,7 @@ function buildProfile(){drawIcon($('#pf-ico').getContext('2d'),S.icon,160);
  $('#pf-save').textContent=canLS?'Auto-saved on this device'+(lastSave?' · '+new Date(lastSave).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''):'Saving is unavailable here';profOnline()}
 function backupCode(){const j=JSON.stringify({u:S.user,d:pickK(S)});return'IDK1.'+cs(j)+'.'+btoa(unescape(encodeURIComponent(j)))}
 function mergeData(d){if(d.qs&&Array.isArray(d.qs.l)&&(!S.qs||d.qs.w>S.qs.w))S.qs=d.qs;S.gems=Math.max(S.gems,d.gems|0);S.tro=Math.max(S.tro,d.tro|0);S.best=Math.max(S.best,d.best|0);S.elo=Math.max(S.elo|0,d.elo|0);for(const k of CLS_KEYS)S.med[k]=Math.max(S.med[k],((d.med||{})[k])|0);
- Object.assign(S.own,d.own||{});Object.assign(S.cl,d.cl||{});S.gc=Object.assign({},d.gc||{},S.gc||{});for(const a of['badges','icons'])for(const v of d[a]||[])if(typeof v==='string'&&!S[a].includes(v))S[a].push(v);
+ Object.assign(S.own,d.own||{});Object.assign(S.cl,d.cl||{});S.gc=Object.assign({},d.gc||{},S.gc||{});if(!nbOK(S.nb)&&nbOK(d.nb))S.nb=nbClean(d.nb);for(const a of['badges','icons'])for(const v of d[a]||[])if(typeof v==='string'&&!S[a].includes(v))S[a].push(v);
  S.eq=Object.assign({},d.eq||{},S.eq);S.trail=S.trail||'';if(!S.trail&&d.trail)S.trail=d.trail;if(d.box&&!S.box)S.box=d.box;if(d.icon&&S.icon==='excl'&&ICONS.some(i=>i.id===d.icon&&(!i.lock||S.icons.includes(d.icon))))S.icon=d.icon;for(const k of['g','w','ko','cap'])S.st[k]=Math.max(S.st[k]|0,((d.st||{})[k])|0);norm()}
 /* is this account stored online (so it can be used from other devices)? */
 async function profOnline(){const el=$('#pf-save');if(!CLOUD||S.user==='Guest'){return}const key=S.user.toLowerCase(),a=DB.acc[key];if(!a)return;let st;
@@ -2084,7 +2133,7 @@ $('#pf-sync').onclick=async()=>{if(S.user==='Guest'||!CLOUD)return;const key=S.u
 $('#pf-bk').onclick=()=>{const c=backupCode();$('#pf-code').value=c;let cp=null;try{cp=navigator.clipboard&&navigator.clipboard.writeText(c)}catch(e){}if(cp&&cp.then)cp.then(()=>toast('Backup code copied'),()=>toast('Copy the code below'));else toast('Copy the code below')};
 function parseBackup(str){try{const p=String(str).replace(/\s+/g,'').split('.');if(p[0]!=='IDK1'||p.length!==3)return null;const j=decodeURIComponent(escape(atob(p[2])));if(cs(j)!==p[1])return null;const o=JSON.parse(j);return o&&o.d&&typeof o.d==='object'?o:null}catch(e){return null}}
 $('#pf-rs').onclick=()=>{const o=parseBackup($('#pf-code').value);if(!o)return toast('That code is not valid');try{mergeData(o.d);gs=S.gems;save();accPush(true);cloudPush(true);buildProfile();updateUser();refresh();toast('Progress restored!')}catch(e){toast('That code is not valid')}};
-$('#devbtn').onclick=()=>{if(isKirky()){DEV.on=true;try{localStorage.setItem('idk-dev','1')}catch(e){}$('#tshop').click()}};
+$('#admbtn').onclick=openAdmin;$('#admhud').onclick=openAdmin;$('#adm-back').onclick=closeAdmin;$('#devbtn').onclick=()=>{if(isDev()){DEV.on=true;try{localStorage.setItem('idk-dev','1')}catch(e){}$('#tshop').click()}};
 $('#user-pill').onclick=()=>{if(S.user==='Guest'){menu.classList.remove('on');showAuth();sfx('ui')}else openProfile()};
 $('#pf-back').onclick=()=>{$('#profile').classList.remove('on');menu.classList.add('on');refresh();sfx('ui')};
 $('#pf-out').onclick=()=>{save();useGuest();save();$('#profile').classList.remove('on');showAuth();refresh()};
@@ -2122,6 +2171,2277 @@ function setPC(b){app.classList.toggle('pc',b);HINT=b?'WASD move · mouse aims �
 setPC(PCM);document.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')setPC(false)},{capture:true});document.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&PCM&&!app.classList.contains('pc'))setPC(true)},{capture:true});
 function size(){const d=Math.min(devicePixelRatio||1,CAPD);vw=app.clientWidth||innerWidth||360;vh=app.clientHeight||innerHeight||640;cv.width=vw*d;cv.height=vh*d;c.setTransform(d,0,0,d,0,0);c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high'}
 addEventListener('resize',size);size();theme();refresh();
+const QRGEN=(()=>{var qrcode = function() {
+
+  //---------------------------------------------------------------------
+  // qrcode
+  //---------------------------------------------------------------------
+
+  /**
+   * qrcode
+   * @param typeNumber 1 to 40
+   * @param errorCorrectionLevel 'L','M','Q','H'
+   */
+  var qrcode = function(typeNumber, errorCorrectionLevel) {
+
+    var PAD0 = 0xEC;
+    var PAD1 = 0x11;
+
+    var _typeNumber = typeNumber;
+    var _errorCorrectionLevel = QRErrorCorrectionLevel[errorCorrectionLevel];
+    var _modules = null;
+    var _moduleCount = 0;
+    var _dataCache = null;
+    var _dataList = [];
+
+    var _this = {};
+
+    var makeImpl = function(test, maskPattern) {
+
+      _moduleCount = _typeNumber * 4 + 17;
+      _modules = function(moduleCount) {
+        var modules = new Array(moduleCount);
+        for (var row = 0; row < moduleCount; row += 1) {
+          modules[row] = new Array(moduleCount);
+          for (var col = 0; col < moduleCount; col += 1) {
+            modules[row][col] = null;
+          }
+        }
+        return modules;
+      }(_moduleCount);
+
+      setupPositionProbePattern(0, 0);
+      setupPositionProbePattern(_moduleCount - 7, 0);
+      setupPositionProbePattern(0, _moduleCount - 7);
+      setupPositionAdjustPattern();
+      setupTimingPattern();
+      setupTypeInfo(test, maskPattern);
+
+      if (_typeNumber >= 7) {
+        setupTypeNumber(test);
+      }
+
+      if (_dataCache == null) {
+        _dataCache = createData(_typeNumber, _errorCorrectionLevel, _dataList);
+      }
+
+      mapData(_dataCache, maskPattern);
+    };
+
+    var setupPositionProbePattern = function(row, col) {
+
+      for (var r = -1; r <= 7; r += 1) {
+
+        if (row + r <= -1 || _moduleCount <= row + r) continue;
+
+        for (var c = -1; c <= 7; c += 1) {
+
+          if (col + c <= -1 || _moduleCount <= col + c) continue;
+
+          if ( (0 <= r && r <= 6 && (c == 0 || c == 6) )
+              || (0 <= c && c <= 6 && (r == 0 || r == 6) )
+              || (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+            _modules[row + r][col + c] = true;
+          } else {
+            _modules[row + r][col + c] = false;
+          }
+        }
+      }
+    };
+
+    var getBestMaskPattern = function() {
+
+      var minLostPoint = 0;
+      var pattern = 0;
+
+      for (var i = 0; i < 8; i += 1) {
+
+        makeImpl(true, i);
+
+        var lostPoint = QRUtil.getLostPoint(_this);
+
+        if (i == 0 || minLostPoint > lostPoint) {
+          minLostPoint = lostPoint;
+          pattern = i;
+        }
+      }
+
+      return pattern;
+    };
+
+    var setupTimingPattern = function() {
+
+      for (var r = 8; r < _moduleCount - 8; r += 1) {
+        if (_modules[r][6] != null) {
+          continue;
+        }
+        _modules[r][6] = (r % 2 == 0);
+      }
+
+      for (var c = 8; c < _moduleCount - 8; c += 1) {
+        if (_modules[6][c] != null) {
+          continue;
+        }
+        _modules[6][c] = (c % 2 == 0);
+      }
+    };
+
+    var setupPositionAdjustPattern = function() {
+
+      var pos = QRUtil.getPatternPosition(_typeNumber);
+
+      for (var i = 0; i < pos.length; i += 1) {
+
+        for (var j = 0; j < pos.length; j += 1) {
+
+          var row = pos[i];
+          var col = pos[j];
+
+          if (_modules[row][col] != null) {
+            continue;
+          }
+
+          for (var r = -2; r <= 2; r += 1) {
+
+            for (var c = -2; c <= 2; c += 1) {
+
+              if (r == -2 || r == 2 || c == -2 || c == 2
+                  || (r == 0 && c == 0) ) {
+                _modules[row + r][col + c] = true;
+              } else {
+                _modules[row + r][col + c] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+
+    var setupTypeNumber = function(test) {
+
+      var bits = QRUtil.getBCHTypeNumber(_typeNumber);
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[Math.floor(i / 3)][i % 3 + _moduleCount - 8 - 3] = mod;
+      }
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[i % 3 + _moduleCount - 8 - 3][Math.floor(i / 3)] = mod;
+      }
+    };
+
+    var setupTypeInfo = function(test, maskPattern) {
+
+      var data = (_errorCorrectionLevel << 3) | maskPattern;
+      var bits = QRUtil.getBCHTypeInfo(data);
+
+      // vertical
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 6) {
+          _modules[i][8] = mod;
+        } else if (i < 8) {
+          _modules[i + 1][8] = mod;
+        } else {
+          _modules[_moduleCount - 15 + i][8] = mod;
+        }
+      }
+
+      // horizontal
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 8) {
+          _modules[8][_moduleCount - i - 1] = mod;
+        } else if (i < 9) {
+          _modules[8][15 - i - 1 + 1] = mod;
+        } else {
+          _modules[8][15 - i - 1] = mod;
+        }
+      }
+
+      // fixed module
+      _modules[_moduleCount - 8][8] = (!test);
+    };
+
+    var mapData = function(data, maskPattern) {
+
+      var inc = -1;
+      var row = _moduleCount - 1;
+      var bitIndex = 7;
+      var byteIndex = 0;
+      var maskFunc = QRUtil.getMaskFunction(maskPattern);
+
+      for (var col = _moduleCount - 1; col > 0; col -= 2) {
+
+        if (col == 6) col -= 1;
+
+        while (true) {
+
+          for (var c = 0; c < 2; c += 1) {
+
+            if (_modules[row][col - c] == null) {
+
+              var dark = false;
+
+              if (byteIndex < data.length) {
+                dark = ( ( (data[byteIndex] >>> bitIndex) & 1) == 1);
+              }
+
+              var mask = maskFunc(row, col - c);
+
+              if (mask) {
+                dark = !dark;
+              }
+
+              _modules[row][col - c] = dark;
+              bitIndex -= 1;
+
+              if (bitIndex == -1) {
+                byteIndex += 1;
+                bitIndex = 7;
+              }
+            }
+          }
+
+          row += inc;
+
+          if (row < 0 || _moduleCount <= row) {
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    };
+
+    var createBytes = function(buffer, rsBlocks) {
+
+      var offset = 0;
+
+      var maxDcCount = 0;
+      var maxEcCount = 0;
+
+      var dcdata = new Array(rsBlocks.length);
+      var ecdata = new Array(rsBlocks.length);
+
+      for (var r = 0; r < rsBlocks.length; r += 1) {
+
+        var dcCount = rsBlocks[r].dataCount;
+        var ecCount = rsBlocks[r].totalCount - dcCount;
+
+        maxDcCount = Math.max(maxDcCount, dcCount);
+        maxEcCount = Math.max(maxEcCount, ecCount);
+
+        dcdata[r] = new Array(dcCount);
+
+        for (var i = 0; i < dcdata[r].length; i += 1) {
+          dcdata[r][i] = 0xff & buffer.getBuffer()[i + offset];
+        }
+        offset += dcCount;
+
+        var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+        var rawPoly = qrPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+        var modPoly = rawPoly.mod(rsPoly);
+        ecdata[r] = new Array(rsPoly.getLength() - 1);
+        for (var i = 0; i < ecdata[r].length; i += 1) {
+          var modIndex = i + modPoly.getLength() - ecdata[r].length;
+          ecdata[r][i] = (modIndex >= 0)? modPoly.getAt(modIndex) : 0;
+        }
+      }
+
+      var totalCodeCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalCodeCount += rsBlocks[i].totalCount;
+      }
+
+      var data = new Array(totalCodeCount);
+      var index = 0;
+
+      for (var i = 0; i < maxDcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < dcdata[r].length) {
+            data[index] = dcdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      for (var i = 0; i < maxEcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < ecdata[r].length) {
+            data[index] = ecdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      return data;
+    };
+
+    var createData = function(typeNumber, errorCorrectionLevel, dataList) {
+
+      var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectionLevel);
+
+      var buffer = qrBitBuffer();
+
+      for (var i = 0; i < dataList.length; i += 1) {
+        var data = dataList[i];
+        buffer.put(data.getMode(), 4);
+        buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+        data.write(buffer);
+      }
+
+      // calc num max data.
+      var totalDataCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalDataCount += rsBlocks[i].dataCount;
+      }
+
+      if (buffer.getLengthInBits() > totalDataCount * 8) {
+        throw 'code length overflow. ('
+          + buffer.getLengthInBits()
+          + '>'
+          + totalDataCount * 8
+          + ')';
+      }
+
+      // end code
+      if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+        buffer.put(0, 4);
+      }
+
+      // padding
+      while (buffer.getLengthInBits() % 8 != 0) {
+        buffer.putBit(false);
+      }
+
+      // padding
+      while (true) {
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD0, 8);
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD1, 8);
+      }
+
+      return createBytes(buffer, rsBlocks);
+    };
+
+    _this.addData = function(data, mode) {
+
+      mode = mode || 'Byte';
+
+      var newData = null;
+
+      switch(mode) {
+      case 'Numeric' :
+        newData = qrNumber(data);
+        break;
+      case 'Alphanumeric' :
+        newData = qrAlphaNum(data);
+        break;
+      case 'Byte' :
+        newData = qr8BitByte(data);
+        break;
+      case 'Kanji' :
+        newData = qrKanji(data);
+        break;
+      default :
+        throw 'mode:' + mode;
+      }
+
+      _dataList.push(newData);
+      _dataCache = null;
+    };
+
+    _this.isDark = function(row, col) {
+      if (row < 0 || _moduleCount <= row || col < 0 || _moduleCount <= col) {
+        throw row + ',' + col;
+      }
+      return _modules[row][col];
+    };
+
+    _this.getModuleCount = function() {
+      return _moduleCount;
+    };
+
+    _this.make = function() {
+      if (_typeNumber < 1) {
+        var typeNumber = 1;
+
+        for (; typeNumber < 40; typeNumber++) {
+          var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, _errorCorrectionLevel);
+          var buffer = qrBitBuffer();
+
+          for (var i = 0; i < _dataList.length; i++) {
+            var data = _dataList[i];
+            buffer.put(data.getMode(), 4);
+            buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+            data.write(buffer);
+          }
+
+          var totalDataCount = 0;
+          for (var i = 0; i < rsBlocks.length; i++) {
+            totalDataCount += rsBlocks[i].dataCount;
+          }
+
+          if (buffer.getLengthInBits() <= totalDataCount * 8) {
+            break;
+          }
+        }
+
+        _typeNumber = typeNumber;
+      }
+
+      makeImpl(false, getBestMaskPattern() );
+    };
+
+    _this.createTableTag = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var qrHtml = '';
+
+      qrHtml += '<table style="';
+      qrHtml += ' border-width: 0px; border-style: none;';
+      qrHtml += ' border-collapse: collapse;';
+      qrHtml += ' padding: 0px; margin: ' + margin + 'px;';
+      qrHtml += '">';
+      qrHtml += '<tbody>';
+
+      for (var r = 0; r < _this.getModuleCount(); r += 1) {
+
+        qrHtml += '<tr>';
+
+        for (var c = 0; c < _this.getModuleCount(); c += 1) {
+          qrHtml += '<td style="';
+          qrHtml += ' border-width: 0px; border-style: none;';
+          qrHtml += ' border-collapse: collapse;';
+          qrHtml += ' padding: 0px; margin: 0px;';
+          qrHtml += ' width: ' + cellSize + 'px;';
+          qrHtml += ' height: ' + cellSize + 'px;';
+          qrHtml += ' background-color: ';
+          qrHtml += _this.isDark(r, c)? '#000000' : '#ffffff';
+          qrHtml += ';';
+          qrHtml += '"/>';
+        }
+
+        qrHtml += '</tr>';
+      }
+
+      qrHtml += '</tbody>';
+      qrHtml += '</table>';
+
+      return qrHtml;
+    };
+
+    _this.createSvgTag = function(cellSize, margin, alt, title) {
+
+      var opts = {};
+      if (typeof arguments[0] == 'object') {
+        // Called by options.
+        opts = arguments[0];
+        // overwrite cellSize and margin.
+        cellSize = opts.cellSize;
+        margin = opts.margin;
+        alt = opts.alt;
+        title = opts.title;
+      }
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      // Compose alt property surrogate
+      alt = (typeof alt === 'string') ? {text: alt} : alt || {};
+      alt.text = alt.text || null;
+      alt.id = (alt.text) ? alt.id || 'qrcode-description' : null;
+
+      // Compose title property surrogate
+      title = (typeof title === 'string') ? {text: title} : title || {};
+      title.text = title.text || null;
+      title.id = (title.text) ? title.id || 'qrcode-title' : null;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var c, mc, r, mr, qrSvg='', rect;
+
+      rect = 'l' + cellSize + ',0 0,' + cellSize +
+        ' -' + cellSize + ',0 0,-' + cellSize + 'z ';
+
+      qrSvg += '<svg version="1.1" xmlns="http://www.w3.org/2000/svg"';
+      qrSvg += !opts.scalable ? ' width="' + size + 'px" height="' + size + 'px"' : '';
+      qrSvg += ' viewBox="0 0 ' + size + ' ' + size + '" ';
+      qrSvg += ' preserveAspectRatio="xMinYMin meet"';
+      qrSvg += (title.text || alt.text) ? ' role="img" aria-labelledby="' +
+          escapeXml([title.id, alt.id].join(' ').trim() ) + '"' : '';
+      qrSvg += '>';
+      qrSvg += (title.text) ? '<title id="' + escapeXml(title.id) + '">' +
+          escapeXml(title.text) + '</title>' : '';
+      qrSvg += (alt.text) ? '<description id="' + escapeXml(alt.id) + '">' +
+          escapeXml(alt.text) + '</description>' : '';
+      qrSvg += '<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>';
+      qrSvg += '<path d="';
+
+      for (r = 0; r < _this.getModuleCount(); r += 1) {
+        mr = r * cellSize + margin;
+        for (c = 0; c < _this.getModuleCount(); c += 1) {
+          if (_this.isDark(r, c) ) {
+            mc = c*cellSize+margin;
+            qrSvg += 'M' + mc + ',' + mr + rect;
+          }
+        }
+      }
+
+      qrSvg += '" stroke="transparent" fill="black"/>';
+      qrSvg += '</svg>';
+
+      return qrSvg;
+    };
+
+    _this.createDataURL = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      return createDataURL(size, size, function(x, y) {
+        if (min <= x && x < max && min <= y && y < max) {
+          var c = Math.floor( (x - min) / cellSize);
+          var r = Math.floor( (y - min) / cellSize);
+          return _this.isDark(r, c)? 0 : 1;
+        } else {
+          return 1;
+        }
+      } );
+    };
+
+    _this.createImgTag = function(cellSize, margin, alt) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+
+      var img = '';
+      img += '<img';
+      img += '\u0020src="';
+      img += _this.createDataURL(cellSize, margin);
+      img += '"';
+      img += '\u0020width="';
+      img += size;
+      img += '"';
+      img += '\u0020height="';
+      img += size;
+      img += '"';
+      if (alt) {
+        img += '\u0020alt="';
+        img += escapeXml(alt);
+        img += '"';
+      }
+      img += '/>';
+
+      return img;
+    };
+
+    var escapeXml = function(s) {
+      var escaped = '';
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charAt(i);
+        switch(c) {
+        case '<': escaped += '&lt;'; break;
+        case '>': escaped += '&gt;'; break;
+        case '&': escaped += '&amp;'; break;
+        case '"': escaped += '&quot;'; break;
+        default : escaped += c; break;
+        }
+      }
+      return escaped;
+    };
+
+    var _createHalfASCII = function(margin) {
+      var cellSize = 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r1, r2, p;
+
+      var blocks = {
+        '██': '█',
+        '█ ': '▀',
+        ' █': '▄',
+        '  ': ' '
+      };
+
+      var blocksLastLineNoMargin = {
+        '██': '▀',
+        '█ ': '▀',
+        ' █': ' ',
+        '  ': ' '
+      };
+
+      var ascii = '';
+      for (y = 0; y < size; y += 2) {
+        r1 = Math.floor((y - min) / cellSize);
+        r2 = Math.floor((y + 1 - min) / cellSize);
+        for (x = 0; x < size; x += 1) {
+          p = '█';
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r1, Math.floor((x - min) / cellSize))) {
+            p = ' ';
+          }
+
+          if (min <= x && x < max && min <= y+1 && y+1 < max && _this.isDark(r2, Math.floor((x - min) / cellSize))) {
+            p += ' ';
+          }
+          else {
+            p += '█';
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          ascii += (margin < 1 && y+1 >= max) ? blocksLastLineNoMargin[p] : blocks[p];
+        }
+
+        ascii += '\n';
+      }
+
+      if (size % 2 && margin > 0) {
+        return ascii.substring(0, ascii.length - size - 1) + Array(size+1).join('▀');
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.createASCII = function(cellSize, margin) {
+      cellSize = cellSize || 1;
+
+      if (cellSize < 2) {
+        return _createHalfASCII(margin);
+      }
+
+      cellSize -= 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r, p;
+
+      var white = Array(cellSize+1).join('██');
+      var black = Array(cellSize+1).join('  ');
+
+      var ascii = '';
+      var line = '';
+      for (y = 0; y < size; y += 1) {
+        r = Math.floor( (y - min) / cellSize);
+        line = '';
+        for (x = 0; x < size; x += 1) {
+          p = 1;
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r, Math.floor((x - min) / cellSize))) {
+            p = 0;
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          line += p ? white : black;
+        }
+
+        for (r = 0; r < cellSize; r += 1) {
+          ascii += line + '\n';
+        }
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.renderTo2dContext = function(context, cellSize) {
+      cellSize = cellSize || 2;
+      var length = _this.getModuleCount();
+      for (var row = 0; row < length; row++) {
+        for (var col = 0; col < length; col++) {
+          context.fillStyle = _this.isDark(row, col) ? 'black' : 'white';
+          context.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrcode.stringToBytes
+  //---------------------------------------------------------------------
+
+  qrcode.stringToBytesFuncs = {
+    'default' : function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        bytes.push(c & 0xff);
+      }
+      return bytes;
+    }
+  };
+
+  qrcode.stringToBytes = qrcode.stringToBytesFuncs['default'];
+
+  //---------------------------------------------------------------------
+  // qrcode.createStringToBytes
+  //---------------------------------------------------------------------
+
+  /**
+   * @param unicodeData base64 string of byte array.
+   * [16bit Unicode],[16bit Bytes], ...
+   * @param numChars
+   */
+  qrcode.createStringToBytes = function(unicodeData, numChars) {
+
+    // create conversion map.
+
+    var unicodeMap = function() {
+
+      var bin = base64DecodeInputStream(unicodeData);
+      var read = function() {
+        var b = bin.read();
+        if (b == -1) throw 'eof';
+        return b;
+      };
+
+      var count = 0;
+      var unicodeMap = {};
+      while (true) {
+        var b0 = bin.read();
+        if (b0 == -1) break;
+        var b1 = read();
+        var b2 = read();
+        var b3 = read();
+        var k = String.fromCharCode( (b0 << 8) | b1);
+        var v = (b2 << 8) | b3;
+        unicodeMap[k] = v;
+        count += 1;
+      }
+      if (count != numChars) {
+        throw count + ' != ' + numChars;
+      }
+
+      return unicodeMap;
+    }();
+
+    var unknownChar = '?'.charCodeAt(0);
+
+    return function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        if (c < 128) {
+          bytes.push(c);
+        } else {
+          var b = unicodeMap[s.charAt(i)];
+          if (typeof b == 'number') {
+            if ( (b & 0xff) == b) {
+              // 1byte
+              bytes.push(b);
+            } else {
+              // 2bytes
+              bytes.push(b >>> 8);
+              bytes.push(b & 0xff);
+            }
+          } else {
+            bytes.push(unknownChar);
+          }
+        }
+      }
+      return bytes;
+    };
+  };
+
+  //---------------------------------------------------------------------
+  // QRMode
+  //---------------------------------------------------------------------
+
+  var QRMode = {
+    MODE_NUMBER :    1 << 0,
+    MODE_ALPHA_NUM : 1 << 1,
+    MODE_8BIT_BYTE : 1 << 2,
+    MODE_KANJI :     1 << 3
+  };
+
+  //---------------------------------------------------------------------
+  // QRErrorCorrectionLevel
+  //---------------------------------------------------------------------
+
+  var QRErrorCorrectionLevel = {
+    L : 1,
+    M : 0,
+    Q : 3,
+    H : 2
+  };
+
+  //---------------------------------------------------------------------
+  // QRMaskPattern
+  //---------------------------------------------------------------------
+
+  var QRMaskPattern = {
+    PATTERN000 : 0,
+    PATTERN001 : 1,
+    PATTERN010 : 2,
+    PATTERN011 : 3,
+    PATTERN100 : 4,
+    PATTERN101 : 5,
+    PATTERN110 : 6,
+    PATTERN111 : 7
+  };
+
+  //---------------------------------------------------------------------
+  // QRUtil
+  //---------------------------------------------------------------------
+
+  var QRUtil = function() {
+
+    var PATTERN_POSITION_TABLE = [
+      [],
+      [6, 18],
+      [6, 22],
+      [6, 26],
+      [6, 30],
+      [6, 34],
+      [6, 22, 38],
+      [6, 24, 42],
+      [6, 26, 46],
+      [6, 28, 50],
+      [6, 30, 54],
+      [6, 32, 58],
+      [6, 34, 62],
+      [6, 26, 46, 66],
+      [6, 26, 48, 70],
+      [6, 26, 50, 74],
+      [6, 30, 54, 78],
+      [6, 30, 56, 82],
+      [6, 30, 58, 86],
+      [6, 34, 62, 90],
+      [6, 28, 50, 72, 94],
+      [6, 26, 50, 74, 98],
+      [6, 30, 54, 78, 102],
+      [6, 28, 54, 80, 106],
+      [6, 32, 58, 84, 110],
+      [6, 30, 58, 86, 114],
+      [6, 34, 62, 90, 118],
+      [6, 26, 50, 74, 98, 122],
+      [6, 30, 54, 78, 102, 126],
+      [6, 26, 52, 78, 104, 130],
+      [6, 30, 56, 82, 108, 134],
+      [6, 34, 60, 86, 112, 138],
+      [6, 30, 58, 86, 114, 142],
+      [6, 34, 62, 90, 118, 146],
+      [6, 30, 54, 78, 102, 126, 150],
+      [6, 24, 50, 76, 102, 128, 154],
+      [6, 28, 54, 80, 106, 132, 158],
+      [6, 32, 58, 84, 110, 136, 162],
+      [6, 26, 54, 82, 110, 138, 166],
+      [6, 30, 58, 86, 114, 142, 170]
+    ];
+    var G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0);
+    var G18 = (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
+    var G15_MASK = (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1);
+
+    var _this = {};
+
+    var getBCHDigit = function(data) {
+      var digit = 0;
+      while (data != 0) {
+        digit += 1;
+        data >>>= 1;
+      }
+      return digit;
+    };
+
+    _this.getBCHTypeInfo = function(data) {
+      var d = data << 10;
+      while (getBCHDigit(d) - getBCHDigit(G15) >= 0) {
+        d ^= (G15 << (getBCHDigit(d) - getBCHDigit(G15) ) );
+      }
+      return ( (data << 10) | d) ^ G15_MASK;
+    };
+
+    _this.getBCHTypeNumber = function(data) {
+      var d = data << 12;
+      while (getBCHDigit(d) - getBCHDigit(G18) >= 0) {
+        d ^= (G18 << (getBCHDigit(d) - getBCHDigit(G18) ) );
+      }
+      return (data << 12) | d;
+    };
+
+    _this.getPatternPosition = function(typeNumber) {
+      return PATTERN_POSITION_TABLE[typeNumber - 1];
+    };
+
+    _this.getMaskFunction = function(maskPattern) {
+
+      switch (maskPattern) {
+
+      case QRMaskPattern.PATTERN000 :
+        return function(i, j) { return (i + j) % 2 == 0; };
+      case QRMaskPattern.PATTERN001 :
+        return function(i, j) { return i % 2 == 0; };
+      case QRMaskPattern.PATTERN010 :
+        return function(i, j) { return j % 3 == 0; };
+      case QRMaskPattern.PATTERN011 :
+        return function(i, j) { return (i + j) % 3 == 0; };
+      case QRMaskPattern.PATTERN100 :
+        return function(i, j) { return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 == 0; };
+      case QRMaskPattern.PATTERN101 :
+        return function(i, j) { return (i * j) % 2 + (i * j) % 3 == 0; };
+      case QRMaskPattern.PATTERN110 :
+        return function(i, j) { return ( (i * j) % 2 + (i * j) % 3) % 2 == 0; };
+      case QRMaskPattern.PATTERN111 :
+        return function(i, j) { return ( (i * j) % 3 + (i + j) % 2) % 2 == 0; };
+
+      default :
+        throw 'bad maskPattern:' + maskPattern;
+      }
+    };
+
+    _this.getErrorCorrectPolynomial = function(errorCorrectLength) {
+      var a = qrPolynomial([1], 0);
+      for (var i = 0; i < errorCorrectLength; i += 1) {
+        a = a.multiply(qrPolynomial([1, QRMath.gexp(i)], 0) );
+      }
+      return a;
+    };
+
+    _this.getLengthInBits = function(mode, type) {
+
+      if (1 <= type && type < 10) {
+
+        // 1 - 9
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 10;
+        case QRMode.MODE_ALPHA_NUM : return 9;
+        case QRMode.MODE_8BIT_BYTE : return 8;
+        case QRMode.MODE_KANJI     : return 8;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 27) {
+
+        // 10 - 26
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 12;
+        case QRMode.MODE_ALPHA_NUM : return 11;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 10;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 41) {
+
+        // 27 - 40
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 14;
+        case QRMode.MODE_ALPHA_NUM : return 13;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 12;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else {
+        throw 'type:' + type;
+      }
+    };
+
+    _this.getLostPoint = function(qrcode) {
+
+      var moduleCount = qrcode.getModuleCount();
+
+      var lostPoint = 0;
+
+      // LEVEL1
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount; col += 1) {
+
+          var sameCount = 0;
+          var dark = qrcode.isDark(row, col);
+
+          for (var r = -1; r <= 1; r += 1) {
+
+            if (row + r < 0 || moduleCount <= row + r) {
+              continue;
+            }
+
+            for (var c = -1; c <= 1; c += 1) {
+
+              if (col + c < 0 || moduleCount <= col + c) {
+                continue;
+              }
+
+              if (r == 0 && c == 0) {
+                continue;
+              }
+
+              if (dark == qrcode.isDark(row + r, col + c) ) {
+                sameCount += 1;
+              }
+            }
+          }
+
+          if (sameCount > 5) {
+            lostPoint += (3 + sameCount - 5);
+          }
+        }
+      };
+
+      // LEVEL2
+
+      for (var row = 0; row < moduleCount - 1; row += 1) {
+        for (var col = 0; col < moduleCount - 1; col += 1) {
+          var count = 0;
+          if (qrcode.isDark(row, col) ) count += 1;
+          if (qrcode.isDark(row + 1, col) ) count += 1;
+          if (qrcode.isDark(row, col + 1) ) count += 1;
+          if (qrcode.isDark(row + 1, col + 1) ) count += 1;
+          if (count == 0 || count == 4) {
+            lostPoint += 3;
+          }
+        }
+      }
+
+      // LEVEL3
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount - 6; col += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row, col + 1)
+              &&  qrcode.isDark(row, col + 2)
+              &&  qrcode.isDark(row, col + 3)
+              &&  qrcode.isDark(row, col + 4)
+              && !qrcode.isDark(row, col + 5)
+              &&  qrcode.isDark(row, col + 6) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount - 6; row += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row + 1, col)
+              &&  qrcode.isDark(row + 2, col)
+              &&  qrcode.isDark(row + 3, col)
+              &&  qrcode.isDark(row + 4, col)
+              && !qrcode.isDark(row + 5, col)
+              &&  qrcode.isDark(row + 6, col) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      // LEVEL4
+
+      var darkCount = 0;
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount; row += 1) {
+          if (qrcode.isDark(row, col) ) {
+            darkCount += 1;
+          }
+        }
+      }
+
+      var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+      lostPoint += ratio * 10;
+
+      return lostPoint;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // QRMath
+  //---------------------------------------------------------------------
+
+  var QRMath = function() {
+
+    var EXP_TABLE = new Array(256);
+    var LOG_TABLE = new Array(256);
+
+    // initialize tables
+    for (var i = 0; i < 8; i += 1) {
+      EXP_TABLE[i] = 1 << i;
+    }
+    for (var i = 8; i < 256; i += 1) {
+      EXP_TABLE[i] = EXP_TABLE[i - 4]
+        ^ EXP_TABLE[i - 5]
+        ^ EXP_TABLE[i - 6]
+        ^ EXP_TABLE[i - 8];
+    }
+    for (var i = 0; i < 255; i += 1) {
+      LOG_TABLE[EXP_TABLE[i] ] = i;
+    }
+
+    var _this = {};
+
+    _this.glog = function(n) {
+
+      if (n < 1) {
+        throw 'glog(' + n + ')';
+      }
+
+      return LOG_TABLE[n];
+    };
+
+    _this.gexp = function(n) {
+
+      while (n < 0) {
+        n += 255;
+      }
+
+      while (n >= 256) {
+        n -= 255;
+      }
+
+      return EXP_TABLE[n];
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrPolynomial
+  //---------------------------------------------------------------------
+
+  function qrPolynomial(num, shift) {
+
+    if (typeof num.length == 'undefined') {
+      throw num.length + '/' + shift;
+    }
+
+    var _num = function() {
+      var offset = 0;
+      while (offset < num.length && num[offset] == 0) {
+        offset += 1;
+      }
+      var _num = new Array(num.length - offset + shift);
+      for (var i = 0; i < num.length - offset; i += 1) {
+        _num[i] = num[i + offset];
+      }
+      return _num;
+    }();
+
+    var _this = {};
+
+    _this.getAt = function(index) {
+      return _num[index];
+    };
+
+    _this.getLength = function() {
+      return _num.length;
+    };
+
+    _this.multiply = function(e) {
+
+      var num = new Array(_this.getLength() + e.getLength() - 1);
+
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        for (var j = 0; j < e.getLength(); j += 1) {
+          num[i + j] ^= QRMath.gexp(QRMath.glog(_this.getAt(i) ) + QRMath.glog(e.getAt(j) ) );
+        }
+      }
+
+      return qrPolynomial(num, 0);
+    };
+
+    _this.mod = function(e) {
+
+      if (_this.getLength() - e.getLength() < 0) {
+        return _this;
+      }
+
+      var ratio = QRMath.glog(_this.getAt(0) ) - QRMath.glog(e.getAt(0) );
+
+      var num = new Array(_this.getLength() );
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        num[i] = _this.getAt(i);
+      }
+
+      for (var i = 0; i < e.getLength(); i += 1) {
+        num[i] ^= QRMath.gexp(QRMath.glog(e.getAt(i) ) + ratio);
+      }
+
+      // recursive call
+      return qrPolynomial(num, 0).mod(e);
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // QRRSBlock
+  //---------------------------------------------------------------------
+
+  var QRRSBlock = function() {
+
+    var RS_BLOCK_TABLE = [
+
+      // L
+      // M
+      // Q
+      // H
+
+      // 1
+      [1, 26, 19],
+      [1, 26, 16],
+      [1, 26, 13],
+      [1, 26, 9],
+
+      // 2
+      [1, 44, 34],
+      [1, 44, 28],
+      [1, 44, 22],
+      [1, 44, 16],
+
+      // 3
+      [1, 70, 55],
+      [1, 70, 44],
+      [2, 35, 17],
+      [2, 35, 13],
+
+      // 4
+      [1, 100, 80],
+      [2, 50, 32],
+      [2, 50, 24],
+      [4, 25, 9],
+
+      // 5
+      [1, 134, 108],
+      [2, 67, 43],
+      [2, 33, 15, 2, 34, 16],
+      [2, 33, 11, 2, 34, 12],
+
+      // 6
+      [2, 86, 68],
+      [4, 43, 27],
+      [4, 43, 19],
+      [4, 43, 15],
+
+      // 7
+      [2, 98, 78],
+      [4, 49, 31],
+      [2, 32, 14, 4, 33, 15],
+      [4, 39, 13, 1, 40, 14],
+
+      // 8
+      [2, 121, 97],
+      [2, 60, 38, 2, 61, 39],
+      [4, 40, 18, 2, 41, 19],
+      [4, 40, 14, 2, 41, 15],
+
+      // 9
+      [2, 146, 116],
+      [3, 58, 36, 2, 59, 37],
+      [4, 36, 16, 4, 37, 17],
+      [4, 36, 12, 4, 37, 13],
+
+      // 10
+      [2, 86, 68, 2, 87, 69],
+      [4, 69, 43, 1, 70, 44],
+      [6, 43, 19, 2, 44, 20],
+      [6, 43, 15, 2, 44, 16],
+
+      // 11
+      [4, 101, 81],
+      [1, 80, 50, 4, 81, 51],
+      [4, 50, 22, 4, 51, 23],
+      [3, 36, 12, 8, 37, 13],
+
+      // 12
+      [2, 116, 92, 2, 117, 93],
+      [6, 58, 36, 2, 59, 37],
+      [4, 46, 20, 6, 47, 21],
+      [7, 42, 14, 4, 43, 15],
+
+      // 13
+      [4, 133, 107],
+      [8, 59, 37, 1, 60, 38],
+      [8, 44, 20, 4, 45, 21],
+      [12, 33, 11, 4, 34, 12],
+
+      // 14
+      [3, 145, 115, 1, 146, 116],
+      [4, 64, 40, 5, 65, 41],
+      [11, 36, 16, 5, 37, 17],
+      [11, 36, 12, 5, 37, 13],
+
+      // 15
+      [5, 109, 87, 1, 110, 88],
+      [5, 65, 41, 5, 66, 42],
+      [5, 54, 24, 7, 55, 25],
+      [11, 36, 12, 7, 37, 13],
+
+      // 16
+      [5, 122, 98, 1, 123, 99],
+      [7, 73, 45, 3, 74, 46],
+      [15, 43, 19, 2, 44, 20],
+      [3, 45, 15, 13, 46, 16],
+
+      // 17
+      [1, 135, 107, 5, 136, 108],
+      [10, 74, 46, 1, 75, 47],
+      [1, 50, 22, 15, 51, 23],
+      [2, 42, 14, 17, 43, 15],
+
+      // 18
+      [5, 150, 120, 1, 151, 121],
+      [9, 69, 43, 4, 70, 44],
+      [17, 50, 22, 1, 51, 23],
+      [2, 42, 14, 19, 43, 15],
+
+      // 19
+      [3, 141, 113, 4, 142, 114],
+      [3, 70, 44, 11, 71, 45],
+      [17, 47, 21, 4, 48, 22],
+      [9, 39, 13, 16, 40, 14],
+
+      // 20
+      [3, 135, 107, 5, 136, 108],
+      [3, 67, 41, 13, 68, 42],
+      [15, 54, 24, 5, 55, 25],
+      [15, 43, 15, 10, 44, 16],
+
+      // 21
+      [4, 144, 116, 4, 145, 117],
+      [17, 68, 42],
+      [17, 50, 22, 6, 51, 23],
+      [19, 46, 16, 6, 47, 17],
+
+      // 22
+      [2, 139, 111, 7, 140, 112],
+      [17, 74, 46],
+      [7, 54, 24, 16, 55, 25],
+      [34, 37, 13],
+
+      // 23
+      [4, 151, 121, 5, 152, 122],
+      [4, 75, 47, 14, 76, 48],
+      [11, 54, 24, 14, 55, 25],
+      [16, 45, 15, 14, 46, 16],
+
+      // 24
+      [6, 147, 117, 4, 148, 118],
+      [6, 73, 45, 14, 74, 46],
+      [11, 54, 24, 16, 55, 25],
+      [30, 46, 16, 2, 47, 17],
+
+      // 25
+      [8, 132, 106, 4, 133, 107],
+      [8, 75, 47, 13, 76, 48],
+      [7, 54, 24, 22, 55, 25],
+      [22, 45, 15, 13, 46, 16],
+
+      // 26
+      [10, 142, 114, 2, 143, 115],
+      [19, 74, 46, 4, 75, 47],
+      [28, 50, 22, 6, 51, 23],
+      [33, 46, 16, 4, 47, 17],
+
+      // 27
+      [8, 152, 122, 4, 153, 123],
+      [22, 73, 45, 3, 74, 46],
+      [8, 53, 23, 26, 54, 24],
+      [12, 45, 15, 28, 46, 16],
+
+      // 28
+      [3, 147, 117, 10, 148, 118],
+      [3, 73, 45, 23, 74, 46],
+      [4, 54, 24, 31, 55, 25],
+      [11, 45, 15, 31, 46, 16],
+
+      // 29
+      [7, 146, 116, 7, 147, 117],
+      [21, 73, 45, 7, 74, 46],
+      [1, 53, 23, 37, 54, 24],
+      [19, 45, 15, 26, 46, 16],
+
+      // 30
+      [5, 145, 115, 10, 146, 116],
+      [19, 75, 47, 10, 76, 48],
+      [15, 54, 24, 25, 55, 25],
+      [23, 45, 15, 25, 46, 16],
+
+      // 31
+      [13, 145, 115, 3, 146, 116],
+      [2, 74, 46, 29, 75, 47],
+      [42, 54, 24, 1, 55, 25],
+      [23, 45, 15, 28, 46, 16],
+
+      // 32
+      [17, 145, 115],
+      [10, 74, 46, 23, 75, 47],
+      [10, 54, 24, 35, 55, 25],
+      [19, 45, 15, 35, 46, 16],
+
+      // 33
+      [17, 145, 115, 1, 146, 116],
+      [14, 74, 46, 21, 75, 47],
+      [29, 54, 24, 19, 55, 25],
+      [11, 45, 15, 46, 46, 16],
+
+      // 34
+      [13, 145, 115, 6, 146, 116],
+      [14, 74, 46, 23, 75, 47],
+      [44, 54, 24, 7, 55, 25],
+      [59, 46, 16, 1, 47, 17],
+
+      // 35
+      [12, 151, 121, 7, 152, 122],
+      [12, 75, 47, 26, 76, 48],
+      [39, 54, 24, 14, 55, 25],
+      [22, 45, 15, 41, 46, 16],
+
+      // 36
+      [6, 151, 121, 14, 152, 122],
+      [6, 75, 47, 34, 76, 48],
+      [46, 54, 24, 10, 55, 25],
+      [2, 45, 15, 64, 46, 16],
+
+      // 37
+      [17, 152, 122, 4, 153, 123],
+      [29, 74, 46, 14, 75, 47],
+      [49, 54, 24, 10, 55, 25],
+      [24, 45, 15, 46, 46, 16],
+
+      // 38
+      [4, 152, 122, 18, 153, 123],
+      [13, 74, 46, 32, 75, 47],
+      [48, 54, 24, 14, 55, 25],
+      [42, 45, 15, 32, 46, 16],
+
+      // 39
+      [20, 147, 117, 4, 148, 118],
+      [40, 75, 47, 7, 76, 48],
+      [43, 54, 24, 22, 55, 25],
+      [10, 45, 15, 67, 46, 16],
+
+      // 40
+      [19, 148, 118, 6, 149, 119],
+      [18, 75, 47, 31, 76, 48],
+      [34, 54, 24, 34, 55, 25],
+      [20, 45, 15, 61, 46, 16]
+    ];
+
+    var qrRSBlock = function(totalCount, dataCount) {
+      var _this = {};
+      _this.totalCount = totalCount;
+      _this.dataCount = dataCount;
+      return _this;
+    };
+
+    var _this = {};
+
+    var getRsBlockTable = function(typeNumber, errorCorrectionLevel) {
+
+      switch(errorCorrectionLevel) {
+      case QRErrorCorrectionLevel.L :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+      case QRErrorCorrectionLevel.M :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+      case QRErrorCorrectionLevel.Q :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+      case QRErrorCorrectionLevel.H :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+      default :
+        return undefined;
+      }
+    };
+
+    _this.getRSBlocks = function(typeNumber, errorCorrectionLevel) {
+
+      var rsBlock = getRsBlockTable(typeNumber, errorCorrectionLevel);
+
+      if (typeof rsBlock == 'undefined') {
+        throw 'bad rs block @ typeNumber:' + typeNumber +
+            '/errorCorrectionLevel:' + errorCorrectionLevel;
+      }
+
+      var length = rsBlock.length / 3;
+
+      var list = [];
+
+      for (var i = 0; i < length; i += 1) {
+
+        var count = rsBlock[i * 3 + 0];
+        var totalCount = rsBlock[i * 3 + 1];
+        var dataCount = rsBlock[i * 3 + 2];
+
+        for (var j = 0; j < count; j += 1) {
+          list.push(qrRSBlock(totalCount, dataCount) );
+        }
+      }
+
+      return list;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrBitBuffer
+  //---------------------------------------------------------------------
+
+  var qrBitBuffer = function() {
+
+    var _buffer = [];
+    var _length = 0;
+
+    var _this = {};
+
+    _this.getBuffer = function() {
+      return _buffer;
+    };
+
+    _this.getAt = function(index) {
+      var bufIndex = Math.floor(index / 8);
+      return ( (_buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+    };
+
+    _this.put = function(num, length) {
+      for (var i = 0; i < length; i += 1) {
+        _this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+      }
+    };
+
+    _this.getLengthInBits = function() {
+      return _length;
+    };
+
+    _this.putBit = function(bit) {
+
+      var bufIndex = Math.floor(_length / 8);
+      if (_buffer.length <= bufIndex) {
+        _buffer.push(0);
+      }
+
+      if (bit) {
+        _buffer[bufIndex] |= (0x80 >>> (_length % 8) );
+      }
+
+      _length += 1;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrNumber
+  //---------------------------------------------------------------------
+
+  var qrNumber = function(data) {
+
+    var _mode = QRMode.MODE_NUMBER;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _data;
+
+      var i = 0;
+
+      while (i + 2 < data.length) {
+        buffer.put(strToNum(data.substring(i, i + 3) ), 10);
+        i += 3;
+      }
+
+      if (i < data.length) {
+        if (data.length - i == 1) {
+          buffer.put(strToNum(data.substring(i, i + 1) ), 4);
+        } else if (data.length - i == 2) {
+          buffer.put(strToNum(data.substring(i, i + 2) ), 7);
+        }
+      }
+    };
+
+    var strToNum = function(s) {
+      var num = 0;
+      for (var i = 0; i < s.length; i += 1) {
+        num = num * 10 + chatToNum(s.charAt(i) );
+      }
+      return num;
+    };
+
+    var chatToNum = function(c) {
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      }
+      throw 'illegal char :' + c;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrAlphaNum
+  //---------------------------------------------------------------------
+
+  var qrAlphaNum = function(data) {
+
+    var _mode = QRMode.MODE_ALPHA_NUM;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var s = _data;
+
+      var i = 0;
+
+      while (i + 1 < s.length) {
+        buffer.put(
+          getCode(s.charAt(i) ) * 45 +
+          getCode(s.charAt(i + 1) ), 11);
+        i += 2;
+      }
+
+      if (i < s.length) {
+        buffer.put(getCode(s.charAt(i) ), 6);
+      }
+    };
+
+    var getCode = function(c) {
+
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      } else if ('A' <= c && c <= 'Z') {
+        return c.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+      } else {
+        switch (c) {
+        case ' ' : return 36;
+        case '$' : return 37;
+        case '%' : return 38;
+        case '*' : return 39;
+        case '+' : return 40;
+        case '-' : return 41;
+        case '.' : return 42;
+        case '/' : return 43;
+        case ':' : return 44;
+        default :
+          throw 'illegal char :' + c;
+        }
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qr8BitByte
+  //---------------------------------------------------------------------
+
+  var qr8BitByte = function(data) {
+
+    var _mode = QRMode.MODE_8BIT_BYTE;
+    var _data = data;
+    var _bytes = qrcode.stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _bytes.length;
+    };
+
+    _this.write = function(buffer) {
+      for (var i = 0; i < _bytes.length; i += 1) {
+        buffer.put(_bytes[i], 8);
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrKanji
+  //---------------------------------------------------------------------
+
+  var qrKanji = function(data) {
+
+    var _mode = QRMode.MODE_KANJI;
+    var _data = data;
+
+    var stringToBytes = qrcode.stringToBytesFuncs['SJIS'];
+    if (!stringToBytes) {
+      throw 'sjis not supported.';
+    }
+    !function(c, code) {
+      // self test for sjis support.
+      var test = stringToBytes(c);
+      if (test.length != 2 || ( (test[0] << 8) | test[1]) != code) {
+        throw 'sjis not supported.';
+      }
+    }('\u53cb', 0x9746);
+
+    var _bytes = stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return ~~(_bytes.length / 2);
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _bytes;
+
+      var i = 0;
+
+      while (i + 1 < data.length) {
+
+        var c = ( (0xff & data[i]) << 8) | (0xff & data[i + 1]);
+
+        if (0x8140 <= c && c <= 0x9FFC) {
+          c -= 0x8140;
+        } else if (0xE040 <= c && c <= 0xEBBF) {
+          c -= 0xC140;
+        } else {
+          throw 'illegal char at ' + (i + 1) + '/' + c;
+        }
+
+        c = ( (c >>> 8) & 0xff) * 0xC0 + (c & 0xff);
+
+        buffer.put(c, 13);
+
+        i += 2;
+      }
+
+      if (i < data.length) {
+        throw 'illegal char at ' + (i + 1);
+      }
+    };
+
+    return _this;
+  };
+
+  //=====================================================================
+  // GIF Support etc.
+  //
+
+  //---------------------------------------------------------------------
+  // byteArrayOutputStream
+  //---------------------------------------------------------------------
+
+  var byteArrayOutputStream = function() {
+
+    var _bytes = [];
+
+    var _this = {};
+
+    _this.writeByte = function(b) {
+      _bytes.push(b & 0xff);
+    };
+
+    _this.writeShort = function(i) {
+      _this.writeByte(i);
+      _this.writeByte(i >>> 8);
+    };
+
+    _this.writeBytes = function(b, off, len) {
+      off = off || 0;
+      len = len || b.length;
+      for (var i = 0; i < len; i += 1) {
+        _this.writeByte(b[i + off]);
+      }
+    };
+
+    _this.writeString = function(s) {
+      for (var i = 0; i < s.length; i += 1) {
+        _this.writeByte(s.charCodeAt(i) );
+      }
+    };
+
+    _this.toByteArray = function() {
+      return _bytes;
+    };
+
+    _this.toString = function() {
+      var s = '';
+      s += '[';
+      for (var i = 0; i < _bytes.length; i += 1) {
+        if (i > 0) {
+          s += ',';
+        }
+        s += _bytes[i];
+      }
+      s += ']';
+      return s;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64EncodeOutputStream
+  //---------------------------------------------------------------------
+
+  var base64EncodeOutputStream = function() {
+
+    var _buffer = 0;
+    var _buflen = 0;
+    var _length = 0;
+    var _base64 = '';
+
+    var _this = {};
+
+    var writeEncoded = function(b) {
+      _base64 += String.fromCharCode(encode(b & 0x3f) );
+    };
+
+    var encode = function(n) {
+      if (n < 0) {
+        // error.
+      } else if (n < 26) {
+        return 0x41 + n;
+      } else if (n < 52) {
+        return 0x61 + (n - 26);
+      } else if (n < 62) {
+        return 0x30 + (n - 52);
+      } else if (n == 62) {
+        return 0x2b;
+      } else if (n == 63) {
+        return 0x2f;
+      }
+      throw 'n:' + n;
+    };
+
+    _this.writeByte = function(n) {
+
+      _buffer = (_buffer << 8) | (n & 0xff);
+      _buflen += 8;
+      _length += 1;
+
+      while (_buflen >= 6) {
+        writeEncoded(_buffer >>> (_buflen - 6) );
+        _buflen -= 6;
+      }
+    };
+
+    _this.flush = function() {
+
+      if (_buflen > 0) {
+        writeEncoded(_buffer << (6 - _buflen) );
+        _buffer = 0;
+        _buflen = 0;
+      }
+
+      if (_length % 3 != 0) {
+        // padding
+        var padlen = 3 - _length % 3;
+        for (var i = 0; i < padlen; i += 1) {
+          _base64 += '=';
+        }
+      }
+    };
+
+    _this.toString = function() {
+      return _base64;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64DecodeInputStream
+  //---------------------------------------------------------------------
+
+  var base64DecodeInputStream = function(str) {
+
+    var _str = str;
+    var _pos = 0;
+    var _buffer = 0;
+    var _buflen = 0;
+
+    var _this = {};
+
+    _this.read = function() {
+
+      while (_buflen < 8) {
+
+        if (_pos >= _str.length) {
+          if (_buflen == 0) {
+            return -1;
+          }
+          throw 'unexpected end of file./' + _buflen;
+        }
+
+        var c = _str.charAt(_pos);
+        _pos += 1;
+
+        if (c == '=') {
+          _buflen = 0;
+          return -1;
+        } else if (c.match(/^\s$/) ) {
+          // ignore if whitespace.
+          continue;
+        }
+
+        _buffer = (_buffer << 6) | decode(c.charCodeAt(0) );
+        _buflen += 6;
+      }
+
+      var n = (_buffer >>> (_buflen - 8) ) & 0xff;
+      _buflen -= 8;
+      return n;
+    };
+
+    var decode = function(c) {
+      if (0x41 <= c && c <= 0x5a) {
+        return c - 0x41;
+      } else if (0x61 <= c && c <= 0x7a) {
+        return c - 0x61 + 26;
+      } else if (0x30 <= c && c <= 0x39) {
+        return c - 0x30 + 52;
+      } else if (c == 0x2b) {
+        return 62;
+      } else if (c == 0x2f) {
+        return 63;
+      } else {
+        throw 'c:' + c;
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // gifImage (B/W)
+  //---------------------------------------------------------------------
+
+  var gifImage = function(width, height) {
+
+    var _width = width;
+    var _height = height;
+    var _data = new Array(width * height);
+
+    var _this = {};
+
+    _this.setPixel = function(x, y, pixel) {
+      _data[y * _width + x] = pixel;
+    };
+
+    _this.write = function(out) {
+
+      //---------------------------------
+      // GIF Signature
+
+      out.writeString('GIF87a');
+
+      //---------------------------------
+      // Screen Descriptor
+
+      out.writeShort(_width);
+      out.writeShort(_height);
+
+      out.writeByte(0x80); // 2bit
+      out.writeByte(0);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Global Color Map
+
+      // black
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+
+      // white
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+
+      //---------------------------------
+      // Image Descriptor
+
+      out.writeString(',');
+      out.writeShort(0);
+      out.writeShort(0);
+      out.writeShort(_width);
+      out.writeShort(_height);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Local Color Map
+
+      //---------------------------------
+      // Raster Data
+
+      var lzwMinCodeSize = 2;
+      var raster = getLZWRaster(lzwMinCodeSize);
+
+      out.writeByte(lzwMinCodeSize);
+
+      var offset = 0;
+
+      while (raster.length - offset > 255) {
+        out.writeByte(255);
+        out.writeBytes(raster, offset, 255);
+        offset += 255;
+      }
+
+      out.writeByte(raster.length - offset);
+      out.writeBytes(raster, offset, raster.length - offset);
+      out.writeByte(0x00);
+
+      //---------------------------------
+      // GIF Terminator
+      out.writeString(';');
+    };
+
+    var bitOutputStream = function(out) {
+
+      var _out = out;
+      var _bitLength = 0;
+      var _bitBuffer = 0;
+
+      var _this = {};
+
+      _this.write = function(data, length) {
+
+        if ( (data >>> length) != 0) {
+          throw 'length over';
+        }
+
+        while (_bitLength + length >= 8) {
+          _out.writeByte(0xff & ( (data << _bitLength) | _bitBuffer) );
+          length -= (8 - _bitLength);
+          data >>>= (8 - _bitLength);
+          _bitBuffer = 0;
+          _bitLength = 0;
+        }
+
+        _bitBuffer = (data << _bitLength) | _bitBuffer;
+        _bitLength = _bitLength + length;
+      };
+
+      _this.flush = function() {
+        if (_bitLength > 0) {
+          _out.writeByte(_bitBuffer);
+        }
+      };
+
+      return _this;
+    };
+
+    var getLZWRaster = function(lzwMinCodeSize) {
+
+      var clearCode = 1 << lzwMinCodeSize;
+      var endCode = (1 << lzwMinCodeSize) + 1;
+      var bitLength = lzwMinCodeSize + 1;
+
+      // Setup LZWTable
+      var table = lzwTable();
+
+      for (var i = 0; i < clearCode; i += 1) {
+        table.add(String.fromCharCode(i) );
+      }
+      table.add(String.fromCharCode(clearCode) );
+      table.add(String.fromCharCode(endCode) );
+
+      var byteOut = byteArrayOutputStream();
+      var bitOut = bitOutputStream(byteOut);
+
+      // clear code
+      bitOut.write(clearCode, bitLength);
+
+      var dataIndex = 0;
+
+      var s = String.fromCharCode(_data[dataIndex]);
+      dataIndex += 1;
+
+      while (dataIndex < _data.length) {
+
+        var c = String.fromCharCode(_data[dataIndex]);
+        dataIndex += 1;
+
+        if (table.contains(s + c) ) {
+
+          s = s + c;
+
+        } else {
+
+          bitOut.write(table.indexOf(s), bitLength);
+
+          if (table.size() < 0xfff) {
+
+            if (table.size() == (1 << bitLength) ) {
+              bitLength += 1;
+            }
+
+            table.add(s + c);
+          }
+
+          s = c;
+        }
+      }
+
+      bitOut.write(table.indexOf(s), bitLength);
+
+      // end code
+      bitOut.write(endCode, bitLength);
+
+      bitOut.flush();
+
+      return byteOut.toByteArray();
+    };
+
+    var lzwTable = function() {
+
+      var _map = {};
+      var _size = 0;
+
+      var _this = {};
+
+      _this.add = function(key) {
+        if (_this.contains(key) ) {
+          throw 'dup key:' + key;
+        }
+        _map[key] = _size;
+        _size += 1;
+      };
+
+      _this.size = function() {
+        return _size;
+      };
+
+      _this.indexOf = function(key) {
+        return _map[key];
+      };
+
+      _this.contains = function(key) {
+        return typeof _map[key] != 'undefined';
+      };
+
+      return _this;
+    };
+
+    return _this;
+  };
+
+  var createDataURL = function(width, height, getPixel) {
+    var gif = gifImage(width, height);
+    for (var y = 0; y < height; y += 1) {
+      for (var x = 0; x < width; x += 1) {
+        gif.setPixel(x, y, getPixel(x, y) );
+      }
+    }
+
+    var b = byteArrayOutputStream();
+    gif.write(b);
+
+    var base64 = base64EncodeOutputStream();
+    var bytes = b.toByteArray();
+    for (var i = 0; i < bytes.length; i += 1) {
+      base64.writeByte(bytes[i]);
+    }
+    base64.flush();
+
+    return 'data:image/gif;base64,' + base64;
+  };
+
+  //---------------------------------------------------------------------
+  // returns qrcode function.
+
+  return qrcode;
+}();
+
+// multibyte support
+!function() {
+
+  qrcode.stringToBytesFuncs['UTF-8'] = function(s) {
+    // http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
+    function toUTF8Array(str) {
+      var utf8 = [];
+      for (var i=0; i < str.length; i++) {
+        var charcode = str.charCodeAt(i);
+        if (charcode < 0x80) utf8.push(charcode);
+        else if (charcode < 0x800) {
+          utf8.push(0xc0 | (charcode >> 6),
+              0x80 | (charcode & 0x3f));
+        }
+        else if (charcode < 0xd800 || charcode >= 0xe000) {
+          utf8.push(0xe0 | (charcode >> 12),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+        // surrogate pair
+        else {
+          i++;
+          // UTF-16 encodes 0x10000-0x10FFFF by
+          // subtracting 0x10000 and splitting the
+          // 20 bits of 0x0-0xFFFFF into two halves
+          charcode = 0x10000 + (((charcode & 0x3ff)<<10)
+            | (str.charCodeAt(i) & 0x3ff));
+          utf8.push(0xf0 | (charcode >>18),
+              0x80 | ((charcode>>12) & 0x3f),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+      }
+      return utf8;
+    }
+    return toUTF8Array(s);
+  };
+
+}();
+return qrcode})();
 /* =====================================================================
    PARTY / MULTIPLAYER
    - a party code is exchanged through the online database (no setup)
@@ -2138,12 +4458,12 @@ function mkSlot(n){return{n,peer:null,pc:null,dcR:null,dcS:null,relay:false,on:f
  joinId:'',hci:0,gci:0,gotAns:0,hcn:0,gcn:0,es:null,hb:0,rt:0,t0:0,t1:0,
  pend:[],rq:[],rsnap:null,rid:0,rrecv:0,rseq:0,rlast:-1,rmine:'',rackDirty:false,
  lastIn:0,ping:0,m:false,ev:[],seq:0,sendT:0,nid:-1}}
-function _syncNET(){NET.on=NET.slots.some(s=>s.on);const a=NET.slots.find(s=>s.on);NET.ping=a?a.ping:0;NET.relay=NET.slots.some(s=>s.relay&&s.on);NET.peer=NET.slots.filter(s=>s.peer).map(s=>s.peer)[0]||null}
+function _syncNET(){if(NET.role!=='host')return;NET.on=NET.slots.some(s=>s.on);const a=NET.slots.find(s=>s.on);NET.ping=a?a.ping:0;NET.relay=NET.slots.some(s=>s.relay&&s.on);NET.peer=NET.slots.filter(s=>s.peer).map(s=>s.peer)[0]||null}
 function resetNet(){if(NET.slots)for(const sl of NET.slots)_cleanSlot(sl);
  NET.role='';NET.code='';NET.on=false;NET.state='idle';NET.slots=[];NET.peer=null;NET.ping=0;NET.relay=false;NET._jsfx='';
  try{NET.dcR&&NET.dcR.close()}catch(e){}try{NET.dcS&&NET.dcS.close()}catch(e){}try{NET.pc&&NET.pc.close()}catch(e){}try{NET.es&&NET.es.close()}catch(e){}
  NET.pc=NET.dcR=NET.dcS=NET.es=null;clearInterval(NET.hb);clearInterval(NET.rt);clearTimeout(NET.t0);clearTimeout(NET.t1);NET.hb=NET.rt=0;NET.pend=[];NET.rq=[];NET.rsnap=null;NET.joinId='';NET.m=false;NET.ev=[];NET.sendT=0;NET.seq=0;NET.inSeq=-1;NET.hcn=0;NET.gcn=0;NET.gotAns=0;NET.rid=0;NET.rrecv=0;NET.rseq=0;NET.rlast=-1;NET.rmine='';NET.rackDirty=false;NET.lastIn=0;
- NET.err='';NET.lastMode='';NET.lastCls='';NET.myDn=''}
+ NET.err='';NET.lastMode='';NET.lastCls='';NET.myDn='';NET.lan=false;NET.lanPend=null;NET.lanCode='';NET.lanOffer='';if(LANSTREAM){try{LANSTREAM.getTracks().forEach(t=>t.stop())}catch(e){}LANSTREAM=null}}
 function _cleanSlot(sl){try{sl.dcR&&sl.dcR.close()}catch(e){}try{sl.dcS&&sl.dcS.close()}catch(e){}try{sl.pc&&sl.pc.close()}catch(e){}try{sl.es&&sl.es.close()}catch(e){}
  sl.dcR=sl.dcS=sl.pc=sl.es=null;clearInterval(sl.hb);clearInterval(sl.rt);clearTimeout(sl.t0);clearTimeout(sl.t1);sl.hb=sl.rt=0;sl.pend=[];sl.rq=[];sl.rsnap=null;sl.relay=false;sl.hcn=0;sl.gcn=0;sl.gotAns=0;sl.on=false;_syncNET()}
 function cleanConn(){try{NET.dcR&&NET.dcR.close()}catch(e){}try{NET.dcS&&NET.dcS.close()}catch(e){}try{NET.pc&&NET.pc.close()}catch(e){}try{NET.es&&NET.es.close()}catch(e){}
@@ -2165,14 +4485,14 @@ async function partyJoin(code){code=String(code||'').toUpperCase().replace(/[^A-
   clearInterval(NET.poll);NET.poll=setInterval(guestPoll,400);NET.t0=setTimeout(()=>{if(!NET.on&&!NET.relay)requestRelay()},6000);NET.t1=setTimeout(()=>{if(NET.role==='guest'&&!NET.on)partyLeave('Could not connect to the host. Check the code and try again.')},28000)}
  catch(x){const w=cloudWhyMsg;resetNet();NET.err='Could not join: '+(w||'unknown error')+(/permission/.test(w||'')?'. The database rules need the "party" entry from the setup note.':'')}
  partyUI()}
-function mkPC(){const pc=new RTCPeerConnection({iceServers:ICE});NET.pc=pc;
+function mkPC(ice){const pc=new RTCPeerConnection({iceServers:ice||ICE});NET.pc=pc;
  pc.onconnectionstatechange=()=>{if(NET.pc!==pc)return;const st=pc.connectionState;if(st==='failed'&&!NET.on&&!NET.relay)requestRelay();if((st==='disconnected'||st==='failed'||st==='closed')&&NET.on&&!NET.relay)netDown('Connection lost')};
  pc.onicecandidate=e=>{if(!e.candidate||NET.pc!==pc)return;const i=NET.gci++;cput(pbase()+'/gc'+(NET._jsfx||'')+'/'+i,e.candidate.toJSON()).catch(()=>{})};
  return pc}
 function wireDC(dc,rel){dc.binaryType='arraybuffer';dc.onopen=()=>{if(NET.dcR&&NET.dcR.readyState==='open'&&(!NET.dcS||NET.dcS.readyState==='open'))netUp()};dc.onmessage=e=>netRecv(e.data,null);dc.onclose=()=>{if(NET.on&&!NET.relay&&(dc===NET.dcR))netDown('Connection closed')}}
 function wireDC_slot(dc,rel,sl){dc.binaryType='arraybuffer';dc.onopen=()=>{if(sl.dcR&&sl.dcR.readyState==='open'&&(!sl.dcS||sl.dcS.readyState==='open'))netUpSlot(sl)};dc.onmessage=e=>netRecv(e.data,sl);dc.onclose=()=>{if(sl.on&&!sl.relay&&dc===sl.dcR)netDownSlot('Connection closed',sl)}}
 let hpBusy=false,gpBusy=false;
-async function hostPoll(){if(NET.role!=='host'||hpBusy)return;hpBusy=true;
+async function hostPoll(){if(NET.role!=='host'||NET.lan||hpBusy)return;hpBusy=true;
  try{const n=await cfetch(pbase());if(!n){hpBusy=false;return}
   // process signaling for each existing slot
   for(const sl of NET.slots){const sx=spfx(sl.n);
@@ -2206,19 +4526,19 @@ async function guestAccept(offer,sx){sx=sx||'';if(!window.RTCPeerConnection){awa
  await pc.setRemoteDescription({type:'offer',sdp:offer.sdp});const a=await pc.createAnswer();await pc.setLocalDescription(a);await cput(pbase()+'/answer'+sx,{id:NET.joinId,sdp:a.sdp,type:'answer'})}
 async function addCands(node,key){if(!NET.pc||!NET.pc.remoteDescription)return;const list=arr(node);for(let i=NET[key]||0;i<list.length;i++){const c=list[i];NET[key]=i+1;if(c)try{await NET.pc.addIceCandidate(c)}catch(e){}}}
 async function addCandsSlot(node,sl){if(!sl.pc||!sl.pc.remoteDescription)return;const list=arr(node);for(let i=sl.gcn||0;i<list.length;i++){sl.gcn=i+1;if(list[i])try{await sl.pc.addIceCandidate(list[i])}catch(e){}}}
-async function requestRelay(){if(NET.relay||NET.on)return;try{await cput(pbase()+'/relay'+(NET._jsfx||''),true)}catch(e){}
+async function requestRelay(){if(NET.relay||NET.on||NET.lan)return;try{await cput(pbase()+'/relay'+(NET._jsfx||''),true)}catch(e){}
  if(NET.role==='host'){/* guest-only; host uses requestRelaySlot */}}
-async function requestRelaySlot(sl){if(sl.relay||sl.on)return;const sx=spfx(sl.n);try{await cput(pbase()+'/relay'+sx,true)}catch(e){}await goRelaySlot(sl)}
+async function requestRelaySlot(sl){if(sl.relay||sl.on||NET.lan)return;const sx=spfx(sl.n);try{await cput(pbase()+'/relay'+sx,true)}catch(e){}await goRelaySlot(sl)}
 /* relay: both sides stream small JSON blobs through two database nodes */
 function sseHandler(cb){let st=null;return e=>{try{const o=JSON.parse(e.data);if(!o)return;const p=o.path||'/';
  if(e.type==='patch'){if(st&&typeof st==='object')for(const k in o.data)st[k.replace(/^\//,'')]=o.data[k]}
  else if(p==='/')st=o.data;else{if(!st||typeof st!=='object')st={};const ks=p.split('/').filter(Boolean);let t=st;for(let i=0;i<ks.length-1;i++){const v=t[ks[i]];t=t[ks[i]]=(v&&typeof v==='object')?v:{}}if(o.data===null)delete t[ks[ks.length-1]];else t[ks[ks.length-1]]=o.data}
  if(st&&typeof st==='object')cb(st)}catch(x){}}}
-async function goRelay(){if(NET.relay||NET.on)return;try{NET.pc&&NET.pc.close()}catch(e){}NET.pc=NET.dcR=NET.dcS=null;clearTimeout(NET.t0);NET.relay=true;NET.state='connecting';
+async function goRelay(){if(NET.relay||NET.on||NET.lan)return;try{NET.pc&&NET.pc.close()}catch(e){}NET.pc=NET.dcR=NET.dcS=null;clearTimeout(NET.t0);NET.relay=true;NET.state='connecting';
  NET.rq=[];NET.rsnap=null;NET.rid=0;NET.rrecv=0;NET.rseq=0;NET.rlast=-1;const sx=NET._jsfx||'';
  try{const es=new EventSource(CLOUD+pbase()+'/rh'+sx+'.json');NET.es=es;{const h=sseHandler(relayIn);es.addEventListener('put',h);es.addEventListener('patch',h)}es.onerror=()=>{}}catch(e){netDown('Could not open the relay');return}
  NET.rmine='rg'+sx;NET.rt=setInterval(relayFlush,90);setTimeout(()=>{if(!NET.on)netUp()},300)}
-async function goRelaySlot(sl){if(sl.relay||sl.on)return;try{sl.pc&&sl.pc.close()}catch(e){}sl.pc=sl.dcR=sl.dcS=null;clearTimeout(sl.t0);sl.relay=true;const sx=spfx(sl.n);
+async function goRelaySlot(sl){if(sl.relay||sl.on||NET.lan)return;try{sl.pc&&sl.pc.close()}catch(e){}sl.pc=sl.dcR=sl.dcS=null;clearTimeout(sl.t0);sl.relay=true;const sx=spfx(sl.n);
  sl.rq=[];sl.rsnap=null;sl.rid=0;sl.rrecv=0;sl.rseq=0;sl.rlast=-1;
  try{const es=new EventSource(CLOUD+pbase()+'/rg'+sx+'.json');sl.es=es;{const h=sseHandler(o=>relayInSlot(o,sl));es.addEventListener('put',h);es.addEventListener('patch',h)}es.onerror=()=>{}}catch(e){netDownSlot('Could not open the relay',sl);return}
  sl.rmine='rh'+sx;sl.rt=setInterval(()=>relayFlushSlot(sl),90);setTimeout(()=>{if(!sl.on)netUpSlot(sl)},300)}
@@ -2240,23 +4560,23 @@ function netSend(m,rel=true){if(!NET.role)return;
  const str=typeof m==='string'?m:JSON.stringify(m);
  if(NET.relay){if(rel){NET.rq.push({i:++NET.rid,m:str});if(NET.rq.length>200)NET.rq.shift()}else NET.rsnap=str;return}
  const dc=(rel||!NET.dcS||NET.dcS.readyState!=='open')?NET.dcR:NET.dcS;if(dc&&dc.readyState==='open'){try{dc.send(str)}catch(e){}}}
-function netUpSlot(sl){if(sl.on)return;sl.on=true;sl.lastIn=performance.now();clearTimeout(sl.t0);clearTimeout(sl.t1);_syncNET();NET.state='connected';
+function netUpSlot(sl){if(sl.on)return;if(NET.lanPend&&NET.lanPend.sl===sl)NET.lanPend=null;sl.on=true;sl.lastIn=performance.now();clearTimeout(sl.t0);clearTimeout(sl.t1);_syncNET();NET.state='connected';
  if(NET.slots.filter(s=>s.on).length>=MAX_GUESTS)cput(pbase()+'/full',true).catch(()=>{});
  cput(pbase()+'/offer'+spfx(sl.n),null).catch(()=>{});cput(pbase()+'/join',null).catch(()=>{});
- clearInterval(sl.hb);sl.hb=setInterval(()=>netBeatSlot(sl),1000);partyUI();refresh();
+ clearInterval(sl.hb);sl.hb=setInterval(()=>netBeatSlot(sl),500);partyUI();refresh();
  const nc=NET.slots.filter(s=>s.on).length;toast((NET.relay?'Connected (relay mode)':'Connected')+(nc>1?' · '+nc+' friends connected':''))}
 function netUp(){if(NET.on)return;NET.lastCls='';NET.on=true;NET.state='connected';NET.lastIn=performance.now();clearTimeout(NET.t0);clearTimeout(NET.t1);clearInterval(NET.poll);NET.poll=0;
- netSend({t:'hello',name:NET.myDn,cls,med:totMed(),isG:S.user==='Guest',skin:sk(cls),icon:S.icon,v:1});
- clearInterval(NET.hb);NET.hb=setInterval(netBeat,1000);partyUI();refresh();toast(NET.relay?'Connected (relay mode)':'Connected')}
-function netBeatSlot(sl){if(!sl.on)return;slotSend(sl,{t:'p',ts:performance.now()});const idle=performance.now()-sl.lastIn;if(idle>(sl.m||(G&&G.net)?2500:9000))netDownSlot('Connection lost',sl)}
-function netBeat(){if(!NET.on)return;netSend({t:'p',ts:performance.now()});if(NET.role==='guest'&&!(G&&G.net))netSend({t:'cls',cls,skin:sk(cls),med:totMed(),isG:S.user==='Guest'});const idle=performance.now()-NET.lastIn;if(idle>(NET.m||(G&&G.net)?2500:9000))netDown('Connection lost');partyUI(true)}
+ netSend({t:'hello',name:NET.myDn,cls,med:totMed(),isG:S.user==='Guest',skin:sk(cls),icon:S.icon,nb:nbClean(S.nb),v:1});
+ clearInterval(NET.hb);NET.hb=setInterval(netBeat,500);partyUI();refresh();toast(NET.relay?'Connected (relay mode)':'Connected')}
+function netBeatSlot(sl){if(!sl.on)return;slotSend(sl,{t:'p',ts:performance.now()});const idle=performance.now()-sl.lastIn;if(idle>(sl.m||(G&&G.net)?(sl.relay?4500:2000):9000))netDownSlot('Connection lost',sl)}
+function netBeat(){if(!NET.on)return;netSend({t:'p',ts:performance.now()});if(NET.role==='guest'&&!(G&&G.net))netSend({t:'cls',cls,skin:sk(cls),med:totMed(),isG:S.user==='Guest',nb:nbClean(S.nb)});const idle=performance.now()-NET.lastIn;if(idle>(NET.m||(G&&G.net)?(NET.relay?4500:2000):9000))netDown('Connection lost');partyUI(true)}
 function netDownSlot(reason,sl){hostGuestGone(reason,sl)}
 function netDown(reason){if(!NET.role||(!NET.on&&NET.state==='idle'))return;if(NET.role==='host'){const sl=NET.slots.find(s=>s.on);if(sl)hostGuestGone(reason,sl)}else partyLeave(reason||'Disconnected from the host')}
 function hostGuestGone(reason,sl){const nm=(sl&&sl.peer&&sl.peer.dn)||'The other player';
  if(sl){_cleanSlot(sl);NET.slots=NET.slots.filter(s=>s!==sl);
   const sx=spfx(sl.n);for(const k of['answer'+sx,'offer'+sx,'relay'+sx,'rh'+sx,'rg'+sx,'hc'+sx,'gc'+sx])cput(pbase()+'/'+k,null).catch(()=>{});}
  removeGuestFromMatch(nm,sl?sl.nid:-1);cput(pbase()+'/full',false).catch(()=>{});
- if(NET.slots.length===0){NET.state='waiting';clearInterval(NET.poll);NET.poll=setInterval(hostPoll,500)}
+ if(NET.slots.length===0){NET.state='waiting';if(!NET.lan){clearInterval(NET.poll);NET.poll=setInterval(hostPoll,500)}}
  toast(nm+' left the party');partyUI();refresh()}
 function partyLeave(reason,quiet){const role=NET.role;if(!role)return;
  try{netSend({t:'bye'});if(NET.relay)relayFlush();for(const sl of NET.slots||[])if(sl.on){slotSend(sl,{t:'bye'});relayFlushSlot(sl)}}catch(e){}
@@ -2265,7 +4585,84 @@ function partyLeave(reason,quiet){const role=NET.role;if(!role)return;
  if(role==='host'){for(const sl of NET.slots||[])if(sl.peer)removeGuestFromMatch(sl.peer.dn,sl.nid);cput('/party/'+code,null).catch(()=>{})}
  else{cput('/party/'+code+'/join',null).catch(()=>{});cput('/party/'+code+'/gc'+(NET._jsfx||''),null).catch(()=>{})}
  clearInterval(NET.poll);NET.poll=0;cleanConn();resetNet();if(inMatch)leaveMatchGuest();if(reason&&!quiet)toast(reason);partyUI();refresh()}
-addEventListener('pagehide',()=>{try{netSend({t:'bye'});if(NET.relay)relayFlush()}catch(e){}for(const sl of NET.slots||[]){try{slotSend(sl,{t:'bye'});relayFlushSlot(sl)}catch(e){}}if(NET.role==='host'&&NET.code)try{fetch(CLOUD+'/party/'+NET.code+'.json',{method:'PUT',body:'null',keepalive:true})}catch(e){}try{NET.dcR&&NET.dcR.close()}catch(e){}});
+addEventListener('pagehide',()=>{try{netSend({t:'bye'});if(NET.relay)relayFlush()}catch(e){}for(const sl of NET.slots||[]){try{slotSend(sl,{t:'bye'});relayFlushSlot(sl)}catch(e){}}if(NET.role==='host'&&NET.code&&!NET.lan)try{fetch(CLOUD+'/party/'+NET.code+'.json',{method:'PUT',body:'null',keepalive:true})}catch(e){}try{NET.dcR&&NET.dcR.close()}catch(e){}});
+
+
+/* ---------- LAN / offline party: no internet needed, only the same Wi-Fi or hotspot ----------
+   Two phones swap one short code each (shown as a QR code or text); WebRTC then links them
+   directly over the local network. QR drawing uses qrcode-generator (MIT, Kazuhiko Arase). */
+let LANSTREAM=null;
+function sdpToCode(sdp,type){const f=/a=fingerprint:sha-256 ([0-9A-Fa-f:]+)/.exec(sdp),u=/a=ice-ufrag:(\S+)/.exec(sdp),w=/a=ice-pwd:(\S+)/.exec(sdp);if(!f||!u||!w)throw new Error('no connection data');
+ const all=[...sdp.matchAll(/a=candidate:\S+ 1 udp \d+ (\S+) (\d+) typ host/g)].map(m=>m[1]+':'+m[2]),v4=all.filter(c=>c.split(':').length===2),use=(v4.length?v4:all).slice(0,3);
+ if(!use.length)throw new Error('no network found (is Wi-Fi or hotspot on?)');
+ return'IDK1|'+type+'|'+u[1]+'|'+w[1]+'|'+f[1].replace(/:/g,'').toLowerCase()+'|'+use.join(',')}
+function codeToSdp(code,type){const p=String(code||'').trim().split('|');if(p.length!==6||p[0]!=='IDK1'||p[1]!==type)throw new Error('bad code');const uf=p[2],pw=p[3],fp=p[4];
+ if(!/^[A-Za-z0-9+\/]{3,64}$/.test(uf)||!/^[A-Za-z0-9+\/]{16,64}$/.test(pw)||!/^[0-9a-f]{64}$/.test(fp))throw new Error('bad code');
+ const cands=p[5].split(',').slice(0,4).map((c,i)=>{const k=c.lastIndexOf(':'),a=c.slice(0,k),pt=+c.slice(k+1);if(!/^[A-Za-z0-9.\-:]{3,80}$/.test(a)||!(pt>0&&pt<65536))throw new Error('bad code');return'a=candidate:'+(i+1)+' 1 udp '+(2113937151-i)+' '+a+' '+pt+' typ host generation 0'});
+ return['v=0','o=- 1190123456789 2 IN IP4 127.0.0.1','s=-','t=0 0','a=group:BUNDLE 0','a=msid-semantic: WMS','m=application 9 UDP/DTLS/SCTP webrtc-datachannel','c=IN IP4 0.0.0.0','a=ice-ufrag:'+uf,'a=ice-pwd:'+pw,'a=ice-options:trickle','a=fingerprint:sha-256 '+fp.toUpperCase().match(/../g).join(':'),'a=setup:'+(type==='o'?'actpass':'active'),'a=mid:0','a=sctp-port:5000','a=max-message-size:262144'].concat(cands,['a=end-of-candidates','']).join('\r\n')}
+const lanGather=pc=>new Promise(res=>{if(pc.iceGatheringState==='complete')return res();const to=setTimeout(res,3500);pc.addEventListener('icegatheringstatechange',()=>{if(pc.iceGatheringState==='complete'){clearTimeout(to);res()}})});
+function drawQR(cv,text){try{const q=QRGEN(0,'L');q.addData(text,'Byte');q.make();const n=q.getModuleCount(),px=Math.max(3,Math.floor(320/(n+8))),sz=(n+8)*px;cv.width=cv.height=sz;const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,sz,sz);x.fillStyle='#000';for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))x.fillRect((c+4)*px,(r+4)*px,px,px)}catch(e){cv.replaceWith(devEl('span','The code is too long for a QR. Use the text code.'))}}
+async function lanScan(cb){if(!window.BarcodeDetector||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('This browser cannot scan codes. Paste the code instead.');return}
+ let st;try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}})}catch(e){toast('Camera permission was denied');return}
+ let det;try{det=new BarcodeDetector({formats:['qr_code']})}catch(e){st.getTracks().forEach(x=>x.stop());toast('This browser cannot scan QR codes. Paste the code instead.');return}
+ const w=devEl('div','','lan-scan'),v=document.createElement('video');v.playsInline=true;v.muted=true;v.srcObject=st;const t=devEl('div','Point the camera at the code'),b=devEl('button','Cancel','ghost');w.append(v,t,b);document.body.appendChild(w);
+ let alive=true;const stop=()=>{alive=false;st.getTracks().forEach(x=>x.stop());w.remove()};b.onclick=stop;try{await v.play()}catch(e){}
+ const tick=async()=>{if(!alive)return;try{const r=await det.detect(v),hit=r.find(x=>x.rawValue&&x.rawValue.startsWith('IDK1|'));if(hit){stop();cb(hit.rawValue);return}}catch(e){}setTimeout(tick,180)};tick()}
+function lanHostStart(){if(NET.role)return;if(!window.RTCPeerConnection){toast('This browser cannot make direct connections');return}
+ NET.err='';NET.role='host';NET.lan=true;NET.code='LAN';NET.slots=[];NET.state='waiting';NET.mode=PARTY_MODES.includes(mode)?mode:'ffa';NET.myDn=S.user==='Guest'?'Host':S.user;partyUI();lanAddFriend()}
+async function lanAddFriend(){if(NET.role!=='host'||!NET.lan||NET.lanPend||NET.slots.length>=MAX_GUESTS)return;
+ let fn=0;while(NET.slots.some(s=>s.n===fn))fn++;const sl=mkSlot(fn);sl.lan=true;NET.slots.push(sl);NET.lanPend={sl,code:'',err:''};NET.state='connecting';partyUI();
+ try{const pc=new RTCPeerConnection({iceServers:[]});sl.pc=pc;
+  pc.onconnectionstatechange=()=>{if(sl.pc!==pc)return;const st=pc.connectionState;if((st==='disconnected'||st==='failed'||st==='closed')&&sl.on)netDownSlot('Connection lost',sl);else if(st==='failed'&&!sl.on)lanFail(sl,'The connection failed. Both phones must be on the same Wi-Fi or hotspot. Try Direct mode.')};
+  sl.dcR=pc.createDataChannel('rel',{ordered:true});sl.dcS=pc.createDataChannel('snap',{ordered:false,maxRetransmits:0});wireDC_slot(sl.dcR,1,sl);wireDC_slot(sl.dcS,0,sl);
+  const o=await pc.createOffer();await pc.setLocalDescription(o);await lanGather(pc);
+  if(NET.lanPend&&NET.lanPend.sl===sl){NET.lanPend.code=sdpToCode(pc.localDescription.sdp,'o');NET.state='waiting';partyUI()}
+  sl.t1=setTimeout(()=>{if(!sl.on)lanCancel()},300000)}
+ catch(e){lanCancel();NET.err='Could not start: '+((e&&e.message)||'unknown error');partyUI()}}
+function lanFail(sl,msg){if(NET.lanPend&&NET.lanPend.sl===sl){NET.lanPend.err=msg;NET.state='waiting';partyUI()}}
+function lanCancel(){const P=NET.lanPend;if(P){_cleanSlot(P.sl);NET.slots=NET.slots.filter(x=>x!==P.sl);NET.lanPend=null}if(NET.role==='host'&&!NET.slots.some(x=>x.on))NET.state='waiting';partyUI()}
+async function lanHostAccept(text){const P=NET.lanPend;if(!P||!P.sl.pc||!P.code)return;
+ try{const sdp=codeToSdp(text,'a');await P.sl.pc.setRemoteDescription({type:'answer',sdp});P.err='';NET.state='connecting';partyUI();clearTimeout(P.sl.t1);P.sl.t1=setTimeout(()=>{if(!P.sl.on)lanFail(P.sl,'Timed out. Both phones must be on the same Wi-Fi or hotspot. Try Direct mode.')},25000)}
+ catch(e){P.err='That reply code is not valid. Copy the whole code again.';partyUI()}}
+async function lanGuestOffer(text){const sdp=codeToSdp(text,'o'),pc=mkPC([]);
+ pc.ondatachannel=e=>{const dc=e.channel;if(dc.label==='rel'){NET.dcR=dc;wireDC(dc,1)}else{NET.dcS=dc;wireDC(dc,0)}};
+ await pc.setRemoteDescription({type:'offer',sdp});const a=await pc.createAnswer();await pc.setLocalDescription(a);await lanGather(pc);
+ if(NET.pc!==pc)return;NET.lanCode=sdpToCode(pc.localDescription.sdp,'a');NET.state='connecting';partyUI();
+ clearTimeout(NET.t1);NET.t1=setTimeout(()=>{if(NET.role==='guest'&&!NET.on)partyLeave('Could not connect. Both phones must be on the same Wi-Fi or hotspot (try Direct mode).')},90000)}
+async function lanJoin(text){if(NET.role)return;try{codeToSdp(text,'o')}catch(e){NET.err='That code is not valid. Copy the whole code from the host.';partyUI();return}
+ if(!window.RTCPeerConnection){NET.err='This browser cannot make direct connections.';partyUI();return}
+ NET.err='';NET.role='guest';NET.lan=true;NET.code='LAN';NET.joinId='lan';NET.lanOffer=String(text).trim();NET.state='joining';NET.myDn=S.user==='Guest'?'Guest':S.user;partyUI();
+ try{await lanGuestOffer(NET.lanOffer)}catch(e){partyLeave('',true);NET.err='Could not use that code: '+((e&&e.message)||'error');partyUI()}}
+async function lanDirect(){let ok=false;try{if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){if(LANSTREAM)LANSTREAM.getTracks().forEach(t=>t.stop());LANSTREAM=await navigator.mediaDevices.getUserMedia({audio:true});ok=true}}catch(e){}
+ toast(ok?'Direct mode on. Making a new code...':'Direct mode needs microphone permission (nothing is recorded)');
+ if(NET.role==='host'){lanCancel();await lanAddFriend()}
+ else if(NET.role==='guest'&&NET.lanOffer&&!NET.on){try{NET.pc&&NET.pc.close()}catch(e){}NET.pc=NET.dcR=NET.dcS=null;NET.lanCode='';NET.state='joining';partyUI();try{await lanGuestOffer(NET.lanOffer)}catch(e){partyLeave('Could not reconnect.',false)}}}
+function lanHTML(esc){
+ if(!NET.role)return`<div class="pt-card"><b>Join a LAN party</b><span>Both phones must be on the same Wi-Fi or hotspot. No internet needed.</span>
+  <span>Scan the host's code, or paste it here.</span><textarea id="lan-in" rows="3" spellcheck="false" placeholder="Paste the host's code (starts with IDK1)"></textarea>
+  <div class="pt-row"><button class="ghost" id="lan-scan">Scan code</button><button class="go" id="lan-go">Join</button></div><div class="pt-err">${esc(NET.err)}</div><button class="ghost" id="lan-back">Back</button></div>`;
+ if(NET.role==='guest')return`<div class="pt-card"><b>${NET.lanCode?'Show this reply to the host':'Connecting...'}</b>${NET.lanCode?`<span>The host scans this (or pastes the text). It then connects on its own.</span><canvas id="lan-qr" class="lan-qr"></canvas><textarea id="lan-out" rows="3" readonly>${esc(NET.lanCode)}</textarea><button class="ghost" id="lan-copy">Copy code</button>`:'<span>This takes a few seconds.</span>'}
+  <button class="ghost" id="lan-direct">Not connecting? Direct mode</button><button class="ghost" id="pt-leave">Cancel</button><div class="pt-err">${esc(NET.err)}</div></div>`;
+ const P=NET.lanPend,nOn=NET.slots.filter(x=>x.on).length,pl=NET.slots.filter(x=>x.on&&x.peer).map(x=>`<div class="pt-mem"><b style="${nbInline(x.peer.nb)}">${esc(x.peer.dn)}</b><i>friend</i></div>`).join('');
+ let h=`<div class="pt-card"><b>LAN party</b><span>Same Wi-Fi or hotspot. No internet needed.</span><div class="pt-mem"><b style="${nbInline(S.nb)}">${esc(NET.myDn)}</b><i>host (you)</i></div>${pl}`;
+ if(P)h+=P.code?`<span>1. Your friend scans this (or you send them the text).</span><canvas id="lan-qr" class="lan-qr"></canvas><textarea id="lan-out" rows="3" readonly>${esc(P.code)}</textarea><button class="ghost" id="lan-copy">Copy code</button>
+  <span>2. Scan their reply code, or paste it here.</span><textarea id="lan-rep" rows="3" spellcheck="false" placeholder="Paste your friend's reply code"></textarea><div class="pt-row"><button class="ghost" id="lan-scan">Scan reply</button><button class="go" id="lan-acc">Connect</button></div><button class="ghost" id="lan-cancel">Cancel adding</button>`:'<span>Making a code...</span>';
+ else if(NET.slots.length<MAX_GUESTS)h+=`<button class="go" id="lan-add">${nOn?'Add another friend':'Add a friend'}</button>`;
+ if(nOn)h+=`<span>${nOn}/${MAX_GUESTS} friend${nOn>1?'s':''} connected. Pick the mode and class, then Start.</span><button class="go" id="pt-start">Start match</button>`;
+ return h+`<button class="ghost" id="lan-direct">Not connecting? Direct mode</button><button class="ghost" id="pt-leave">Close party</button><div class="pt-err">${esc((P&&P.err)||NET.err)}</div></div>`}
+function lanAfter(){const q=id=>$('#'+id);
+ if(q('pt-lanh'))q('pt-lanh').onclick=()=>lanHostStart();
+ if(q('pt-lanj'))q('pt-lanj').onclick=()=>{NET.lan=true;NET.err='';partyUI()};
+ if(!NET.lan)return;
+ const qr=q('lan-qr');if(qr){const t=NET.role==='host'?(NET.lanPend&&NET.lanPend.code):NET.lanCode;if(t)drawQR(qr,t)}
+ if(q('lan-add'))q('lan-add').onclick=()=>lanAddFriend();
+ if(q('lan-cancel'))q('lan-cancel').onclick=()=>lanCancel();
+ if(q('lan-acc'))q('lan-acc').onclick=()=>lanHostAccept(q('lan-rep').value);
+ if(q('lan-go'))q('lan-go').onclick=()=>lanJoin(q('lan-in').value);
+ if(q('lan-back'))q('lan-back').onclick=()=>{NET.lan=false;NET.err='';partyUI()};
+ if(q('lan-scan'))q('lan-scan').onclick=()=>lanScan(t=>{if(NET.role==='host'){if(q('lan-rep'))q('lan-rep').value=t;lanHostAccept(t)}else{if(q('lan-in'))q('lan-in').value=t;lanJoin(t)}});
+ if(q('lan-copy'))q('lan-copy').onclick=()=>{const t=q('lan-out').value;try{navigator.clipboard.writeText(t).then(()=>toast('Code copied'),()=>toast('Select the code and copy it'))}catch(e){toast('Select the code and copy it')}};
+ if(q('lan-direct'))q('lan-direct').onclick=lanDirect}
 
 /* ---------- message handling ---------- */
 function netRecv(raw,sl){let m;try{m=JSON.parse(raw)}catch(e){return}
@@ -2275,11 +4672,11 @@ function netRecv(raw,sl){let m;try{m=JSON.parse(raw)}catch(e){return}
   case'p':{const pong={t:'q',ts:m.ts};if(sl)slotSend(sl,pong);else netSend(pong)}break;
   case'q':{const src=sl||NET;src.ping=Math.round(src.ping?src.ping*.6+(performance.now()-m.ts)*.4:performance.now()-m.ts);_syncNET()}break;
   case'bye':if(NET.role==='host'&&sl)hostGuestGone('left',sl);else if(NET.role==='guest')partyLeave('The host left the party.');break;
-  case'hello':if(NET.role!=='host'||!sl)break;{let dn=String(m.name||'Guest').slice(0,14);const taken=NET.slots.map(s=>s.peer&&s.peer.dn&&s.peer.dn.toLowerCase()).filter(Boolean);let sfx=1;while(taken.includes(dn.toLowerCase())||dn.toLowerCase()===NET.myDn.toLowerCase())dn=String(m.name||'Guest').slice(0,13)+' '+(sfx++);sl.peer={name:m.name,dn,cls:CLS_KEYS.includes(m.cls)?m.cls:'rammer',med:m.med|0,isG:!!m.isG,skin:m.skin||null,icon:m.icon};_syncNET();
-   slotSend(sl,{t:'welcome',dn,host:NET.myDn,mode:NET.mode=mode,cls,skin:sk(cls),icon:S.icon});partyUI();toast(dn+' joined the party')}break;
-  case'welcome':if(NET.role!=='guest')break;NET.peer={dn:m.host,name:m.host,cls:m.cls,skin:m.skin,icon:m.icon};NET.myDn=m.dn||NET.myDn;NET.myn=m.myn||1;mode=m.mode;partyUI();refresh();break;
+  case'hello':if(NET.role!=='host'||!sl)break;{let dn=String(m.name||'Guest').slice(0,14);const taken=NET.slots.map(s=>s.peer&&s.peer.dn&&s.peer.dn.toLowerCase()).filter(Boolean);let sfx=1;while(taken.includes(dn.toLowerCase())||dn.toLowerCase()===NET.myDn.toLowerCase())dn=String(m.name||'Guest').slice(0,13)+' '+(sfx++);sl.peer={name:m.name,dn,cls:CLS_KEYS.includes(m.cls)?m.cls:'rammer',med:m.med|0,isG:!!m.isG,skin:m.skin||null,icon:m.icon,nb:nbClean(m.nb)};_syncNET();
+   slotSend(sl,{t:'welcome',dn,host:NET.myDn,mode:NET.mode=mode,cls,skin:sk(cls),icon:S.icon,nb:nbClean(S.nb)});partyUI();toast(dn+' joined the party')}break;
+  case'welcome':if(NET.role!=='guest')break;NET.peer={dn:m.host,name:m.host,cls:m.cls,skin:m.skin,icon:m.icon,nb:nbClean(m.nb)};NET.myDn=m.dn||NET.myDn;NET.myn=m.myn||1;mode=m.mode;partyUI();refresh();break;
   case'mode':if(NET.role==='guest'&&!G.net){mode=m.mode;refresh()}break;
-  case'cls':if(NET.role==='host'&&sl&&sl.peer&&CLS_KEYS.includes(m.cls)){sl.peer.cls=m.cls;sl.peer.skin=m.skin||null;if(m.med!==undefined){sl.peer.med=m.med|0;sl.peer.isG=!!m.isG}partyUI()}break;
+  case'cls':if(NET.role==='host'&&sl&&sl.peer&&CLS_KEYS.includes(m.cls)){sl.peer.cls=m.cls;sl.peer.skin=m.skin||null;sl.peer.nb=nbClean(m.nb);if(m.med!==undefined){sl.peer.med=m.med|0;sl.peer.isG=!!m.isG}partyUI()}break;
   case'i':{const gf=hostGuestBySl(sl);if(gf){const n=gf.net;n.mx=clamp(+m.mx||0,-1,1);n.my=clamp(+m.my||0,-1,1);n.aim={on:!!m.ao,v:{x:clamp(+m.ax||0,-1,1),y:clamp(+m.ay||0,-1,1)}}}}break;
   case'f':{const gf=hostGuestBySl(sl);if(gf)fireF(gf,{x:clamp(+m.x||0,-1,1),y:clamp(+m.y||0,-1,1)})}break;
   case'u':{const gf=hostGuestBySl(sl);if(gf){gf.net.aim={on:!!m.ao,v:{x:clamp(+m.ax||0,-1,1),y:clamp(+m.ay||0,-1,1)}};if(G.u&&gf.hp<=0)usvElite(gf);else useUlt(gf)}}break;
@@ -2291,21 +4688,23 @@ function netRecv(raw,sl){let m;try{m=JSON.parse(raw)}catch(e){return}
   case'start':if(NET.role==='guest')netStart(m);break;
   case's':if(NET.role==='guest'&&G.net)applySnap(m);break;
   case'ev':if(NET.role==='guest'&&G.net)for(const e of m.ev||[])applyEv(e);break;
+  case'kick':if(NET.role==='guest')partyLeave('You were removed from the party');break;
+  case'ann':{const t=String(m.s||'').slice(0,80);if(t){toast(t);if(G&&G.net)banner(t)}}break;
   case'abort':if(NET.role==='guest'&&G.net){toast('The host ended the match');leaveMatchGuest()}break}}
 const hostGuestBySl=sl=>sl&&NET.role==='host'&&sl.m&&G&&G.f?G.f.find(f=>f.human&&f.nid===sl.nid):null;
 const hostGuest=()=>NET.role==='host'&&G&&G.f?G.f.find(f=>f.human):null;
 
 /* ---------- host: add guests to a match, send snapshots ---------- */
-function partySetup(md){const g=G;g.f.forEach((f,i)=>f.nid=i);for(const sl of NET.slots||[])sl.m=false;NET.ev=[];NET.seq=0;
+function partySetup(md){const g=G;if(g.p)g.p.nb=nbClean(S.nb);g.f.forEach((f,i)=>f.nid=i);for(const sl of NET.slots||[])sl.m=false;NET.ev=[];NET.seq=0;
  if(NET.role==='host'&&NET.slots.some(s=>s.on&&s.peer)&&md!=='surv'){
   let ni=1;
   for(const sl of NET.slots.filter(s=>s.on&&s.peer)){const P=sl.peer,old=g.f[ni];let gf;
    if(md==='ffa')gf=mkF(P.cls,old?old.x:WW/2+200*(ni-1),old?old.y:WH/2,false,ni);
    else{const[sx,sy]=CSPAWN[old?old.team:'b'][old?old.slot:0];gf=mkF(P.cls,sx,sy,false,ni);if(old){gf.team=old.team;gf.slot=old.slot;gf.role=old.role;gf.a=old.a}}
-   gf.human=true;gf.nid=ni;sl.nid=ni;gf.name=P.dn;gf.col=P.skin||null;gf.net={mx:0,my:0,aim:{on:false,v:{x:0,y:0}}};g.f[ni]=gf;if(g.all)g.all[ni]=gf;sl.m=true;ni++}
+   gf.human=true;gf.nid=ni;sl.nid=ni;gf.name=P.dn;gf.nb=P.nb||null;gf.col=P.skin||null;gf.net={mx:0,my:0,aim:{on:false,v:{x:0,y:0}}};g.f[ni]=gf;if(g.all)g.all[ni]=gf;sl.m=true;ni++}
   NET.gvote='';NET.m=true}}
 function netSendStart(){if(!NET.slots.some(s=>s.m))return;const g=G;const base={t:'start',md:g.mode,mode:g.ul?'ul':g.mode,ul:g.ul?1:0,map:AR.id,fx:AR.fx?1:0,fy:AR.fy?1:0,tm:+g.t.toFixed(2),
- z:g.z?{r:Math.round(g.z.r)}:null,hn:NET.myDn,roster:g.f.map(f=>({n:f.nid,cls:f.cls,x:Math.round(f.x),y:Math.round(f.y),a:+f.a.toFixed(2),team:f.team,slot:f.slot,role:f.role,hum:(f===g.p||f.human)?1:0,name:f===g.p?NET.myDn:f.name,col:f===g.p?sk(f.cls):f.col,i:f.nid}))};for(const sl of NET.slots)if(sl.m)slotSend(sl,Object.assign({},base,{myn:sl.nid}))}
+ z:g.z?{r:Math.round(g.z.r)}:null,hn:NET.myDn,roster:g.f.map(f=>({n:f.nid,cls:f.cls,x:Math.round(f.x),y:Math.round(f.y),a:+f.a.toFixed(2),team:f.team,slot:f.slot,role:f.role,hum:(f===g.p||f.human)?1:0,name:f===g.p?NET.myDn:f.name,nb:f===g.p?nbClean(S.nb):(f.nb||null),col:f===g.p?sk(f.cls):f.col,i:f.nid}))};for(const sl of NET.slots)if(sl.m)slotSend(sl,Object.assign({},base,{myn:sl.nid}))}
 const serFlag=F=>({x:Math.round(F.x),y:Math.round(F.y),h:F.home?1:0,c:F.carrier?F.carrier.nid:-1,rt:+F.rt.toFixed(1)});
 function serF(f){const o={n:f.nid,x:r1(f.x),y:r1(f.y),vx:Math.round(f.vx),vy:Math.round(f.vy),a:Math.round(f.a*100)/100,hp:Math.round(f.hp),mx:f.max,am:f.ammo,at:Math.round(f.ammoT*100)/100,uc:f.uc,k:f.k|0};
  if(f.hc)o.hc=f.hc;if(IMM(f))o.im=1;if(f.stun>0)o.st=+f.stun.toFixed(2);if(f.inv>0)o.iv=+f.inv.toFixed(2);if(f.rev>0)o.rv=1;if(f.fl>0)o.fl=1;if(f.flag)o.fg=f.flag;if(f.hs>0)o.hs=+f.hs.toFixed(1);if(f.bn>0||f.sl>0)o.db=(f.bn>0?1:0)|(f.sl>0?2:0);if(f.dm&&f.dm!==1)o.dm=f.dm;if(f.sc)o.sc=1;if(f.dep)o.dp=1;if(f.rs>0)o.rs=+f.rs.toFixed(1);
@@ -2334,7 +4733,7 @@ function leaveMatchGuest(){if(!G)return;G.s='menu';G.net=0;over.classList.remove
 function netStart(m){const md=m.md;mode=m.mode||mode;AR=makeArena(m.map,{fx:m.fx,fy:m.fy});$('#feed').innerHTML='';
  G={s:'play',net:1,mode:md,ul:!!m.ul,t:m.tm||0,wave:0,score:0,ko:0,stop:0,slow:0,zm:1,tr:0,kx:0,ky:0,en:[],fx:[],tx:[],f:[],q:0,sp:0,gap:1,end:null,fr:0,zw:0,rdy:1,
   z:m.z?{r:m.z.r,r0:1020,r1:240,t0:32,t1:92,warn:1,on:0}:null,ctf:md==='ctf'?newCtf():null,fb:md==='fb'?newFb():null,u:md==='usv'?newUsv():null,pj:[]};buildArt();
- const myn=m.myn||1;for(const r of m.roster){const f=mkF(r.cls,r.x,r.y,false,r.i);f.nid=r.n;f.team=r.team;f.slot=r.slot;f.role=r.role;f.a=r.a;f.name=r.n===myn?'You':r.name;f.col=r.col||null;f.hum=r.hum;if(r.n===myn)G.p=f;G.f.push(f)}
+ const myn=m.myn||1;for(const r of m.roster){const f=mkF(r.cls,r.x,r.y,false,r.i);f.nid=r.n;f.team=r.team;f.slot=r.slot;f.role=r.role;f.a=r.a;f.name=r.n===myn?'You':r.name;f.nb=nbClean(r.nb);f.col=r.col||null;f.hum=r.hum;if(r.n===myn)G.p=f;G.f.push(f)}
  if(md==='ffa')G.all=[...G.f];for(const f of G.f){f.sa=performance.now();f.tx=f.x;f.ty=f.y;f.tvx=f.tvy=0;f.ta=f.a}
  G.cx=G.p.x;G.cy=G.p.y;G.cam=null;drawUlt.k='';buildLB();NET.snapAt=performance.now();NET.lastN=-1;G.bl=new Map();
  for(const q of['#auth','#profile','#mastery','#maps','#lboard','#pview','#vote','#party','#classes','#shop'])$(q).classList.remove('on');menu.classList.remove('on');over.classList.remove('on');app.classList.add('playing');
@@ -2406,7 +4805,7 @@ function ultPress(){const g=G;if(g.s!=='play'||!g.p)return;if(g.net){const a_=(U
 function spawnPress(){const g=G;if(g.u&&g.p&&g.p.hp<=0){if(g.net){if(g.s==='play')netSend({t:'sp'})}else if(usvSpawn())sfx('ui')}else fire({x:0,y:0})}
 function deployPress(){if(G.net){if(G.s==='play')netSend({t:'dp'});return}if(G.u)usvDeploy(G.p)}
 function netSyncMenu(){if(NET.role==='host'&&NET.on&&NET.lastMode!==mode){NET.lastMode=mode;NET.mode=mode;netSend({t:'mode',mode})}
- const key=cls+'|'+totMed()+'|'+S.user;if(NET.role==='guest'&&NET.on&&NET.lastCls!==key){NET.lastCls=key;netSend({t:'cls',cls,skin:sk(cls),med:totMed(),isG:S.user==='Guest'})}}
+ const key=cls+'|'+totMed()+'|'+S.user+'|'+JSON.stringify(nbClean(S.nb));if(NET.role==='guest'&&NET.on&&NET.lastCls!==key){NET.lastCls=key;netSend({t:'cls',cls,skin:sk(cls),med:totMed(),isG:S.user==='Guest',nb:nbClean(S.nb)})}}
 function partyOK(){return NET.role==='host'&&NET.slots.some(s=>s.on&&s.peer)}
 function partyStart(){if(!partyOK()){toast('Waiting for a friend to join your party');return}
  if(!PARTY_MODES.includes(mode)){toast('Survival is solo. Pick Free-for-all, Capture the Flag, Football or Ultra League.');return}
@@ -2429,17 +4828,19 @@ function partyUI(soft){const chip=$('#ptchip'),tb=$('#tparty');if(!chip||!tb)ret
  else if(on&&NET.state!=='idle'){chip.hidden=false;chip.textContent='Party '+(NET.code||'')+' · '+(NET.state==='waiting'?'waiting for friends':'connecting...')}else chip.hidden=true;
  const pg=$('#pt-ping');if(pg)pg.textContent=NET.ping?NET.ping+' ms'+(NET.relay?' (relay)':''):'...';
  if(soft)return;const body=$('#pt-body');if(!body)return;const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));let h='';
- if(!NET.role&&NET.state==='idle'){
+ if(NET.lan&&!(NET.role==='guest'&&NET.on))h=lanHTML(esc);
+ else if(!NET.role&&NET.state==='idle'){
   h=`<div class="pt-card"><b>Play with friends</b><span>Create a party (up to 3 players) and share the 5-letter code, or enter a friend's code. It works across any internet or wifi, nothing to set up.</span>
   <button class="go" id="pt-create">Create party</button><div class="pt-or">or join a friend</div><div class="pt-row"><input id="pt-code" maxlength="5" placeholder="CODE" autocapitalize="characters" autocomplete="off" spellcheck="false" value="${esc(NET.codeIn||'')}"><button class="go" id="pt-join">Join</button></div>
+  <div class="pt-or">no internet? same Wi-Fi or hotspot</div><div class="pt-row"><button class="mode" id="pt-lanh">Host LAN party</button><button class="mode" id="pt-lanj">Join LAN party</button></div>
   <div class="pt-err">${esc(NET.err)}</div><span class="pt-note">Modes: Free-for-all, Capture the Flag, Football and Ultra League (all players need ${ULT_TRO} total medals, guests excepted).</span></div>`}
  else if(NET.state==='creating'||NET.state==='joining'||NET.state==='connecting'){h=`<div class="pt-card"><b>${NET.state==='creating'?'Creating party...':NET.state==='joining'?'Joining party...':'Connecting...'}</b><span>This takes a few seconds.</span><button class="ghost" id="pt-leave">Cancel</button><div class="pt-err">${esc(NET.err)}</div></div>`}
  else if(NET.state==='waiting'){const nc=NET.slots.filter(s=>s.on).length;h=`<div class="pt-card"><span>Your party code</span><div class="pt-code">${esc(NET.code)}</div><button class="go" id="pt-copy">Copy code</button><span>Waiting for friends... (${nc}/${MAX_GUESTS} joined)</span><button class="ghost" id="pt-leave">Close party</button></div>`}
  else if(NET.on){const me=NET.myDn||S.user;
-  const plist=NET.role==='host'?[{dn:me,role:'host (you)'},...NET.slots.filter(s=>s.peer).map(s=>({dn:s.peer.dn,role:'friend'}))]:
-   [{dn:me,role:'you'},{dn:NET.peer?NET.peer.dn:'...',role:'host'}];
+  const plist=NET.role==='host'?[{dn:me,role:'host (you)',nb:S.nb},...NET.slots.filter(s=>s.peer).map(s=>({dn:s.peer.dn,role:'friend',nb:s.peer.nb}))]:
+   [{dn:me,role:'you',nb:S.nb},{dn:NET.peer?NET.peer.dn:'...',role:'host',nb:NET.peer&&NET.peer.nb}];
   h=`<div class="pt-card"><span>Party ${esc(NET.code)} · <b id="pt-ping">${NET.ping?NET.ping+' ms':'...'}</b></span>
-  ${plist.map(p=>`<div class="pt-mem"><b>${esc(p.dn)}</b><i>${p.role}</i></div>`).join('')}
+  ${plist.map(p=>`<div class="pt-mem"><b style="${nbInline(p.nb)}">${esc(p.dn)}</b><i>${p.role}</i></div>`).join('')}
   <span>${NET.role==='host'?`${NET.slots.filter(s=>s.on).length}/${MAX_GUESTS} friend${NET.slots.filter(s=>s.on).length!==1?'s':''} connected. Pick the mode and class, then Start.`:'The host picks the mode and starts the match. Pick your class on the main menu.'}</span>
   ${NET.role==='host'?`<button class="go" id="pt-start">Start match</button>`:''}<button class="ghost" id="pt-leave">Leave party</button><div class="pt-err">${esc(NET.err)}</div></div>`}
  body.innerHTML=h;
@@ -2448,7 +4849,7 @@ function partyUI(soft){const chip=$('#ptchip'),tb=$('#tparty');if(!chip||!tb)ret
  if(q('pt-code'))q('pt-code').oninput=e=>{NET.codeIn=e.target.value.toUpperCase();e.target.value=NET.codeIn};
  if(q('pt-leave'))q('pt-leave').onclick=()=>partyLeave('You left the party');
  if(q('pt-start'))q('pt-start').onclick=()=>partyStart();
- if(q('pt-copy'))q('pt-copy').onclick=()=>{try{navigator.clipboard.writeText(NET.code).then(()=>toast('Code copied'),()=>toast('Code: '+NET.code))}catch(e){toast('Code: '+NET.code)}}}
+ if(q('pt-copy'))q('pt-copy').onclick=()=>{try{navigator.clipboard.writeText(NET.code).then(()=>toast('Code copied'),()=>toast('Code: '+NET.code))}catch(e){toast('Code: '+NET.code)}};lanAfter()}
 $('#tparty').onclick=()=>{menu.classList.remove('on');$('#party').classList.add('on');partyUI();sfx('ui')};
 $('#pt-back').onclick=()=>{$('#party').classList.remove('on');menu.classList.add('on');refresh();sfx('ui')};
 
